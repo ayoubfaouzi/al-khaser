@@ -7,7 +7,10 @@ BOOL NtSystemDebugControl_Command() {
 
 	const auto STATUS_DEBUGGER_INACTIVE = 0xC0000354L;
 	const auto STATUS_ACCESS_DENIED = 0xC0000022L;
-	if (status == STATUS_DEBUGGER_INACTIVE) {
+	const auto STATUS_NOT_IMPLEMENTED = 0xC0000002L;
+
+	// some windows build not supports SysDbgCheckLowMemory which returns 0xC0000002L
+	if (status == STATUS_DEBUGGER_INACTIVE || status == STATUS_NOT_IMPLEMENTED) {
 		return FALSE;
 	} else {
 		// kernel debugger found
