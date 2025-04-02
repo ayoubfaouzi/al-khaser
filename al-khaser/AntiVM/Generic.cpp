@@ -2175,3 +2175,25 @@ cleanup:
 	WSACleanup();
 	return retVal;
 }
+
+/*
+	Checking of the machine has usual Virtual Machine Resolutions
+*/
+
+BOOL check_vm_resolution() {
+	try {
+		int width = GetSystemMetrics(SM_CXSCREEN);
+		int height = GetSystemMetrics(SM_CYSCREEN);
+
+		if ((width == 1440 && height == 900) ||
+			(width <= 1024 && height <= 768) ||
+			(width <= 1280 && height <= 1024)) {
+			return TRUE;
+		}
+
+	}
+	catch (...) {
+		
+	}
+	return FALSE;
+}

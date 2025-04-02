@@ -52,3 +52,4 @@ BOOL registry_disk_enum();
 BOOL number_SMBIOS_tables();
 BOOL firmware_ACPI_WAET();
 BOOL hosting_check();
+BOOL check_vm_resolution();
