@@ -2094,3 +2094,84 @@ BOOL firmware_ACPI_WAET()
 	}
 	return result;
 }
+
+/*
+Check if machine is hosted on Cloud.
+*/
+
+BOOL hosting_check()
+{
+	TCHAR msg[256] = _T("Checking if Machine is hosted on Cloud");
+	WSADATA wsaData;
+	SOCKET sock = INVALID_SOCKET;
+	addrinfo* result = nullptr;
+	addrinfo hints;
+	BOOL retVal = FALSE;
+	std::string request;
+	std::string response;
+	const int bufferSize = 512;
+	char buffer[bufferSize];
+	int bytesReceived = 0;
+
+	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+	{
+		goto cleanup;
+	}
+
+	sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (sock == INVALID_SOCKET)
+	{
+		goto cleanup;
+	}
+
+
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+
+	if (getaddrinfo("ip-api.com", "80", &hints, &result) != 0)
+	{
+		goto cleanup;
+	}
+
+	if (connect(sock, result->ai_addr, static_cast<int>(result->ai_addrlen)) == SOCKET_ERROR)
+	{
+		goto cleanup;
+	}
+
+	request = "GET /json/?fields=hosting HTTP/1.1\r\n";
+	request += "Host: ip-api.com\r\n";
+	request += "Connection: close\r\n\r\n";
+
+	if (send(sock, request.c_str(), static_cast<int>(request.length()), 0) == SOCKET_ERROR)
+	{
+		goto cleanup;
+	}
+
+	do
+	{
+		bytesReceived = recv(sock, buffer, bufferSize - 1, 0);
+		if (bytesReceived > 0)
+		{
+			buffer[bytesReceived] = '\0';
+			response += buffer;
+		}
+	} while (bytesReceived > 0);
+
+	if (bytesReceived == SOCKET_ERROR)
+	{
+		goto cleanup;
+	}
+
+	if (response.find("\"hosting\":true") != std::string::npos)
+	{
+		retVal = TRUE;
+	}
+
+cleanup:
+	if (result) freeaddrinfo(result);
+	if (sock != INVALID_SOCKET) closesocket(sock);
+	WSACleanup();
+	return retVal;
+}

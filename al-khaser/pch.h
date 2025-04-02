@@ -17,6 +17,8 @@
 #include <vector>
 #include <filesystem>
 
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #include <Windows.h>
 #include <winternl.h>
 #include <stdio.h>
@@ -44,7 +46,9 @@
 #include <algorithm>
 #include <cctype>
 #include <slpublic.h> // SLIsGenuineLocal
+#include <ipmib.h>
 
+#pragma comment(lib, "Ws2_32.lib")
 #pragma comment(lib, "wbemuuid.lib")
 #pragma comment(lib, "Shlwapi.lib")
 #pragma comment(lib, "Mpr.lib")

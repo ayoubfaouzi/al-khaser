@@ -185,6 +185,7 @@ int main(int argc, char* argv[])
 		exec_check(&disk_size_getdiskfreespace, TEXT("Checking disk size using GetDiskFreeSpaceEx "));
 		exec_check(&cpuid_is_hypervisor, TEXT("Checking if CPU hypervisor field is set using cpuid(0x1)"));
 		exec_check(&cpuid_hypervisor_vendor, TEXT("Checking hypervisor vendor using cpuid(0x40000000)"));
+		exec_check(&hosting_check, TEXT("Check if Machine is hosted on Cloud"));
 		exec_check(&accelerated_sleep, TEXT("Check if time has been accelerated "));
 		exec_check(&VMDriverServices, TEXT("VM Driver Services  "));
 		exec_check(&serial_number_bios_wmi, TEXT("Checking SerialNumber from BIOS using WMI "));
