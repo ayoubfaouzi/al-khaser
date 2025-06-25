@@ -51,11 +51,11 @@ VOID known_file_names() {
 	/* Array of strings of filenames seen in sandboxes */
 	CONST TCHAR* szFilenames[] = {
 		_T("sample.exe"),
-		_T("bot.exe"),		
-		_T("sandbox.exe"),		
-		_T("malware.exe"),	
-		_T("test.exe"),	
-		_T("klavme.exe"),		
+		_T("bot.exe"),
+		_T("sandbox.exe"),
+		_T("malware.exe"),
+		_T("test.exe"),
+		_T("klavme.exe"),
 		_T("myapp.exe"),
 		_T("testapp.exe"),
 
@@ -74,7 +74,7 @@ VOID known_file_names() {
 
 	// Get the file name from path/
 	WCHAR* szFileName = PathFindFileNameW(pPeb->ProcessParameters->ImagePathName.Buffer);
-	
+
 	TCHAR msg[256] = _T("");
 	WORD dwlength = sizeof(szFilenames) / sizeof(szFilenames[0]);
 	for (int i = 0; i < dwlength; i++)
@@ -91,17 +91,17 @@ VOID known_file_names() {
 	// Some malware do check if the file name is a known hash (like md5 or sha1)
 	PathRemoveExtensionW(szFileName);
 	_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking if process file name looks like a hash: %s "), szFileName);
-	if ( (wcslen(szFileName) == 32 || wcslen(szFileName) == 40 || wcslen(szFileName) == 64) && IsHexString(szFileName))
+	if ((wcslen(szFileName) == 32 || wcslen(szFileName) == 40 || wcslen(szFileName) == 64) && IsHexString(szFileName))
 		print_results(TRUE, msg);
-	else 
+	else
 		print_results(FALSE, msg);
 }
 
-static TCHAR * get_username() {
-	TCHAR *username;
+static TCHAR* get_username() {
+	TCHAR* username;
 	DWORD nSize = (UNLEN + 1);
 
-	username = (TCHAR *) malloc(nSize * sizeof(TCHAR));
+	username = (TCHAR*)malloc(nSize * sizeof(TCHAR));
 	if (!username) {
 		return NULL;
 	}
@@ -152,7 +152,7 @@ VOID known_usernames() {
 		 * https://blog.trendmicro.com/trendlabs-security-intelligence/new-emotet-hijacks-windows-api-evades-sandbox-analysis/ */
 		_T("John Doe"), /* VirusTotal Cuckoofork Sandbox */
 	};
-	TCHAR *username;
+	TCHAR* username;
 
 	if (NULL == (username = get_username())) {
 		return;
@@ -176,11 +176,11 @@ VOID known_usernames() {
 	free(username);
 }
 
-static TCHAR * get_netbios_hostname() {
-	TCHAR *hostname;
+static TCHAR* get_netbios_hostname() {
+	TCHAR* hostname;
 	DWORD nSize = (MAX_COMPUTERNAME_LENGTH + 1);
 
-	hostname = (TCHAR *) malloc(nSize * sizeof(TCHAR));
+	hostname = (TCHAR*)malloc(nSize * sizeof(TCHAR));
 	if (!hostname) {
 		return NULL;
 	}
@@ -191,12 +191,12 @@ static TCHAR * get_netbios_hostname() {
 	return hostname;
 }
 
-static TCHAR * get_dns_hostname() {
-	TCHAR *hostname;
+static TCHAR* get_dns_hostname() {
+	TCHAR* hostname;
 	DWORD nSize = 0;
 
 	GetComputerNameEx(ComputerNameDnsHostname, NULL, &nSize);
-	hostname = (TCHAR *) malloc((nSize + 1) * sizeof(TCHAR));
+	hostname = (TCHAR*)malloc((nSize + 1) * sizeof(TCHAR));
 	if (!hostname) {
 		return NULL;
 	}
@@ -234,8 +234,8 @@ VOID known_hostnames() {
 		 * https://blog.trendmicro.com/trendlabs-security-intelligence/new-emotet-hijacks-windows-api-evades-sandbox-analysis/ */
 		_T("TEQUILABOOMBOOM"), /* VirusTotal Cuckoofork Sandbox */
 	};
-	TCHAR *NetBIOSHostName;
-	TCHAR *DNSHostName;
+	TCHAR* NetBIOSHostName;
+	TCHAR* DNSHostName;
 
 	if (NULL == (NetBIOSHostName = get_netbios_hostname())) {
 		return;
@@ -272,9 +272,9 @@ VOID known_hostnames() {
 Check for a combination of environmental conditions, replicating what malware
 could/has used to detect that it's running in a sandbox. */
 VOID other_known_sandbox_environment_checks() {
-	TCHAR *NetBIOSHostName;
-	TCHAR *DNSHostName;
-	TCHAR *username;
+	TCHAR* NetBIOSHostName;
+	TCHAR* DNSHostName;
+	TCHAR* username;
 	BOOL matched;
 
 	if (NULL == (username = get_username())) {
@@ -296,47 +296,47 @@ VOID other_known_sandbox_environment_checks() {
 	matched = FALSE;
 	if ((0 == StrCmp(username, _T("Wilber"))) &&
 		((0 == StrCmpNI(NetBIOSHostName, _T("SC"), 2)) ||
-	     (0 == StrCmpNI(NetBIOSHostName, _T("SW"), 2)))) {
+			(0 == StrCmpNI(NetBIOSHostName, _T("SW"), 2)))) {
 		matched = TRUE;
 	}
-	print_results(matched, (TCHAR *)_T("Checking whether username is 'Wilber' and NetBIOS name starts with 'SC' or 'SW' "));
+	print_results(matched, (TCHAR*)_T("Checking whether username is 'Wilber' and NetBIOS name starts with 'SC' or 'SW' "));
 
 	matched = FALSE;
 	if ((0 == StrCmp(username, _T("admin"))) && (0 == StrCmp(NetBIOSHostName, _T("SystemIT")))) {
 		matched = TRUE;
 	}
-	print_results(matched, (TCHAR *)_T("Checking whether username is 'admin' and NetBIOS name is 'SystemIT' "));
+	print_results(matched, (TCHAR*)_T("Checking whether username is 'admin' and NetBIOS name is 'SystemIT' "));
 
 	matched = FALSE;
 	if ((0 == StrCmp(username, _T("admin"))) && (0 == StrCmp(DNSHostName, _T("KLONE_X64-PC")))) {
 		matched = TRUE;
 	}
-	print_results(matched, (TCHAR *) _T("Checking whether username is 'admin' and DNS hostname is 'KLONE_X64-PC' "));
+	print_results(matched, (TCHAR*)_T("Checking whether username is 'admin' and DNS hostname is 'KLONE_X64-PC' "));
 
 	matched = FALSE;
 	if ((0 == StrCmp(username, _T("John"))) &&
-		(is_FileExists((TCHAR *)_T("C:\\take_screenshot.ps1"))) &&
-		(is_FileExists((TCHAR *)_T("C:\\loaddll.exe")))) {
+		(is_FileExists((TCHAR*)_T("C:\\take_screenshot.ps1"))) &&
+		(is_FileExists((TCHAR*)_T("C:\\loaddll.exe")))) {
 		matched = TRUE;
 	}
-	print_results(matched, (TCHAR *)_T("Checking whether username is 'John' and two sandbox files exist "));
+	print_results(matched, (TCHAR*)_T("Checking whether username is 'John' and two sandbox files exist "));
 
 	matched = FALSE;
-	if ((is_FileExists((TCHAR *)_T("C:\\email.doc"))) &&
-		(is_FileExists((TCHAR *)_T("C:\\email.htm"))) &&
-		(is_FileExists((TCHAR *)_T("C:\\123\\email.doc"))) &&
-		(is_FileExists((TCHAR *)_T("C:\\123\\email.docx")))) {
+	if ((is_FileExists((TCHAR*)_T("C:\\email.doc"))) &&
+		(is_FileExists((TCHAR*)_T("C:\\email.htm"))) &&
+		(is_FileExists((TCHAR*)_T("C:\\123\\email.doc"))) &&
+		(is_FileExists((TCHAR*)_T("C:\\123\\email.docx")))) {
 		matched = TRUE;
 	}
-	print_results(matched, (TCHAR *)_T("Checking whether four known sandbox 'email' file paths exist "));
+	print_results(matched, (TCHAR*)_T("Checking whether four known sandbox 'email' file paths exist "));
 
 	matched = FALSE;
-	if ((is_FileExists((TCHAR *)_T("C:\\a\\foobar.bmp"))) &&
-		(is_FileExists((TCHAR *)_T("C:\\a\\foobar.doc"))) &&
-		(is_FileExists((TCHAR *)_T("C:\\a\\foobar.gif")))) {
+	if ((is_FileExists((TCHAR*)_T("C:\\a\\foobar.bmp"))) &&
+		(is_FileExists((TCHAR*)_T("C:\\a\\foobar.doc"))) &&
+		(is_FileExists((TCHAR*)_T("C:\\a\\foobar.gif")))) {
 		matched = TRUE;
 	}
-	print_results(matched, (TCHAR *)_T("Checking whether three known sandbox 'foobar' files exist "));
+	print_results(matched, (TCHAR*)_T("Checking whether three known sandbox 'foobar' files exist "));
 
 	free(username);
 	free(NetBIOSHostName);
@@ -451,8 +451,8 @@ Check number of cores using WMI
 */
 BOOL number_cores_wmi()
 {
-	IWbemServices *pSvc = NULL;
-	IWbemLocator *pLoc = NULL;
+	IWbemServices* pSvc = NULL;
+	IWbemLocator* pLoc = NULL;
 	IEnumWbemClassObject* pEnumerator = NULL;
 	BOOL bStatus = FALSE;
 	HRESULT hRes;
@@ -467,7 +467,7 @@ BOOL number_cores_wmi()
 		if (bStatus)
 		{
 			// Get the data from the query
-			IWbemClassObject *pclsObj = NULL;
+			IWbemClassObject* pclsObj = NULL;
 			ULONG uReturn = 0;
 			VARIANT vtProp;
 
@@ -545,8 +545,8 @@ Check hard disk size using WMI
 */
 BOOL disk_size_wmi()
 {
-	IWbemServices *pSvc = NULL;
-	IWbemLocator *pLoc = NULL;
+	IWbemServices* pSvc = NULL;
+	IWbemLocator* pLoc = NULL;
 	IEnumWbemClassObject* pEnumerator = NULL;
 	BOOL bStatus = FALSE;
 	HRESULT hRes;
@@ -562,7 +562,7 @@ BOOL disk_size_wmi()
 		if (bStatus)
 		{
 			// Get the data from the query
-			IWbemClassObject *pclsObj = NULL;
+			IWbemClassObject* pclsObj = NULL;
 			ULONG uReturn = 0;
 			VARIANT vtProp;
 
@@ -572,13 +572,13 @@ BOOL disk_size_wmi()
 				hRes = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
 				if (0 == uReturn)
 					break;
-				
+
 				// Don`t check removable disk, network drive CD-ROM and RAM disk
 				if (checkDriveType(pclsObj)) {
 					pclsObj->Release();
 					continue;
 				}
-				
+
 				// Get the value of the Name property
 				hRes = pclsObj->Get(_T("Size"), 0, &vtProp, NULL, 0);
 				if (SUCCEEDED(hRes)) {
@@ -594,7 +594,7 @@ BOOL disk_size_wmi()
 							if (diskSizeBytes < minHardDiskSize) { // Less than 80GB
 								bFound = TRUE;
 							}
-						}	
+						}
 						// release the current result object
 						VariantClear(&vtProp);
 					}
@@ -1011,7 +1011,7 @@ BOOL cpuid_hypervisor_vendor()
 {
 	INT CPUInfo[4] = { -1 };
 	CHAR szHypervisorVendor[0x40];
-	WCHAR *pwszConverted;
+	WCHAR* pwszConverted;
 
 	BOOL bResult = FALSE;
 
@@ -1057,8 +1057,8 @@ Check SerialNumber devices using WMI
 */
 BOOL serial_number_bios_wmi()
 {
-	IWbemServices *pSvc = NULL;
-	IWbemLocator *pLoc = NULL;
+	IWbemServices* pSvc = NULL;
+	IWbemLocator* pLoc = NULL;
 	IEnumWbemClassObject* pEnumerator = NULL;
 	BOOL bStatus = FALSE;
 	HRESULT hRes;
@@ -1074,7 +1074,7 @@ BOOL serial_number_bios_wmi()
 		if (bStatus)
 		{
 			// Get the data from the query
-			IWbemClassObject *pclsObj = NULL;
+			IWbemClassObject* pclsObj = NULL;
 			ULONG uReturn = 0;
 			VARIANT vtProp;
 
@@ -1128,8 +1128,8 @@ Check Model from ComputerSystem using WMI
 */
 BOOL model_computer_system_wmi()
 {
-	IWbemServices *pSvc = NULL;
-	IWbemLocator *pLoc = NULL;
+	IWbemServices* pSvc = NULL;
+	IWbemLocator* pLoc = NULL;
 	IEnumWbemClassObject* pEnumerator = NULL;
 	BOOL bStatus = FALSE;
 	HRESULT hRes;
@@ -1145,7 +1145,7 @@ BOOL model_computer_system_wmi()
 		if (bStatus)
 		{
 			// Get the data from the query
-			IWbemClassObject *pclsObj = NULL;
+			IWbemClassObject* pclsObj = NULL;
 			ULONG uReturn = 0;
 			VARIANT vtProp;
 
@@ -1197,8 +1197,8 @@ Check Manufacturer from ComputerSystem using WMI
 */
 BOOL manufacturer_computer_system_wmi()
 {
-	IWbemServices *pSvc = NULL;
-	IWbemLocator *pLoc = NULL;
+	IWbemServices* pSvc = NULL;
+	IWbemLocator* pLoc = NULL;
 	IEnumWbemClassObject* pEnumerator = NULL;
 	BOOL bStatus = FALSE;
 	HRESULT hRes;
@@ -1214,7 +1214,7 @@ BOOL manufacturer_computer_system_wmi()
 		if (bStatus)
 		{
 			// Get the data from the query
-			IWbemClassObject *pclsObj = NULL;
+			IWbemClassObject* pclsObj = NULL;
 			ULONG uReturn = 0;
 			VARIANT vtProp;
 
@@ -1267,8 +1267,8 @@ In my tests, it works against vbox, vmware, kvm and xen.
 */
 BOOL current_temperature_acpi_wmi()
 {
-	IWbemServices *pSvc = NULL;
-	IWbemLocator *pLoc = NULL;
+	IWbemServices* pSvc = NULL;
+	IWbemLocator* pLoc = NULL;
 	IEnumWbemClassObject* pEnumerator = NULL;
 	BOOL bStatus = FALSE;
 	HRESULT hRes;
@@ -1288,7 +1288,7 @@ BOOL current_temperature_acpi_wmi()
 		if (bStatus)
 		{
 			// Get the data from the query
-			IWbemClassObject *pclsObj = NULL;
+			IWbemClassObject* pclsObj = NULL;
 			ULONG uReturn = 0;
 			VARIANT vtProp;
 
@@ -1330,8 +1330,8 @@ KVM, XEN anv VMWare seems to return something, VBOX return NULL
 */
 BOOL process_id_processor_wmi()
 {
-	IWbemServices *pSvc = NULL;
-	IWbemLocator *pLoc = NULL;
+	IWbemServices* pSvc = NULL;
+	IWbemLocator* pLoc = NULL;
 	IEnumWbemClassObject* pEnumerator = NULL;
 	BOOL bStatus = FALSE;
 	HRESULT hRes;
@@ -1347,7 +1347,7 @@ BOOL process_id_processor_wmi()
 		if (bStatus)
 		{
 			// Get the data from the query
-			IWbemClassObject *pclsObj = NULL;
+			IWbemClassObject* pclsObj = NULL;
 			ULONG uReturn = 0;
 			VARIANT vtProp;
 
@@ -1415,8 +1415,8 @@ which would most likely be true in a non-virtual environment.
 */
 BOOL cpu_fan_wmi()
 {
-	IWbemServices *pSvc = NULL;
-	IWbemLocator *pLoc = NULL;
+	IWbemServices* pSvc = NULL;
+	IWbemLocator* pLoc = NULL;
 	IEnumWbemClassObject* pEnumerator = NULL;
 	BOOL bStatus = FALSE;
 	HRESULT hRes;
@@ -1432,7 +1432,7 @@ BOOL cpu_fan_wmi()
 		if (bStatus)
 		{
 			// Get the data from the query
-			IWbemClassObject *pclsObj = NULL;
+			IWbemClassObject* pclsObj = NULL;
 			ULONG uReturn = 0;
 
 			while (pEnumerator)
@@ -1466,8 +1466,8 @@ Check Caption from VideoController using WMI
 */
 BOOL caption_video_controller_wmi()
 {
-	IWbemServices *pSvc = NULL;
-	IWbemLocator *pLoc = NULL;
+	IWbemServices* pSvc = NULL;
+	IWbemLocator* pLoc = NULL;
 	IEnumWbemClassObject* pEnumerator = NULL;
 	BOOL bStatus = FALSE;
 	HRESULT hRes;
@@ -1483,7 +1483,7 @@ BOOL caption_video_controller_wmi()
 		if (bStatus)
 		{
 			// Get the data from the query
-			IWbemClassObject *pclsObj = NULL;
+			IWbemClassObject* pclsObj = NULL;
 			ULONG uReturn = 0;
 			VARIANT vtProp;
 
@@ -1556,8 +1556,8 @@ BOOL query_license_value()
 
 int wmi_query_count(const _TCHAR* query)
 {
-	IWbemServices *pSvc = NULL;
-	IWbemLocator *pLoc = NULL;
+	IWbemServices* pSvc = NULL;
+	IWbemLocator* pLoc = NULL;
 	IEnumWbemClassObject* pEnumerator = NULL;
 	BOOL bStatus = FALSE;
 	HRESULT hRes;
@@ -1573,7 +1573,7 @@ int wmi_query_count(const _TCHAR* query)
 		if (bStatus)
 		{
 			// Get the data from the query
-			IWbemClassObject *pclsObj = NULL;
+			IWbemClassObject* pclsObj = NULL;
 			ULONG uReturn = 0;
 
 			// Iterate over our enumator
@@ -1927,7 +1927,7 @@ BOOL registry_disk_enum()
 		}
 
 		DWORD subKeyBufferLen = (cbMaxSubKeyLen + 1) * sizeof(TCHAR);
-		TCHAR* subKeyBuffer = (TCHAR *)malloc(subKeyBufferLen);
+		TCHAR* subKeyBuffer = (TCHAR*)malloc(subKeyBufferLen);
 		if (!subKeyBuffer) {
 			RegCloseKey(hkResult);
 			continue;
@@ -2002,7 +2002,7 @@ BOOL check_tables_number(const PBYTE smbios)
 		BYTE    mnVer;            // Minor part of the SMB version(minor)
 		BYTE    dmiRev;           // DMI version(obsolete)
 		DWORD   length;           // Data table size
-		BYTE    tableData[];      // Table data
+		BYTE    tableData[1];      // Table data
 	};
 
 	RawSMBIOSData* smBiosData = reinterpret_cast<RawSMBIOSData*>(smbios);
@@ -2046,7 +2046,7 @@ BOOL number_SMBIOS_tables()
 }
 
 /*
-Check for generic 
+Check for generic
 */
 BOOL firmware_ACPI()
 {
@@ -2078,7 +2078,7 @@ BOOL firmware_ACPI()
 			size_t batteryDeviceLen = 7;
 			BOOL needsBatteryCheck = false;
 
-			const char *requiredDevices[] = {
+			const char* requiredDevices[] = {
 				"PNP0000",	// 8259-compatible Programmable Interrupt Controller
 				"PNP0C0C",	// Power Button Device
 				"PNP0C0E",	// Sleep Button Device
@@ -2086,7 +2086,7 @@ BOOL firmware_ACPI()
 				"PNP0D80",	// Windows-compatible System Power Management Controller
 			};
 
-restart:
+		restart:
 			for (DWORD i = 0; i < tableCount; i++)
 			{
 				DWORD tableSize = 0;
@@ -2138,7 +2138,7 @@ restart:
 				}
 			}
 		}
-out:
+	out:
 		free(tableNames);
 	}
 	return result || !foundWSMT;
@@ -2237,7 +2237,7 @@ Looking-glass requires at least one of them:
 */
 VOID looking_glass_vdd_processes()
 {
-	const TCHAR *szProcesses[] = {
+	const TCHAR* szProcesses[] = {
 		_T("looking-glass-host.exe"), 	// Looking-Glass.io
 		_T("VDDSysTray.exe"),			// VirtualDisplayDriver, used in conjunction
 	};

@@ -4,7 +4,7 @@
 BOOL IsWoW64()
 {
 	BOOL bIsWow64 = FALSE;
-	
+
 	if (API::IsAvailable(API_IDENTIFIER::API_IsWow64Process))
 	{
 		auto fnIsWow64Process = static_cast<pIsWow64Process>(API::GetAPI(API_IDENTIFIER::API_IsWow64Process));
@@ -27,7 +27,7 @@ PVOID64 GetPeb64()
 
 		auto NtWow64QueryInformationProcess64 = static_cast<pNtWow64QueryInformationProcess64>(API::GetAPI(API_IDENTIFIER::API_NtWow64QueryInformationProcess64));
 		NTSTATUS status = NtWow64QueryInformationProcess64(GetCurrentProcess(), ProcessBasicInformation, &pbi64, sizeof(pbi64), nullptr);
-		if ( NT_SUCCESS ( status ) )
+		if (NT_SUCCESS(status))
 			peb64 = pbi64.PebBaseAddress;
 	}
 
@@ -58,75 +58,75 @@ BOOL Is_RegKeyValueExists(HKEY hKey, const TCHAR* lpSubKey, const TCHAR* lpValue
 
 BOOL Is_RegKeyExists(HKEY hKey, const TCHAR* lpSubKey)
 {
-    if (_tcschr(lpSubKey, _T('*')) == NULL && _tcschr(lpSubKey, _T('?')) == NULL)
-    {
-        HKEY hkResult = NULL;
-        if (RegOpenKeyEx(hKey, lpSubKey, 0, KEY_READ, &hkResult) == ERROR_SUCCESS)
-        {
-            RegCloseKey(hkResult);
-            return TRUE;
-        }
-        return FALSE;
-    }
-    else
-    {
-        const TCHAR* lastBackslash = _tcsrchr(lpSubKey, _T('\\'));
-        TCHAR parentPath[MAX_PATH] = {0};
-        TCHAR childPattern[MAX_PATH] = {0};
+	if (_tcschr(lpSubKey, _T('*')) == NULL && _tcschr(lpSubKey, _T('?')) == NULL)
+	{
+		HKEY hkResult = NULL;
+		if (RegOpenKeyEx(hKey, lpSubKey, 0, KEY_READ, &hkResult) == ERROR_SUCCESS)
+		{
+			RegCloseKey(hkResult);
+			return TRUE;
+		}
+		return FALSE;
+	}
+	else
+	{
+		const TCHAR* lastBackslash = _tcsrchr(lpSubKey, _T('\\'));
+		TCHAR parentPath[MAX_PATH] = { 0 };
+		TCHAR childPattern[MAX_PATH] = { 0 };
 
-        if (lastBackslash != NULL)
-        {
-            size_t parentLen = lastBackslash - lpSubKey;
-            _tcsncpy_s(parentPath, _countof(parentPath), lpSubKey, parentLen);
-            _tcscpy_s(childPattern, _countof(childPattern), lastBackslash + 1);
-        }
-        else
-        {
-            _tcscpy_s(childPattern, _countof(childPattern), lpSubKey);
-        }
+		if (lastBackslash != NULL)
+		{
+			size_t parentLen = lastBackslash - lpSubKey;
+			_tcsncpy_s(parentPath, _countof(parentPath), lpSubKey, parentLen);
+			_tcscpy_s(childPattern, _countof(childPattern), lastBackslash + 1);
+		}
+		else
+		{
+			_tcscpy_s(childPattern, _countof(childPattern), lpSubKey);
+		}
 
-        HKEY hKeyParent = NULL;
-        LONG lResult = RegOpenKeyEx(hKey, parentPath, 0, KEY_READ, &hKeyParent);
-        if (lResult != ERROR_SUCCESS)
-        {
-            return FALSE;
-        }
+		HKEY hKeyParent = NULL;
+		LONG lResult = RegOpenKeyEx(hKey, parentPath, 0, KEY_READ, &hKeyParent);
+		if (lResult != ERROR_SUCCESS)
+		{
+			return FALSE;
+		}
 
-        TCHAR childPatternUpper[MAX_PATH];
-        _tcscpy_s(childPatternUpper, _countof(childPatternUpper), childPattern);
-        _tcsupr_s(childPatternUpper, _countof(childPatternUpper));
+		TCHAR childPatternUpper[MAX_PATH];
+		_tcscpy_s(childPatternUpper, _countof(childPatternUpper), childPattern);
+		_tcsupr_s(childPatternUpper, _countof(childPatternUpper));
 
-        DWORD dwIndex = 0;
-        TCHAR subkeyName[MAX_PATH];
-        DWORD cchName = MAX_PATH;
-        BOOL bFound = FALSE;
+		DWORD dwIndex = 0;
+		TCHAR subkeyName[MAX_PATH];
+		DWORD cchName = MAX_PATH;
+		BOOL bFound = FALSE;
 
-        while (1)
-        {
-            cchName = MAX_PATH;
-            lResult = RegEnumKeyEx(hKeyParent, dwIndex, subkeyName, &cchName, NULL, NULL, NULL, NULL);
-            if (lResult == ERROR_NO_MORE_ITEMS)
-                break;
-            if (lResult != ERROR_SUCCESS)
-                break;
+		while (1)
+		{
+			cchName = MAX_PATH;
+			lResult = RegEnumKeyEx(hKeyParent, dwIndex, subkeyName, &cchName, NULL, NULL, NULL, NULL);
+			if (lResult == ERROR_NO_MORE_ITEMS)
+				break;
+			if (lResult != ERROR_SUCCESS)
+				break;
 
-            TCHAR subkeyUpper[MAX_PATH];
-            _tcscpy_s(subkeyUpper, _countof(subkeyUpper), subkeyName);
-            _tcsupr_s(subkeyUpper, _countof(subkeyUpper));
+			TCHAR subkeyUpper[MAX_PATH];
+			_tcscpy_s(subkeyUpper, _countof(subkeyUpper), subkeyName);
+			_tcsupr_s(subkeyUpper, _countof(subkeyUpper));
 
-            // Check if the subkey matches the pattern
-            if (PathMatchSpec(subkeyUpper, childPatternUpper))
-            {
-                bFound = TRUE;
-                break;
-            }
+			// Check if the subkey matches the pattern
+			if (PathMatchSpec(subkeyUpper, childPatternUpper))
+			{
+				bFound = TRUE;
+				break;
+			}
 
-            dwIndex++;
-        }
+			dwIndex++;
+		}
 
-        RegCloseKey(hKeyParent);
-        return bFound;
-    }
+		RegCloseKey(hKeyParent);
+		return bFound;
+	}
 }
 
 BOOL is_FileExists(TCHAR* szPath)
@@ -203,7 +203,7 @@ BOOL check_adapter_name(const TCHAR* szName)
 	PIP_ADAPTER_INFO pAdapterInfo, pAdapterInfoPtr;
 	ULONG ulOutBufLen = sizeof(IP_ADAPTER_INFO);
 
-	WCHAR *pwszConverted;
+	WCHAR* pwszConverted;
 
 	pAdapterInfo = (PIP_ADAPTER_INFO)MALLOC(sizeof(IP_ADAPTER_INFO));
 	if (pAdapterInfo == NULL)
@@ -691,7 +691,7 @@ BOOL SetDebugPrivileges(VOID) {
 	priv.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
 
 	if (LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &priv.Privileges[0].Luid)) {
-		
+
 		bResult = AdjustTokenPrivileges(hToken, FALSE, &priv, 0, NULL, NULL);
 		if (!bResult) {
 			print_last_error(_T("AdjustTokenPrivileges"));
@@ -795,7 +795,7 @@ DWORD GetMainThreadId(DWORD pid)
 	return (DWORD)0;
 }
 
-BOOL InitWMI(IWbemServices **pSvc, IWbemLocator **pLoc, const TCHAR* szNetworkResource)
+BOOL InitWMI(IWbemServices** pSvc, IWbemLocator** pLoc, const TCHAR* szNetworkResource)
 {
 	// Initialize COM.
 	HRESULT hres;
@@ -850,7 +850,7 @@ BOOL InitWMI(IWbemServices **pSvc, IWbemLocator **pLoc, const TCHAR* szNetworkRe
 	return 1;
 }
 
-BOOL ExecWMIQuery(IWbemServices **pSvc, IWbemLocator **pLoc, IEnumWbemClassObject **pEnumerator, const TCHAR* szQuery)
+BOOL ExecWMIQuery(IWbemServices** pSvc, IWbemLocator** pLoc, IEnumWbemClassObject** pEnumerator, const TCHAR* szQuery)
 {
 	// Execute WMI query
 	BSTR strQueryLanguage = SysAllocString(OLESTR("WQL"));
@@ -894,7 +894,7 @@ ULONG get_idt_base()
 #if defined (ENV32BIT)
 	_asm sidt idtr
 #endif
-	idt = *((unsigned long *)&idtr[2]);
+	idt = *((unsigned long*)&idtr[2]);
 	// printf("IDT base: 0x%x\n", idt);
 
 	return idt;
@@ -913,7 +913,7 @@ ULONG get_ldt_base()
 #if defined (ENV32BIT)
 	_asm sldt ldtr
 #endif
-	ldt = *((unsigned long *)&ldtr[0]);
+	ldt = *((unsigned long*)&ldtr[0]);
 	// printf("LDT base: 0x%x\n", ldt);
 
 	return ldt;
@@ -932,7 +932,7 @@ ULONG get_gdt_base()
 #if defined (ENV32BIT)
 	_asm sgdt gdtr
 #endif
-	gdt = *((unsigned long *)&gdtr[2]);
+	gdt = *((unsigned long*)&gdtr[2]);
 	// printf("GDT base: 0x%x\n", gdt);
 
 	return gdt;
@@ -999,7 +999,7 @@ PBYTE get_system_firmware(_In_ DWORD signature, _In_ DWORD table, _Out_ PDWORD p
 		return NULL;
 
 	SecureZeroMemory(firmwareTable, bufferSize);
-	
+
 	auto GetSystemFirmwareTable = static_cast<pGetSystemFirmwareTable>(API::GetAPI(API_IDENTIFIER::API_GetSystemFirmwareTable));
 
 	DWORD resultBufferSize = GetSystemFirmwareTable(signature, table, firmwareTable, bufferSize);
@@ -1084,7 +1084,7 @@ std::vector<PMEMORY_BASIC_INFORMATION>* enumerate_memory()
 		auto mbi = new MEMORY_BASIC_INFORMATION();
 		if (VirtualQuery(addr, mbi, sizeof(MEMORY_BASIC_INFORMATION)) <= 0)
 			break;
-		
+
 		regions->push_back(mbi);
 
 		addr += mbi->RegionSize;
@@ -1143,9 +1143,9 @@ std::vector<wchar_t*>* enumerate_object_directory(const wchar_t* path)
 
 	UNICODE_STRING usPath = { 0 };
 	usPath.Buffer = const_cast<wchar_t*>(path);
-	usPath.Length = lstrlenW(path) * sizeof(wchar_t);
+	usPath.Length = static_cast<USHORT>(lstrlenW(path) * sizeof(wchar_t));
 	usPath.MaximumLength = usPath.Length;
-	
+
 	OBJECT_ATTRIBUTES objAttr = { 0 };
 	InitializeObjectAttributes(&objAttr, &usPath, OBJ_CASE_INSENSITIVE, NULL, NULL);
 

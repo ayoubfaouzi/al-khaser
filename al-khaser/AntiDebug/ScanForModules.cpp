@@ -99,7 +99,7 @@ bool IsBadLibrary(TCHAR* filename, DWORD filenameLength)
 
 #ifdef _X86_
 	TCHAR syswow64Path[MAX_PATH];
-	SHGetFolderPath (NULL, CSIDL_SYSTEMX86, NULL, 0, syswow64Path);
+	SHGetFolderPath(NULL, CSIDL_SYSTEMX86, NULL, 0, syswow64Path);
 	StringCbCat(syswow64Path, MAX_PATH, _T("\\"));
 	size_t syswow64PathLength = 0;
 	StringCbLength(syswow64Path, MAX_PATH, &syswow64PathLength);
@@ -120,7 +120,7 @@ bool IsBadLibrary(TCHAR* filename, DWORD filenameLength)
 
 			//printf("systemDriveDevice: %S (%d)\n", systemDriveDevice, systemDriveDevicelength);
 
-			if (StrNCmpI(systemDriveDevice, filename, (int)(min(systemDriveDevicelength, filenameLength) / sizeof(TCHAR)) ) == 0)
+			if (StrNCmpI(systemDriveDevice, filename, (int)(min(systemDriveDevicelength, filenameLength) / sizeof(TCHAR))) == 0)
 			{
 				// path matched the NT file path
 				return false;
@@ -132,14 +132,14 @@ bool IsBadLibrary(TCHAR* filename, DWORD filenameLength)
 
 			//printf("systemRootPath: %S (%d)\n", systemRootPath, systemRootPathLength);
 
-			if (StrNCmpI(systemRootPath, normalisedPath, (int)(min(systemRootPathLength, normalisedPathLength) / sizeof(TCHAR)) ) == 0)
+			if (StrNCmpI(systemRootPath, normalisedPath, (int)(min(systemRootPathLength, normalisedPathLength) / sizeof(TCHAR))) == 0)
 			{
 				// path matched the regular system path
 				return false;
 			}
 
 #ifdef _X86_
-			if (IsWoW64() && StrNCmpI(syswow64Path, normalisedPath, (int)(min(syswow64PathLength, normalisedPathLength) / sizeof(TCHAR)) ) == 0)
+			if (IsWoW64() && StrNCmpI(syswow64Path, normalisedPath, (int)(min(syswow64PathLength, normalisedPathLength) / sizeof(TCHAR))) == 0)
 			{
 				// path matched the wow64 system path
 				return false;
@@ -164,7 +164,7 @@ BOOL ScanForModules_EnumProcessModulesEx_Internal(DWORD moduleFlag)
 	DWORD currentSize = 1024 * sizeof(HMODULE);
 	DWORD requiredSize = 0;
 	bool anyBadLibs = false;
-	
+
 	// the EnumProcessModulesEx API was moved from psapi.dll into kernel32.dll for Windows 7, then back out afterwards.
 	// check for availability of either.
 	if (!API::IsAvailable(API_EnumProcessModulesEx_PSAPI) && !API::IsAvailable(API_EnumProcessModulesEx_Kernel))
@@ -172,7 +172,7 @@ BOOL ScanForModules_EnumProcessModulesEx_Internal(DWORD moduleFlag)
 		// neither available
 		return FALSE;
 	}
-	
+
 	// API is available in one of the two libraries, use whichever is available.
 	pEnumProcessModulesEx fnEnumProcessModulesEx;
 	if (API::IsAvailable(API_EnumProcessModulesEx_PSAPI))
@@ -235,7 +235,7 @@ BOOL ScanForModules_EnumProcessModulesEx_32bit()
 
 BOOL ScanForModules_EnumProcessModulesEx_64bit()
 {
-	
+
 	return ScanForModules_EnumProcessModulesEx_Internal(LIST_MODULES_64BIT);
 }
 
@@ -270,7 +270,7 @@ BOOL ScanForModules_MemoryWalk_GMI()
 
 		//printf("Scanning %p - %p ...\n", addr, regionEnd);
 
-		while(addr < regionEnd)
+		while (addr < regionEnd)
 		{
 			bool skippedForward = false;
 			if (VirtualQuery(addr, &memInfo, sizeof(MEMORY_BASIC_INFORMATION)) >= sizeof(MEMORY_BASIC_INFORMATION))
@@ -338,16 +338,16 @@ BOOL ScanForModules_MemoryWalk_Hidden()
 		while (addr < regionEnd)
 		{
 			bool skippedForward = false;
-			
+
 			if (GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (TCHAR*)addr, &moduleHandle) == FALSE)
 			{
 				// not a known module
 				if ((region->State & MEM_COMMIT) == MEM_COMMIT &&
 					((region->Protect == PAGE_READONLY) ||
-					(region->Protect == PAGE_READWRITE) || 
-					(region->Protect == PAGE_EXECUTE_READ) || 
-					(region->Protect == PAGE_EXECUTE_READWRITE) || 
-					(region->Protect == PAGE_EXECUTE_WRITECOPY)))
+						(region->Protect == PAGE_READWRITE) ||
+						(region->Protect == PAGE_EXECUTE_READ) ||
+						(region->Protect == PAGE_EXECUTE_READWRITE) ||
+						(region->Protect == PAGE_EXECUTE_WRITECOPY)))
 				{
 					auto moduleData = static_cast<PBYTE>(region->BaseAddress);
 					if (moduleData[0] == 'M' && moduleData[1] == 'Z')
@@ -385,7 +385,7 @@ BOOL ScanForModules_MemoryWalk_Hidden()
 				}
 			}
 
-			SecureZeroMemory(moduleName, sizeof(TCHAR)*MAX_PATH);
+			SecureZeroMemory(moduleName, sizeof(TCHAR) * MAX_PATH);
 			DWORD len;
 			if ((len = GetMappedFileName(GetCurrentProcess(), region->AllocationBase, moduleName, MAX_PATH)) > 0)
 			{
@@ -413,7 +413,6 @@ BOOL ScanForModules_MemoryWalk_Hidden()
 BOOL ScanForModules_DotNetModuleStructures()
 {
 	HMODULE moduleHandle = 0;
-	TCHAR moduleName[MAX_PATH];
 
 	auto memoryRegions = enumerate_memory();
 
@@ -517,8 +516,7 @@ std::vector<LDR_DATA_TABLE_ENTRY*>* WalkLDR(PPEB_LDR_DATA ldrData)
 			printf(" [!] Error reading entry.\n");
 			break;
 		}
-	}
-	while (node != head);
+	} while (node != head);
 
 	entryList->pop_back();
 
@@ -603,7 +601,7 @@ BOOL ScanForModules_LDR_Direct()
 			{
 				PPEB64 peb64 = reinterpret_cast<PPEB64>(GetPeb64());
 				PEB_LDR_DATA64 ldrData = { 0 };
-				
+
 				if (peb64 && attempt_to_read_memory_wow64(&ldrData, sizeof(PEB_LDR_DATA64), peb64->Ldr))
 				{
 					auto ldrEntries = WalkLDR(&ldrData);
@@ -623,7 +621,7 @@ BOOL ScanForModules_LDR_Direct()
 						{
 							printf(" [!] Failed to read module name at %llx.\n", reinterpret_cast<ULONGLONG>(ldrEntry->FullDllName.Buffer));
 						}
-						delete [] dllNameBuffer;
+						delete[] dllNameBuffer;
 						delete ldrEntry;
 					}
 					delete ldrEntries;
@@ -635,7 +633,7 @@ BOOL ScanForModules_LDR_Direct()
 	return anyBadLibs ? TRUE : FALSE;
 }
 
-VOID NTAPI LdrEnumCallback(_In_ PLDR_DATA_TABLE_ENTRY ModuleInformation, _In_ PVOID Parameter, _Out_ BOOLEAN *Stop)
+VOID NTAPI LdrEnumCallback(_In_ PLDR_DATA_TABLE_ENTRY ModuleInformation, _In_ PVOID Parameter, _Out_ BOOLEAN* Stop)
 {
 	// add ldr entry to table from param
 	auto ldtEntries = static_cast<std::vector<LDR_DATA_TABLE_ENTRY>*>(Parameter);

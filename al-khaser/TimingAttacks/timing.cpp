@@ -34,18 +34,18 @@ BOOL timing_SetTimer(UINT delayInMillis)
 {
 	MSG Msg;
 	UINT_PTR iTimerID;
-	
+
 	// Set our timer without window handle
 	iTimerID = SetTimer(NULL, 0, delayInMillis, TimerProc);
 
 	if (iTimerID == NULL)
 		return TRUE;
-	
+
 	// Because we are running in a console app, we should get the messages from
 	// the queue and check if msg is WM_TIMER
-	while (GetMessage(&Msg, NULL, 0, 0) & !bProcessed) 
+	while (GetMessage(&Msg, NULL, 0, 0) & !bProcessed)
 	{
-		TranslateMessage(&Msg); 
+		TranslateMessage(&Msg);
 		DispatchMessage(&Msg);
 	}
 
@@ -83,7 +83,7 @@ BOOL timing_timeSetEvent(UINT delayInMillis)
 	if (idEvent == NULL)
 		return TRUE;
 
-	while (!bProcessed){
+	while (!bProcessed) {
 		// wait until uor function finish
 	}
 
@@ -118,9 +118,8 @@ BOOL timing_WaitForSingleObject(UINT delayInMillis)
 }
 
 BOOL timing_WaitForMultipleObjects(UINT delayInMillis) {
-	HANDLE hThread;
 	HANDLE ghEvents[2];
-	DWORD i, dwEvent, dwThreadID;
+	DWORD i, dwEvent;
 
 	// Create two event objects
 
@@ -148,9 +147,9 @@ BOOL timing_WaitForMultipleObjects(UINT delayInMillis) {
 	return FALSE;
 }
 
-BOOL timing_sleep_loop (UINT delayInMillis)
+BOOL timing_sleep_loop(UINT delayInMillis)
 {
-	/* 
+	/*
 	This trick is about performing a low number of seconds to sleep but in a loop,
 	the reason behind that sandboxes tries to avoid patching such sleeps because it
 	could lead to race conditions and also because it is just negliable. However,
@@ -158,7 +157,7 @@ BOOL timing_sleep_loop (UINT delayInMillis)
 	its timeout.
 	*/
 
-	int delayInMillis_divided  = delayInMillis / 1000;
+	int delayInMillis_divided = delayInMillis / 1000;
 
 	/* Example: we want to sleep 300 seeconds, then we can sleep
 	0.3s for 1000 times which is like: 300 seconds = 5 minues */
@@ -212,7 +211,7 @@ BOOL rdtsc_diff_locky()
 
 
 /*
-CPUID is an instruction which cauz a VM Exit to the VMM, 
+CPUID is an instruction which cauz a VM Exit to the VMM,
 this little overhead can show the presence of a hypervisor
 */
 
@@ -241,7 +240,7 @@ BOOL rdtsc_diff_vmexit()
 
 
 /*
-Another timinig attack using the API IcmpSendEcho which takes a TimeOut 
+Another timinig attack using the API IcmpSendEcho which takes a TimeOut
 in milliseconds as a parameter, to wait for IPv4 ICMP packets replies.
 First time observed: http://blog.talosintelligence.com/2017/09/avast-distributes-malware.html
 */
@@ -291,9 +290,9 @@ BOOL timing_CreateWaitableTimer(UINT delayInMillis)
 	BOOL bResult = FALSE;
 
 	dueTime.QuadPart = delayInMillis * -10000LL;
-	
+
 	hTimer = CreateWaitableTimer(NULL, TRUE, NULL);
-	
+
 	if (hTimer == NULL)
 	{
 		return TRUE;
