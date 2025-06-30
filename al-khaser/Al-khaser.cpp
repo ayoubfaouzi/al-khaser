@@ -70,16 +70,41 @@ void EnableChecks(std::string checkType) {
 int main(int argc, char* argv[])
 {
 	/* enable functions */
+	UINT delayInSeconds = 600U; // default value
+	int enabled_checks = 0;
+
 	if (argc > 1) {
-		for (int i = 1; i < argc; i += 2) {
-			if (strcmp(argv[i], "--check") == 0 && (i + 1 < argc)) {
-				EnableChecks(argv[i + 1]);
+		for (int i = 1; i < argc; ++i) {
+			if ((strcmp(argv[i], "--sleep") == 0 || strcmp(argv[i], "--delay") == 0) && i + 1 < argc) {
+				char* endptr;
+				errno = 0;
+				long val = strtol(argv[i + 1], &endptr, 10);
+
+				if (errno == ERANGE || val > UINT_MAX || val <= 0) {
+					printf("[!] Invalid delay value: %s. Using default %u seconds.\n", argv[i + 1], delayInSeconds);
+				}
+				else if (endptr == argv[i + 1] || *endptr != '\0') {
+					printf("[!] Non-numeric delay value: %s. Using default %u seconds.\n", argv[i + 1], delayInSeconds);
+				}
+				else {
+					delayInSeconds = (UINT)val;
+				}
+				i++; // skip the value
 			}
+			else if ((strcmp(argv[i], "--check") == 0) && i + 1 < argc) {
+				EnableChecks(argv[i + 1]);
+				enabled_checks++;
+				i++; // skip the value
+			}
+			// Add more flags here as needed
+			// else if (strcmp(argv[i], "--otherflag") == 0) { ... }
 		}
 	}
-	else {
+	
+	if (!enabled_checks) {
 		EnableDefaultChecks();
 	}
+	
 
 	/* Resize the console window for better visibility */
 	resize_console_window();
@@ -326,9 +351,9 @@ int main(int argc, char* argv[])
 	/* Timing Attacks */
 	if (ENABLE_TIMING_ATTACKS) {
 		print_category(TEXT("Timing-attacks"));
-		UINT delayInSeconds = 600U;
+
 		UINT delayInMillis = delayInSeconds * 1000U;
-		printf("\n[*] Delay value is set to %u minutes ...\n", delayInSeconds / 60);
+		printf("\n[*] Delay value is set to %u seconds (%u minutes) ...\n", delayInSeconds, delayInSeconds / 60);
 
 		exec_check(timing_NtDelayexecution, delayInMillis, TEXT("Performing a sleep using NtDelayExecution ..."));
 		exec_check(timing_sleep_loop, delayInMillis, TEXT("Performing a sleep() in a loop ..."));
