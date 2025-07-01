@@ -22,10 +22,14 @@ VOID vmware_reg_key_value()
 	{
 		TCHAR msg[256] = _T("");
 		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking reg key %s"), szEntries[i][0]);
-		if (Is_RegKeyValueExists(HKEY_LOCAL_MACHINE, szEntries[i][0], szEntries[i][1], szEntries[i][2]))
+		if (Is_RegKeyValueExists(HKEY_LOCAL_MACHINE, szEntries[i][0], szEntries[i][1], szEntries[i][2])) {
 			print_results(TRUE, msg);
-		else
+			stats_record(CAT_VMWARE, TRUE);
+		} 
+		else {
 			print_results(FALSE, msg);
+			stats_record(CAT_VMWARE, FALSE);
+		}
 	}
 }
 
@@ -49,10 +53,14 @@ VOID vmware_reg_keys()
 	{
 		TCHAR msg[256] = _T("");
 		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking reg key %s "), szKeys[i]);
-		if (Is_RegKeyExists(HKEY_LOCAL_MACHINE, szKeys[i]))
+		if (Is_RegKeyExists(HKEY_LOCAL_MACHINE, szKeys[i])){
 			print_results(TRUE, msg);
-		else
+			stats_record(CAT_VMWARE, TRUE);
+		}
+		else {
 			print_results(FALSE, msg);
+			stats_record(CAT_VMWARE, FALSE);
+		}
 	}
 }
 
@@ -97,10 +105,14 @@ VOID vmware_files()
 		PathCombine(szPath, szWinDir, szPaths[i]);
 		TCHAR msg[256] = _T("");
 		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking file %s "), szPath);
-		if (is_FileExists(szPath))
+		if (is_FileExists(szPath)) {
 			print_results(TRUE, msg);
-		else
+			stats_record(CAT_VMWARE, TRUE);
+		}
+		else {
 			print_results(FALSE, msg);
+			stats_record(CAT_VMWARE, FALSE);
+		}
 	}
 
 	if (IsWoW64()) {
@@ -148,10 +160,14 @@ VOID vmware_mac()
 	{
 		TCHAR msg[256] = _T("");
 		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking MAC starting with %s"), szMac[i][1]);
-		if (check_mac_addr(szMac[i][0]))
+		if (check_mac_addr(szMac[i][0])) {
 			print_results(TRUE, msg);
-		else
+			stats_record(CAT_VMWARE, TRUE);
+		}
+		else {
 			print_results(FALSE, msg);
+			stats_record(CAT_VMWARE, FALSE);
+		}
 	}
 }
 
@@ -189,9 +205,12 @@ VOID vmware_devices()
 		if (hFile != INVALID_HANDLE_VALUE) {
 			CloseHandle(hFile);
 			print_results(TRUE, msg);
+			stats_record(CAT_VMWARE, TRUE);
 		}
-		else
+		else {
 			print_results(FALSE, msg);
+			stats_record(CAT_VMWARE, FALSE);
+		}
 	}
 }
 
@@ -215,10 +234,14 @@ VOID vmware_processes()
 	{
 		TCHAR msg[256] = _T("");
 		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking VWware process %s "), szProcesses[i]);
-		if (GetProcessIdFromName(szProcesses[i]))
+		if (GetProcessIdFromName(szProcesses[i])) {
 			print_results(TRUE, msg);
-		else
+			stats_record(CAT_VMWARE, TRUE);
+		}
+		else {
 			print_results(FALSE, msg);
+			stats_record(CAT_VMWARE, FALSE);
+		}
 	}
 }
 

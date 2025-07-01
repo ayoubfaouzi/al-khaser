@@ -69,6 +69,8 @@
 #include "Shared/ApiTypeDefs.h"
 #include "Shared/APIs.h"
 #include "Shared/winapifamily.h"
+/* Statistics */
+#include "Shared/stats.h"
 
 /* AntiDebugs headers */
 #include "AntiDebug/CheckRemoteDebuggerPresent.h"
@@ -141,6 +143,5 @@
 
 /* Anti-Disassembly */
 #include "AntiDisassm/AntiDisassm.h"
-
 
 #endif //PCH_H

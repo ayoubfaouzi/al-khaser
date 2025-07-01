@@ -1,4 +1,5 @@
 #pragma once
+#include "stats.h"
 
 VOID print_detected() ;
 VOID print_not_detected() ;
@@ -14,6 +15,7 @@ VOID _print_check_text(const TCHAR* szMsg);
 VOID _print_check_result(int result, const TCHAR* szMsg);
 
 VOID exec_check(int(*callback)(), const TCHAR* szMsg);
+VOID exec_check(Category category, int(*callback)(), const TCHAR* szMsg);
 
 // this must be defined in this header file
 // see: https://stackoverflow.com/questions/495021/why-can-templates-only-be-implemented-in-the-header-file
@@ -25,6 +27,25 @@ VOID exec_check(int(*callback)(T param), T param, const TCHAR* szMsg)
 
 	/* Call our check */
 	int result = callback(param);
+
+	/* Print / Log the result */
+	if (szMsg)
+		_print_check_result(result, szMsg);
+}
+
+
+/* For checks with one additional argument (e.g. delay) and also statistics */
+template <typename T>
+VOID exec_check(Category category, int(*callback)(T param), T param, const TCHAR* szMsg)
+{
+	/* Print the text to screen so we can see what's currently running */
+	_print_check_text(szMsg);
+
+	/* Call our check */
+	int result = callback(param);
+
+	/* Record the result for statistics */
+	stats_record((category), result);
 
 	/* Print / Log the result */
 	if (szMsg)

@@ -35,10 +35,14 @@ VOID loaded_dlls()
 
 		/* Check if process loaded modules contains the blacklisted dll */
 		hDll = GetModuleHandle(szDlls[i]);
-		if (hDll == NULL)
+		if (hDll == NULL){
 			print_results(FALSE, msg);
-		else
+			stats_record(CAT_GEN_SANDBOX, FALSE);
+		}
+		else {
 			print_results(TRUE, msg);
+			stats_record(CAT_GEN_SANDBOX, TRUE);
+		}
 	}
 }
 
@@ -82,19 +86,27 @@ VOID known_file_names() {
 		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking if process file name contains: %s "), szFilenames[i]);
 
 		/* Check if file name matches any blacklisted filenames */
-		if (StrCmpIW(szFilenames[i], szFileName) != 0)
+		if (StrCmpIW(szFilenames[i], szFileName) != 0) {
 			print_results(FALSE, msg);
-		else
+			stats_record(CAT_GEN_SANDBOX, FALSE);
+		}
+		else {
 			print_results(TRUE, msg);
+			stats_record(CAT_GEN_SANDBOX, TRUE);
+		}
 	}
 
 	// Some malware do check if the file name is a known hash (like md5 or sha1)
 	PathRemoveExtensionW(szFileName);
 	_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking if process file name looks like a hash: %s "), szFileName);
-	if ((wcslen(szFileName) == 32 || wcslen(szFileName) == 40 || wcslen(szFileName) == 64) && IsHexString(szFileName))
+	if ((wcslen(szFileName) == 32 || wcslen(szFileName) == 40 || wcslen(szFileName) == 64) && IsHexString(szFileName)) {
 		print_results(TRUE, msg);
-	else
+		stats_record(CAT_GEN_SANDBOX, TRUE);
+	}
+	else {
 		print_results(FALSE, msg);
+		stats_record(CAT_GEN_SANDBOX, FALSE);
+	}
 }
 
 static TCHAR* get_username() {
@@ -171,6 +183,8 @@ VOID known_usernames() {
 		}
 
 		print_results(matched, msg);
+		stats_record(CAT_GEN_SANDBOX, matched);
+
 	}
 
 	free(username);
@@ -262,6 +276,8 @@ VOID known_hostnames() {
 		}
 
 		print_results(matched, msg);
+		stats_record(CAT_GEN_SANDBOX, matched);
+		
 	}
 
 	free(NetBIOSHostName);
@@ -300,18 +316,21 @@ VOID other_known_sandbox_environment_checks() {
 		matched = TRUE;
 	}
 	print_results(matched, (TCHAR*)_T("Checking whether username is 'Wilber' and NetBIOS name starts with 'SC' or 'SW' "));
+	stats_record(CAT_GEN_SANDBOX, matched);
 
 	matched = FALSE;
 	if ((0 == StrCmp(username, _T("admin"))) && (0 == StrCmp(NetBIOSHostName, _T("SystemIT")))) {
 		matched = TRUE;
 	}
 	print_results(matched, (TCHAR*)_T("Checking whether username is 'admin' and NetBIOS name is 'SystemIT' "));
+	stats_record(CAT_GEN_SANDBOX, matched);
 
 	matched = FALSE;
 	if ((0 == StrCmp(username, _T("admin"))) && (0 == StrCmp(DNSHostName, _T("KLONE_X64-PC")))) {
 		matched = TRUE;
 	}
 	print_results(matched, (TCHAR*)_T("Checking whether username is 'admin' and DNS hostname is 'KLONE_X64-PC' "));
+	stats_record(CAT_GEN_SANDBOX, matched);
 
 	matched = FALSE;
 	if ((0 == StrCmp(username, _T("John"))) &&
@@ -320,6 +339,7 @@ VOID other_known_sandbox_environment_checks() {
 		matched = TRUE;
 	}
 	print_results(matched, (TCHAR*)_T("Checking whether username is 'John' and two sandbox files exist "));
+	stats_record(CAT_GEN_SANDBOX, matched);
 
 	matched = FALSE;
 	if ((is_FileExists((TCHAR*)_T("C:\\email.doc"))) &&
@@ -329,6 +349,7 @@ VOID other_known_sandbox_environment_checks() {
 		matched = TRUE;
 	}
 	print_results(matched, (TCHAR*)_T("Checking whether four known sandbox 'email' file paths exist "));
+	stats_record(CAT_GEN_SANDBOX, matched);
 
 	matched = FALSE;
 	if ((is_FileExists((TCHAR*)_T("C:\\a\\foobar.bmp"))) &&
@@ -337,6 +358,7 @@ VOID other_known_sandbox_environment_checks() {
 		matched = TRUE;
 	}
 	print_results(matched, (TCHAR*)_T("Checking whether three known sandbox 'foobar' files exist "));
+	stats_record(CAT_GEN_SANDBOX, matched);
 
 	free(username);
 	free(NetBIOSHostName);
@@ -2249,9 +2271,13 @@ VOID looking_glass_vdd_processes()
 		TCHAR msg[256] = _T("");
 		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking processes %s "), szProcesses[i]);
 
-		if (GetProcessIdFromName(szProcesses[i]))
+		if (GetProcessIdFromName(szProcesses[i])) {
 			print_results(TRUE, msg);
-		else
+			stats_record(CAT_GEN_SANDBOX, TRUE);
+		}
+		else {
 			print_results(FALSE, msg);
+			stats_record(CAT_GEN_SANDBOX, FALSE);
+		}
 	}
 }

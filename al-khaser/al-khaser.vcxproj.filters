@@ -293,6 +293,9 @@
       <Filter>AntiVM\Header</Filter>
     </ClInclude>
     <ClInclude Include="AntiDebug\NtSystemDebugControl.h" />
+    <ClInclude Include="Shared\stats.h">
+      <Filter>Shared\Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="al-khaser.cpp" />
@@ -484,6 +487,9 @@
       <Filter>AntiVM\Source</Filter>
     </ClCompile>
     <ClCompile Include="AntiDebug\NtSystemDebugControl.cpp" />
+    <ClCompile Include="Shared\stats.cpp">
+      <Filter>Shared\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="AntiDebug\int2d_x86.asm">

@@ -20,10 +20,14 @@ VOID qemu_reg_key_value()
 	{
 		TCHAR msg[256] = _T("");
 		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking reg key %s "), szEntries[i][0]);
-		if (Is_RegKeyValueExists(HKEY_LOCAL_MACHINE, szEntries[i][0], szEntries[i][1], szEntries[i][2]))
+		if (Is_RegKeyValueExists(HKEY_LOCAL_MACHINE, szEntries[i][0], szEntries[i][1], szEntries[i][2])) {
 			print_results(TRUE, msg);
-		else
+			stats_record(CAT_QEMU, TRUE);
+		}
+		else {
 			print_results(FALSE, msg);
+			stats_record(CAT_QEMU, FALSE);
+		}
 	}
 }
 
@@ -46,10 +50,14 @@ VOID qemu_reg_keys()
 		TCHAR msg[256] = _T("");
 		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking reg key %s "), szKeys[i]);
 
-		if (Is_RegKeyExists(HKEY_LOCAL_MACHINE, szKeys[i]))
+		if (Is_RegKeyExists(HKEY_LOCAL_MACHINE, szKeys[i])) {
 			print_results(TRUE, msg);
-		else
+			stats_record(CAT_QEMU, TRUE);
+		}
+		else {
 			print_results(FALSE, msg);
+			stats_record(CAT_QEMU, FALSE);
+		}
 	}
 }
 
@@ -70,10 +78,14 @@ VOID qemu_processes()
 	{
 		TCHAR msg[256] = _T("");
 		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking qemu processes %s "), szProcesses[i]);
-		if (GetProcessIdFromName(szProcesses[i]))
+		if (GetProcessIdFromName(szProcesses[i])) {
 			print_results(TRUE, msg);
-		else
+			stats_record(CAT_QEMU, TRUE);
+		}
+		else {
 			print_results(FALSE, msg);
+			stats_record(CAT_QEMU, FALSE);
+		}
 	}
 }
 
@@ -103,10 +115,14 @@ VOID qemu_dir()
 		PathCombine(szPath, szProgramFile, szDirectories[i]);
 
 		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking QEMU directory %s "), szPath);
-		if (is_DirectoryExists(szPath))
+		if (is_DirectoryExists(szPath)) {
 			print_results(TRUE, msg);
-		else
+			stats_record(CAT_QEMU, TRUE);
+		}
+		else {
 			print_results(FALSE, msg);
+			stats_record(CAT_QEMU, FALSE);
+		}
 	}
 }
 

@@ -25,10 +25,14 @@ VOID kvm_reg_keys()
 	{
 		TCHAR msg[256] = _T("");
 		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking reg key %s "), szKeys[i]);
-		if (Is_RegKeyExists(HKEY_LOCAL_MACHINE, szKeys[i]))
+		if (Is_RegKeyExists(HKEY_LOCAL_MACHINE, szKeys[i])) {
 			print_results(TRUE, msg);
-		else
+			stats_record(CAT_KVM, TRUE);
+		}
+		else {
 			print_results(FALSE, msg);
+			stats_record(CAT_KVM, FALSE);
+		}
 	}
 }
 
@@ -70,10 +74,14 @@ VOID kvm_files()
 		PathCombine(szPath, szWinDir, szPaths[i]);
 		TCHAR msg[256] = _T("");
 		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking file %s "), szPath);
-		if (is_FileExists(szPath))
+		if (is_FileExists(szPath)) {
 			print_results(TRUE, msg);
-		else
+			stats_record(CAT_KVM, TRUE);
+		}
+		else {
 			print_results(FALSE, msg);
+			stats_record(CAT_KVM, FALSE);
+		}
 	}
 
 	if (IsWoW64()) {
