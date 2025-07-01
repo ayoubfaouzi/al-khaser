@@ -1,15 +1,14 @@
-#include "pch.h"
 #include "Utils.h"
+#include "pch.h"
 
 BOOL IsWoW64()
 {
 	BOOL bIsWow64 = FALSE;
 
-	if (API::IsAvailable(API_IDENTIFIER::API_IsWow64Process))
-	{
-		auto fnIsWow64Process = static_cast<pIsWow64Process>(API::GetAPI(API_IDENTIFIER::API_IsWow64Process));
-		if (!fnIsWow64Process(GetCurrentProcess(), &bIsWow64))
-		{
+	if (API::IsAvailable(API_IDENTIFIER::API_IsWow64Process)) {
+		auto fnIsWow64Process = static_cast<pIsWow64Process>(
+			API::GetAPI(API_IDENTIFIER::API_IsWow64Process));
+		if (!fnIsWow64Process(GetCurrentProcess(), &bIsWow64)) {
 			// handle error
 		}
 	}
@@ -21,12 +20,16 @@ PVOID64 GetPeb64()
 {
 	PVOID64 peb64 = NULL;
 
-	if (API::IsAvailable(API_IDENTIFIER::API_NtWow64QueryInformationProcess64))
-	{
+	if (API::IsAvailable(
+			API_IDENTIFIER::API_NtWow64QueryInformationProcess64)) {
 		PROCESS_BASIC_INFORMATION_WOW64 pbi64 = {};
 
-		auto NtWow64QueryInformationProcess64 = static_cast<pNtWow64QueryInformationProcess64>(API::GetAPI(API_IDENTIFIER::API_NtWow64QueryInformationProcess64));
-		NTSTATUS status = NtWow64QueryInformationProcess64(GetCurrentProcess(), ProcessBasicInformation, &pbi64, sizeof(pbi64), nullptr);
+		auto NtWow64QueryInformationProcess64 =
+			static_cast<pNtWow64QueryInformationProcess64>(API::GetAPI(
+				API_IDENTIFIER::API_NtWow64QueryInformationProcess64));
+		NTSTATUS status = NtWow64QueryInformationProcess64(
+			GetCurrentProcess(), ProcessBasicInformation, &pbi64, sizeof(pbi64),
+			nullptr);
 		if (NT_SUCCESS(status))
 			peb64 = pbi64.PebBaseAddress;
 	}
@@ -34,18 +37,18 @@ PVOID64 GetPeb64()
 	return peb64;
 }
 
-BOOL Is_RegKeyValueExists(HKEY hKey, const TCHAR* lpSubKey, const TCHAR* lpValueName, const TCHAR* search_str)
+BOOL Is_RegKeyValueExists(HKEY hKey, const TCHAR *lpSubKey,
+						  const TCHAR *lpValueName, const TCHAR *search_str)
 {
 	HKEY hkResult = NULL;
 	TCHAR lpData[1024] = { 0 };
 	DWORD cbData = MAX_PATH;
 
-	if (RegOpenKeyEx(hKey, lpSubKey, NULL, KEY_READ, &hkResult) == ERROR_SUCCESS)
-	{
-		if (RegQueryValueEx(hkResult, lpValueName, NULL, NULL, (LPBYTE)lpData, &cbData) == ERROR_SUCCESS)
-		{
-			if (StrStrI((PCTSTR)lpData, search_str) != NULL)
-			{
+	if (RegOpenKeyEx(hKey, lpSubKey, NULL, KEY_READ, &hkResult) ==
+		ERROR_SUCCESS) {
+		if (RegQueryValueEx(hkResult, lpValueName, NULL, NULL, (LPBYTE)lpData,
+							&cbData) == ERROR_SUCCESS) {
+			if (StrStrI((PCTSTR)lpData, search_str) != NULL) {
 				RegCloseKey(hkResult);
 				return TRUE;
 			}
@@ -53,42 +56,35 @@ BOOL Is_RegKeyValueExists(HKEY hKey, const TCHAR* lpSubKey, const TCHAR* lpValue
 		RegCloseKey(hkResult);
 	}
 	return FALSE;
-
 }
 
-BOOL Is_RegKeyExists(HKEY hKey, const TCHAR* lpSubKey)
+BOOL Is_RegKeyExists(HKEY hKey, const TCHAR *lpSubKey)
 {
-	if (_tcschr(lpSubKey, _T('*')) == NULL && _tcschr(lpSubKey, _T('?')) == NULL)
-	{
+	if (_tcschr(lpSubKey, _T('*')) == NULL &&
+		_tcschr(lpSubKey, _T('?')) == NULL) {
 		HKEY hkResult = NULL;
-		if (RegOpenKeyEx(hKey, lpSubKey, 0, KEY_READ, &hkResult) == ERROR_SUCCESS)
-		{
+		if (RegOpenKeyEx(hKey, lpSubKey, 0, KEY_READ, &hkResult) ==
+			ERROR_SUCCESS) {
 			RegCloseKey(hkResult);
 			return TRUE;
 		}
 		return FALSE;
-	}
-	else
-	{
-		const TCHAR* lastBackslash = _tcsrchr(lpSubKey, _T('\\'));
+	} else {
+		const TCHAR *lastBackslash = _tcsrchr(lpSubKey, _T('\\'));
 		TCHAR parentPath[MAX_PATH] = { 0 };
 		TCHAR childPattern[MAX_PATH] = { 0 };
 
-		if (lastBackslash != NULL)
-		{
+		if (lastBackslash != NULL) {
 			size_t parentLen = lastBackslash - lpSubKey;
 			_tcsncpy_s(parentPath, _countof(parentPath), lpSubKey, parentLen);
 			_tcscpy_s(childPattern, _countof(childPattern), lastBackslash + 1);
-		}
-		else
-		{
+		} else {
 			_tcscpy_s(childPattern, _countof(childPattern), lpSubKey);
 		}
 
 		HKEY hKeyParent = NULL;
 		LONG lResult = RegOpenKeyEx(hKey, parentPath, 0, KEY_READ, &hKeyParent);
-		if (lResult != ERROR_SUCCESS)
-		{
+		if (lResult != ERROR_SUCCESS) {
 			return FALSE;
 		}
 
@@ -101,10 +97,10 @@ BOOL Is_RegKeyExists(HKEY hKey, const TCHAR* lpSubKey)
 		DWORD cchName = MAX_PATH;
 		BOOL bFound = FALSE;
 
-		while (1)
-		{
+		while (1) {
 			cchName = MAX_PATH;
-			lResult = RegEnumKeyEx(hKeyParent, dwIndex, subkeyName, &cchName, NULL, NULL, NULL, NULL);
+			lResult = RegEnumKeyEx(hKeyParent, dwIndex, subkeyName, &cchName,
+								   NULL, NULL, NULL, NULL);
 			if (lResult == ERROR_NO_MORE_ITEMS)
 				break;
 			if (lResult != ERROR_SUCCESS)
@@ -115,8 +111,7 @@ BOOL Is_RegKeyExists(HKEY hKey, const TCHAR* lpSubKey)
 			_tcsupr_s(subkeyUpper, _countof(subkeyUpper));
 
 			// Check if the subkey matches the pattern
-			if (PathMatchSpec(subkeyUpper, childPatternUpper))
-			{
+			if (PathMatchSpec(subkeyUpper, childPatternUpper)) {
 				bFound = TRUE;
 				break;
 			}
@@ -129,36 +124,38 @@ BOOL Is_RegKeyExists(HKEY hKey, const TCHAR* lpSubKey)
 	}
 }
 
-BOOL is_FileExists(TCHAR* szPath)
+BOOL is_FileExists(TCHAR *szPath)
 {
 	DWORD dwAttrib = GetFileAttributes(szPath);
-	return (dwAttrib != INVALID_FILE_ATTRIBUTES) && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY);
+	return (dwAttrib != INVALID_FILE_ATTRIBUTES) &&
+		   !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY);
 }
 
-BOOL is_DirectoryExists(TCHAR* szPath)
+BOOL is_DirectoryExists(TCHAR *szPath)
 {
 	DWORD dwAttrib = GetFileAttributes(szPath);
-	return (dwAttrib != INVALID_FILE_ATTRIBUTES) && (dwAttrib & FILE_ATTRIBUTE_DIRECTORY);
+	return (dwAttrib != INVALID_FILE_ATTRIBUTES) &&
+		   (dwAttrib & FILE_ATTRIBUTE_DIRECTORY);
 }
 
-BOOL check_mac_addr(const TCHAR* szMac)
+BOOL check_mac_addr(const TCHAR *szMac)
 {
 	BOOL bResult = FALSE;
 	PIP_ADAPTER_INFO pAdapterInfo, pAdapterInfoPtr;
 	ULONG ulOutBufLen = sizeof(IP_ADAPTER_INFO);
 
 	pAdapterInfo = (PIP_ADAPTER_INFO)MALLOC(sizeof(IP_ADAPTER_INFO));
-	if (pAdapterInfo == NULL)
-	{
-		_tprintf(_T("Error allocating memory needed to call GetAdaptersinfo.\n"));
+	if (pAdapterInfo == NULL) {
+		_tprintf(
+			_T("Error allocating memory needed to call GetAdaptersinfo.\n"));
 		return -1;
 	}
 
 	DWORD dwResult = GetAdaptersInfo(pAdapterInfo, &ulOutBufLen);
 
-	// Make an initial call to GetAdaptersInfo to get the necessary size into the ulOutBufLen variable
-	if (dwResult == ERROR_BUFFER_OVERFLOW)
-	{
+	// Make an initial call to GetAdaptersInfo to get the necessary size into
+	// the ulOutBufLen variable
+	if (dwResult == ERROR_BUFFER_OVERFLOW) {
 		FREE(pAdapterInfo);
 		pAdapterInfo = (PIP_ADAPTER_INFO)MALLOC(ulOutBufLen);
 		if (pAdapterInfo == NULL) {
@@ -170,9 +167,9 @@ BOOL check_mac_addr(const TCHAR* szMac)
 		dwResult = GetAdaptersInfo(pAdapterInfo, &ulOutBufLen);
 	}
 
-	if (dwResult == ERROR_SUCCESS)
-	{
-		// Convert the given mac address to an array of multibyte chars so we can compare.
+	if (dwResult == ERROR_SUCCESS) {
+		// Convert the given mac address to an array of multibyte chars so we
+		// can compare.
 		CHAR szMacMultiBytes[4];
 		for (int i = 0; i < 4; i++) {
 			szMacMultiBytes[i] = (CHAR)szMac[i];
@@ -180,11 +177,10 @@ BOOL check_mac_addr(const TCHAR* szMac)
 
 		pAdapterInfoPtr = pAdapterInfo;
 
-		while (pAdapterInfoPtr)
-		{
+		while (pAdapterInfoPtr) {
 
-			if (pAdapterInfoPtr->AddressLength == 6 && !memcmp(szMacMultiBytes, pAdapterInfoPtr->Address, 3))
-			{
+			if (pAdapterInfoPtr->AddressLength == 6 &&
+				!memcmp(szMacMultiBytes, pAdapterInfoPtr->Address, 3)) {
 				bResult = TRUE;
 				break;
 			}
@@ -197,27 +193,27 @@ BOOL check_mac_addr(const TCHAR* szMac)
 	return bResult;
 }
 
-BOOL check_adapter_name(const TCHAR* szName)
+BOOL check_adapter_name(const TCHAR *szName)
 {
 	BOOL bResult = FALSE;
 	PIP_ADAPTER_INFO pAdapterInfo, pAdapterInfoPtr;
 	ULONG ulOutBufLen = sizeof(IP_ADAPTER_INFO);
 
-	WCHAR* pwszConverted;
+	WCHAR *pwszConverted;
 
 	pAdapterInfo = (PIP_ADAPTER_INFO)MALLOC(sizeof(IP_ADAPTER_INFO));
-	if (pAdapterInfo == NULL)
-	{
-		_tprintf(_T("Error allocating memory needed to call GetAdaptersinfo.\n"));
+	if (pAdapterInfo == NULL) {
+		_tprintf(
+			_T("Error allocating memory needed to call GetAdaptersinfo.\n"));
 		return -1;
 	}
 
-	// Make an initial call to GetAdaptersInfo to get the necessary size into the ulOutBufLen variable
+	// Make an initial call to GetAdaptersInfo to get the necessary size into
+	// the ulOutBufLen variable
 
 	DWORD dwResult = GetAdaptersInfo(pAdapterInfo, &ulOutBufLen);
 
-	if (dwResult == ERROR_BUFFER_OVERFLOW)
-	{
+	if (dwResult == ERROR_BUFFER_OVERFLOW) {
 		FREE(pAdapterInfo);
 		pAdapterInfo = (PIP_ADAPTER_INFO)MALLOC(ulOutBufLen);
 		if (pAdapterInfo == NULL) {
@@ -228,16 +224,13 @@ BOOL check_adapter_name(const TCHAR* szName)
 		dwResult = GetAdaptersInfo(pAdapterInfo, &ulOutBufLen);
 	}
 
-	if (dwResult == ERROR_SUCCESS)
-	{
+	if (dwResult == ERROR_SUCCESS) {
 		pAdapterInfoPtr = pAdapterInfo;
 
-		while (pAdapterInfoPtr)
-		{
+		while (pAdapterInfoPtr) {
 			pwszConverted = ascii_to_wide_str(pAdapterInfoPtr->Description);
 			if (pwszConverted) {
-				if (StrStrI(pwszConverted, szName) != NULL)
-				{
+				if (StrStrI(pwszConverted, szName) != NULL) {
 					bResult = TRUE;
 				}
 				free(pwszConverted);
@@ -258,8 +251,8 @@ BOOL GetOSDisplayString(LPTSTR pszOS)
 {
 	OSVERSIONINFOEX osvi;
 	SYSTEM_INFO si;
-	//PGNSI pGNSI;
-	//PGPI pGPI;
+	// PGNSI pGNSI;
+	// PGPI pGPI;
 	BOOL bOsVersionInfoEx;
 	DWORD dwType;
 
@@ -271,76 +264,73 @@ BOOL GetOSDisplayString(LPTSTR pszOS)
 	if (!API::IsAvailable(API_RtlGetVersion))
 		return FALSE;
 
-	auto RtlGetVersion = static_cast<pRtlGetVersion>(API::GetAPI(API_IDENTIFIER::API_RtlGetVersion));
+	auto RtlGetVersion = static_cast<pRtlGetVersion>(
+		API::GetAPI(API_IDENTIFIER::API_RtlGetVersion));
 
-	bOsVersionInfoEx = RtlGetVersion((RTL_OSVERSIONINFOEXW*)&osvi);
+	bOsVersionInfoEx = RtlGetVersion((RTL_OSVERSIONINFOEXW *)&osvi);
 
-	if (API::IsAvailable(API_GetNativeSystemInfo))
-	{
-		auto GetNativeSystemInfo = static_cast<pGetNativeSystemInfo>(API::GetAPI(API_IDENTIFIER::API_GetNativeSystemInfo));
+	if (API::IsAvailable(API_GetNativeSystemInfo)) {
+		auto GetNativeSystemInfo = static_cast<pGetNativeSystemInfo>(
+			API::GetAPI(API_IDENTIFIER::API_GetNativeSystemInfo));
 		GetNativeSystemInfo(&si);
-	}
-	else
-	{
+	} else {
 		GetSystemInfo(&si);
 	}
 
-	if (VER_PLATFORM_WIN32_NT == osvi.dwPlatformId && osvi.dwMajorVersion > 4)
-	{
+	if (VER_PLATFORM_WIN32_NT == osvi.dwPlatformId && osvi.dwMajorVersion > 4) {
 		StringCchCopy(pszOS, MAX_PATH, TEXT("Microsoft "));
 
 		// Test for the specific product.
 		// todo: Not working in Win10, I should use VersionHelpers
-		if (osvi.dwMajorVersion == 10)
-		{
-			if (osvi.dwMinorVersion == 0)
-			{
+		if (osvi.dwMajorVersion == 10) {
+			if (osvi.dwMinorVersion == 0) {
 				if (osvi.wProductType == VER_NT_WORKSTATION)
 					StringCchCat(pszOS, MAX_PATH, TEXT("Windows 10 "));
 				else {
 					if (osvi.dwBuildNumber > 17763) {
-						StringCchCat(pszOS, MAX_PATH, TEXT("Windows Server 20XX "));
-					}
-					else if (osvi.dwBuildNumber > 14393) {
-						StringCchCat(pszOS, MAX_PATH, TEXT("Windows Server 2019 "));
-					}
-					else {
-						StringCchCat(pszOS, MAX_PATH, TEXT("Windows Server 2016 "));
+						StringCchCat(pszOS, MAX_PATH,
+									 TEXT("Windows Server 20XX "));
+					} else if (osvi.dwBuildNumber > 14393) {
+						StringCchCat(pszOS, MAX_PATH,
+									 TEXT("Windows Server 2019 "));
+					} else {
+						StringCchCat(pszOS, MAX_PATH,
+									 TEXT("Windows Server 2016 "));
 					}
 				}
 			}
 		}
 
-		else if (osvi.dwMajorVersion == 6)
-		{
-			if (osvi.dwMinorVersion == 0)
-			{
+		else if (osvi.dwMajorVersion == 6) {
+			if (osvi.dwMinorVersion == 0) {
 				if (osvi.wProductType == VER_NT_WORKSTATION)
 					StringCchCat(pszOS, MAX_PATH, TEXT("Windows Vista "));
-				else StringCchCat(pszOS, MAX_PATH, TEXT("Windows Server 2008 "));
+				else
+					StringCchCat(pszOS, MAX_PATH, TEXT("Windows Server 2008 "));
 			}
 
-			if (osvi.dwMinorVersion == 1)
-			{
+			if (osvi.dwMinorVersion == 1) {
 				if (osvi.wProductType == VER_NT_WORKSTATION)
 					StringCchCat(pszOS, MAX_PATH, TEXT("Windows 7 "));
-				else StringCchCat(pszOS, MAX_PATH, TEXT("Windows Server 2008 R2 "));
+				else
+					StringCchCat(pszOS, MAX_PATH,
+								 TEXT("Windows Server 2008 R2 "));
 			}
 
-			if (osvi.dwMinorVersion == 2)
-			{
+			if (osvi.dwMinorVersion == 2) {
 				if (osvi.wProductType == VER_NT_WORKSTATION)
 					StringCchCat(pszOS, MAX_PATH, TEXT("Windows 8 "));
 				else
 					StringCchCat(pszOS, MAX_PATH, TEXT("Windows Server 2012"));
 			}
 
-			auto GetProductInfo = static_cast<pGetProductInfo>(API::GetAPI(API_IDENTIFIER::API_GetProductInfo));
+			auto GetProductInfo = static_cast<pGetProductInfo>(
+				API::GetAPI(API_IDENTIFIER::API_GetProductInfo));
 
-			GetProductInfo(osvi.dwMajorVersion, osvi.dwMinorVersion, 0, 0, &dwType);
+			GetProductInfo(osvi.dwMajorVersion, osvi.dwMinorVersion, 0, 0,
+						   &dwType);
 
-			switch (dwType)
-			{
+			switch (dwType) {
 			case PRODUCT_ULTIMATE:
 				StringCchCat(pszOS, MAX_PATH, TEXT("Ultimate Edition"));
 				break;
@@ -369,28 +359,34 @@ BOOL GetOSDisplayString(LPTSTR pszOS)
 				StringCchCat(pszOS, MAX_PATH, TEXT("Datacenter Edition"));
 				break;
 			case PRODUCT_DATACENTER_SERVER_CORE:
-				StringCchCat(pszOS, MAX_PATH, TEXT("Datacenter Edition (core installation)"));
+				StringCchCat(pszOS, MAX_PATH,
+							 TEXT("Datacenter Edition (core installation)"));
 				break;
 			case PRODUCT_ENTERPRISE_SERVER:
 				StringCchCat(pszOS, MAX_PATH, TEXT("Enterprise Edition"));
 				break;
 			case PRODUCT_ENTERPRISE_SERVER_CORE:
-				StringCchCat(pszOS, MAX_PATH, TEXT("Enterprise Edition (core installation)"));
+				StringCchCat(pszOS, MAX_PATH,
+							 TEXT("Enterprise Edition (core installation)"));
 				break;
 			case PRODUCT_ENTERPRISE_SERVER_IA64:
-				StringCchCat(pszOS, MAX_PATH, TEXT("Enterprise Edition for Itanium-based Systems"));
+				StringCchCat(
+					pszOS, MAX_PATH,
+					TEXT("Enterprise Edition for Itanium-based Systems"));
 				break;
 			case PRODUCT_SMALLBUSINESS_SERVER:
 				StringCchCat(pszOS, MAX_PATH, TEXT("Small Business Server"));
 				break;
 			case PRODUCT_SMALLBUSINESS_SERVER_PREMIUM:
-				StringCchCat(pszOS, MAX_PATH, TEXT("Small Business Server Premium Edition"));
+				StringCchCat(pszOS, MAX_PATH,
+							 TEXT("Small Business Server Premium Edition"));
 				break;
 			case PRODUCT_STANDARD_SERVER:
 				StringCchCat(pszOS, MAX_PATH, TEXT("Standard Edition"));
 				break;
 			case PRODUCT_STANDARD_SERVER_CORE:
-				StringCchCat(pszOS, MAX_PATH, TEXT("Standard Edition (core installation)"));
+				StringCchCat(pszOS, MAX_PATH,
+							 TEXT("Standard Edition (core installation)"));
 				break;
 			case PRODUCT_WEB_SERVER:
 				StringCchCat(pszOS, MAX_PATH, TEXT("Web Server Edition"));
@@ -398,87 +394,93 @@ BOOL GetOSDisplayString(LPTSTR pszOS)
 			}
 		}
 
-		else if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2)
-		{
+		else if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2) {
 			if (GetSystemMetrics(SM_SERVERR2))
 				StringCchCat(pszOS, MAX_PATH, TEXT("Windows Server 2003 R2, "));
 			else if (osvi.wSuiteMask & VER_SUITE_STORAGE_SERVER)
-				StringCchCat(pszOS, MAX_PATH, TEXT("Windows Storage Server 2003"));
+				StringCchCat(pszOS, MAX_PATH,
+							 TEXT("Windows Storage Server 2003"));
 			else if (osvi.wSuiteMask & VER_SUITE_WH_SERVER)
 				StringCchCat(pszOS, MAX_PATH, TEXT("Windows Home Server"));
 			else if (osvi.wProductType == VER_NT_WORKSTATION &&
-				si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
-			{
-				StringCchCat(pszOS, MAX_PATH, TEXT("Windows XP Professional x64 Edition"));
-			}
-			else StringCchCat(pszOS, MAX_PATH, TEXT("Windows Server 2003, "));
+					 si.wProcessorArchitecture ==
+						 PROCESSOR_ARCHITECTURE_AMD64) {
+				StringCchCat(pszOS, MAX_PATH,
+							 TEXT("Windows XP Professional x64 Edition"));
+			} else
+				StringCchCat(pszOS, MAX_PATH, TEXT("Windows Server 2003, "));
 
 			// Test for the server type.
-			if (osvi.wProductType != VER_NT_WORKSTATION)
-			{
-				if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64)
-				{
+			if (osvi.wProductType != VER_NT_WORKSTATION) {
+				if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64) {
 					if (osvi.wSuiteMask & VER_SUITE_DATACENTER)
-						StringCchCat(pszOS, MAX_PATH, TEXT("Datacenter Edition for Itanium-based Systems"));
+						StringCchCat(pszOS, MAX_PATH,
+									 TEXT("Datacenter Edition for "
+										  "Itanium-based Systems"));
 					else if (osvi.wSuiteMask & VER_SUITE_ENTERPRISE)
-						StringCchCat(pszOS, MAX_PATH, TEXT("Enterprise Edition for Itanium-based Systems"));
+						StringCchCat(pszOS, MAX_PATH,
+									 TEXT("Enterprise Edition for "
+										  "Itanium-based Systems"));
 				}
 
-				else if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
-				{
+				else if (si.wProcessorArchitecture ==
+						 PROCESSOR_ARCHITECTURE_AMD64) {
 					if (osvi.wSuiteMask & VER_SUITE_DATACENTER)
-						StringCchCat(pszOS, MAX_PATH, TEXT("Datacenter x64 Edition"));
+						StringCchCat(pszOS, MAX_PATH,
+									 TEXT("Datacenter x64 Edition"));
 					else if (osvi.wSuiteMask & VER_SUITE_ENTERPRISE)
-						StringCchCat(pszOS, MAX_PATH, TEXT("Enterprise x64 Edition"));
-					else StringCchCat(pszOS, MAX_PATH, TEXT("Standard x64 Edition"));
+						StringCchCat(pszOS, MAX_PATH,
+									 TEXT("Enterprise x64 Edition"));
+					else
+						StringCchCat(pszOS, MAX_PATH,
+									 TEXT("Standard x64 Edition"));
 				}
 
-				else
-				{
+				else {
 					if (osvi.wSuiteMask & VER_SUITE_COMPUTE_SERVER)
-						StringCchCat(pszOS, MAX_PATH, TEXT("Compute Cluster Edition"));
+						StringCchCat(pszOS, MAX_PATH,
+									 TEXT("Compute Cluster Edition"));
 					else if (osvi.wSuiteMask & VER_SUITE_DATACENTER)
-						StringCchCat(pszOS, MAX_PATH, TEXT("Datacenter Edition"));
+						StringCchCat(pszOS, MAX_PATH,
+									 TEXT("Datacenter Edition"));
 					else if (osvi.wSuiteMask & VER_SUITE_ENTERPRISE)
-						StringCchCat(pszOS, MAX_PATH, TEXT("Enterprise Edition"));
+						StringCchCat(pszOS, MAX_PATH,
+									 TEXT("Enterprise Edition"));
 					else if (osvi.wSuiteMask & VER_SUITE_BLADE)
 						StringCchCat(pszOS, MAX_PATH, TEXT("Web Edition"));
-					else StringCchCat(pszOS, MAX_PATH, TEXT("Standard Edition"));
+					else
+						StringCchCat(pszOS, MAX_PATH, TEXT("Standard Edition"));
 				}
 			}
 		}
 
-		else if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 1)
-		{
+		else if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 1) {
 			StringCchCat(pszOS, MAX_PATH, TEXT("Windows XP "));
 			if (osvi.wSuiteMask & VER_SUITE_PERSONAL)
 				StringCchCat(pszOS, MAX_PATH, TEXT("Home Edition"));
-			else StringCchCat(pszOS, MAX_PATH, TEXT("Professional"));
+			else
+				StringCchCat(pszOS, MAX_PATH, TEXT("Professional"));
 		}
 
-		else if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0)
-		{
+		else if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0) {
 			StringCchCat(pszOS, MAX_PATH, TEXT("Windows 2000 "));
 
-			if (osvi.wProductType == VER_NT_WORKSTATION)
-			{
+			if (osvi.wProductType == VER_NT_WORKSTATION) {
 				StringCchCat(pszOS, MAX_PATH, TEXT("Professional"));
-			}
-			else
-			{
+			} else {
 				if (osvi.wSuiteMask & VER_SUITE_DATACENTER)
 					StringCchCat(pszOS, MAX_PATH, TEXT("Datacenter Server"));
 				else if (osvi.wSuiteMask & VER_SUITE_ENTERPRISE)
 					StringCchCat(pszOS, MAX_PATH, TEXT("Advanced Server"));
-				else StringCchCat(pszOS, MAX_PATH, TEXT("Server"));
+				else
+					StringCchCat(pszOS, MAX_PATH, TEXT("Server"));
 			}
 		}
 
 		// Include service pack (if any) and build number.
 		size_t targetSize;
 		StringCchLength(osvi.szCSDVersion, MAX_PATH, &targetSize);
-		if (targetSize > 0)
-		{
+		if (targetSize > 0) {
 			StringCchCat(pszOS, MAX_PATH, TEXT(" "));
 			StringCchCat(pszOS, MAX_PATH, osvi.szCSDVersion);
 		}
@@ -488,8 +490,7 @@ BOOL GetOSDisplayString(LPTSTR pszOS)
 		StringCchPrintf(buf, 80, TEXT(" (build %u)"), osvi.dwBuildNumber);
 		StringCchCat(pszOS, MAX_PATH, buf);
 
-		if (osvi.dwMajorVersion >= 6)
-		{
+		if (osvi.dwMajorVersion >= 6) {
 			if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
 				StringCchCat(pszOS, MAX_PATH, TEXT(" 64-bit"));
 			else if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
@@ -499,13 +500,13 @@ BOOL GetOSDisplayString(LPTSTR pszOS)
 		return TRUE;
 	}
 
-	else
-	{
+	else {
 		return FALSE;
 	}
 }
 
-BOOL IsWindowsVista() {
+BOOL IsWindowsVista()
+{
 	OSVERSIONINFOEX osvi;
 	DWORDLONG dwlConditionMask = 0;
 	int op = VER_EQUAL;
@@ -524,13 +525,12 @@ BOOL IsWindowsVista() {
 
 	// Perform the test.
 
-	return VerifyVersionInfo(
-		&osvi,
-		VER_MAJORVERSION | VER_MINORVERSION,
-		dwlConditionMask);
+	return VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION,
+							 dwlConditionMask);
 }
 
-BOOL IsWindows7() {
+BOOL IsWindows7()
+{
 	OSVERSIONINFOEX osvi;
 	DWORDLONG dwlConditionMask = 0;
 	int op = VER_EQUAL;
@@ -549,13 +549,12 @@ BOOL IsWindows7() {
 
 	// Perform the test.
 
-	return VerifyVersionInfo(
-		&osvi,
-		VER_MAJORVERSION | VER_MINORVERSION,
-		dwlConditionMask);
+	return VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION,
+							 dwlConditionMask);
 }
 
-BOOL IsWindows8or8PointOne() {
+BOOL IsWindows8or8PointOne()
+{
 	OSVERSIONINFOEX osvi;
 	DWORDLONG dwlConditionMask = 0;
 	int MajorOp = VER_EQUAL;
@@ -575,13 +574,11 @@ BOOL IsWindows8or8PointOne() {
 
 	// Perform the test.
 
-	return VerifyVersionInfo(
-		&osvi,
-		VER_MAJORVERSION | VER_MINORVERSION,
-		dwlConditionMask);
+	return VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION,
+							 dwlConditionMask);
 }
 
-DWORD GetProccessIDByName(TCHAR* szProcessNameTarget)
+DWORD GetProccessIDByName(TCHAR *szProcessNameTarget)
 {
 	DWORD processIds[1024];
 	DWORD dBytesReturned;
@@ -592,31 +589,29 @@ DWORD GetProccessIDByName(TCHAR* szProcessNameTarget)
 
 	// Get the list of process identifiers.
 	bStatus = EnumProcesses(processIds, sizeof(processIds), &dBytesReturned);
-	if (!bStatus)
-	{
+	if (!bStatus) {
 		// Something bad happened
 	}
 
 	// Calculate how many process identifiers were returned.
 	int cProcesses = dBytesReturned / sizeof(DWORD);
 
-	for (int i = 0; i < cProcesses; i++)
-	{
+	for (int i = 0; i < cProcesses; i++) {
 		// Get a handle to the process.
-		HANDLE hProcess = OpenProcess(PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, FALSE, processIds[i]);
+		HANDLE hProcess = OpenProcess(
+			PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, FALSE, processIds[i]);
 
 		// Get the process name.
-		if (hProcess != NULL)
-		{
+		if (hProcess != NULL) {
 			EnumProcessModules(hProcess, &hMod, sizeof(hMod), &cbNeeded);
-			GetModuleBaseName(hProcess, hMod, szProcessName, sizeof(szProcessName) / sizeof(TCHAR));
+			GetModuleBaseName(hProcess, hMod, szProcessName,
+							  sizeof(szProcessName) / sizeof(TCHAR));
 
 			CloseHandle(hProcess);
 
 			// Make the comparaison
 			if (StrCmpI(szProcessName, szProcessNameTarget) == 0)
 				return processIds[i];
-
 		}
 
 		_tprintf(TEXT("%s  (PID: %u)\n"), szProcessName, processIds[i]);
@@ -625,10 +620,9 @@ DWORD GetProccessIDByName(TCHAR* szProcessNameTarget)
 	return FALSE;
 }
 
-BOOL SetPrivilege(
-	HANDLE hToken,          // token handle
-	LPCTSTR Privilege,      // Privilege to enable/disable
-	BOOL bEnablePrivilege   // TRUE to enable.  FALSE to disable
+BOOL SetPrivilege(HANDLE hToken,		// token handle
+				  LPCTSTR Privilege,	// Privilege to enable/disable
+				  BOOL bEnablePrivilege // TRUE to enable.  FALSE to disable
 )
 {
 	TOKEN_PRIVILEGES tp;
@@ -644,45 +638,41 @@ BOOL SetPrivilege(
 	tp.Privileges[0].Luid = luid;
 	tp.Privileges[0].Attributes = 0;
 
-	AdjustTokenPrivileges(
-		hToken,
-		FALSE,
-		&tp,
-		sizeof(TOKEN_PRIVILEGES),
-		&tpPrevious,
-		&cbPrevious
-	);
+	AdjustTokenPrivileges(hToken, FALSE, &tp, sizeof(TOKEN_PRIVILEGES),
+						  &tpPrevious, &cbPrevious);
 
-	if (GetLastError() != ERROR_SUCCESS) return FALSE;
+	if (GetLastError() != ERROR_SUCCESS)
+		return FALSE;
 
-	// 
+	//
 	// second pass.  set privilege based on previous setting
-	// 
+	//
 	tpPrevious.PrivilegeCount = 1;
 	tpPrevious.Privileges[0].Luid = luid;
 
 	if (bEnablePrivilege) {
 		tpPrevious.Privileges[0].Attributes |= (SE_PRIVILEGE_ENABLED);
-	}
-	else {
-		tpPrevious.Privileges[0].Attributes ^= (SE_PRIVILEGE_ENABLED &
-			tpPrevious.Privileges[0].Attributes);
+	} else {
+		tpPrevious.Privileges[0].Attributes ^=
+			(SE_PRIVILEGE_ENABLED & tpPrevious.Privileges[0].Attributes);
 	}
 
 	AdjustTokenPrivileges(hToken, FALSE, &tpPrevious, cbPrevious, NULL, NULL);
 
-	if (GetLastError() != ERROR_SUCCESS) return FALSE;
+	if (GetLastError() != ERROR_SUCCESS)
+		return FALSE;
 
 	return TRUE;
 }
 
-
-BOOL SetDebugPrivileges(VOID) {
+BOOL SetDebugPrivileges(VOID)
+{
 	TOKEN_PRIVILEGES priv = { 0 };
 	HANDLE hToken = NULL;
 	BOOL bResult = FALSE;
 
-	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken)) {
+	if (!OpenProcessToken(GetCurrentProcess(),
+						  TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken)) {
 		print_last_error(_T("OpenProcessToken"));
 		return bResult;
 	}
@@ -696,8 +686,7 @@ BOOL SetDebugPrivileges(VOID) {
 		if (!bResult) {
 			print_last_error(_T("AdjustTokenPrivileges"));
 		}
-	}
-	else {
+	} else {
 		print_last_error(_T("LookupPrivilegeValue"));
 	}
 
@@ -721,13 +710,12 @@ DWORD GetProcessIdFromName(LPCTSTR szProcessName)
 		return 0;
 	}
 
-	// Now we can enumerate the running process, also 
+	// Now we can enumerate the running process, also
 	// we can't forget to set the PROCESSENTRY32.dwSize member
 	// otherwise the following functions will fail
 	pe32.dwSize = sizeof(PROCESSENTRY32);
 
-	if (Process32First(hSnapshot, &pe32) == FALSE)
-	{
+	if (Process32First(hSnapshot, &pe32) == FALSE) {
 		// Cleanup the mess
 		print_last_error(_T("Process32First"));
 		CloseHandle(hSnapshot);
@@ -735,20 +723,17 @@ DWORD GetProcessIdFromName(LPCTSTR szProcessName)
 	}
 
 	// Do our first comparison
-	if (StrCmpI(pe32.szExeFile, szProcessName) == 0)
-	{
+	if (StrCmpI(pe32.szExeFile, szProcessName) == 0) {
 		// Cleanup the mess
 		CloseHandle(hSnapshot);
 		return pe32.th32ProcessID;
 	}
 
-	// Most likely it won't match on the first try so 
+	// Most likely it won't match on the first try so
 	// we loop through the rest of the entries until
 	// we find the matching entry or not one at all
-	while (Process32Next(hSnapshot, &pe32))
-	{
-		if (StrCmpI(pe32.szExeFile, szProcessName) == 0)
-		{
+	while (Process32Next(hSnapshot, &pe32)) {
+		if (StrCmpI(pe32.szExeFile, szProcessName) == 0) {
 			// Cleanup the mess
 			CloseHandle(hSnapshot);
 			return pe32.th32ProcessID;
@@ -756,7 +741,8 @@ DWORD GetProcessIdFromName(LPCTSTR szProcessName)
 	}
 
 	// If we made it this far there wasn't a match, so we'll return 0
-	// _tprintf(_T("\n-> Process %s is not running on this system ..."), szProcessName);
+	// _tprintf(_T("\n-> Process %s is not running on this system ..."),
+	// szProcessName);
 
 	CloseHandle(hSnapshot);
 	return 0;
@@ -769,13 +755,14 @@ DWORD GetMainThreadId(DWORD pid)
 	if (h != INVALID_HANDLE_VALUE) {
 		THREADENTRY32 te;
 		te.dwSize = sizeof(te);
-		if (Thread32First(h, &te))
-		{
-			do
-			{
-				if (te.dwSize >= FIELD_OFFSET(THREADENTRY32, th32OwnerProcessID) + sizeof(te.th32OwnerProcessID)) {
+		if (Thread32First(h, &te)) {
+			do {
+				if (te.dwSize >=
+					FIELD_OFFSET(THREADENTRY32, th32OwnerProcessID) +
+						sizeof(te.th32OwnerProcessID)) {
 					if (te.th32OwnerProcessID == pid) {
-						HANDLE hThread = OpenThread(READ_CONTROL, FALSE, te.th32ThreadID);
+						HANDLE hThread =
+							OpenThread(READ_CONTROL, FALSE, te.th32ThreadID);
 						if (!hThread)
 							print_last_error(_T("OpenThread"));
 						else {
@@ -795,7 +782,8 @@ DWORD GetMainThreadId(DWORD pid)
 	return (DWORD)0;
 }
 
-BOOL InitWMI(IWbemServices** pSvc, IWbemLocator** pLoc, const TCHAR* szNetworkResource)
+BOOL InitWMI(IWbemServices **pSvc, IWbemLocator **pLoc,
+			 const TCHAR *szNetworkResource)
 {
 	// Initialize COM.
 	HRESULT hres;
@@ -806,15 +794,18 @@ BOOL InitWMI(IWbemServices** pSvc, IWbemLocator** pLoc, const TCHAR* szNetworkRe
 	}
 
 	// Set general COM security levels
-	hres = CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL);
+	hres = CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT,
+								RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE,
+								NULL);
 	if (FAILED(hres)) {
 		print_last_error(_T("CoInitializeSecurity"));
 		CoUninitialize();
 		return 0;
 	}
 
-	// Obtain the initial locator to WMI 
-	hres = CoCreateInstance(CLSID_WbemLocator, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(pLoc));
+	// Obtain the initial locator to WMI
+	hres = CoCreateInstance(CLSID_WbemLocator, NULL, CLSCTX_INPROC_SERVER,
+							IID_PPV_ARGS(pLoc));
 	if (FAILED(hres)) {
 		print_last_error(_T("CoCreateInstance"));
 		CoUninitialize();
@@ -824,8 +815,10 @@ BOOL InitWMI(IWbemServices** pSvc, IWbemLocator** pLoc, const TCHAR* szNetworkRe
 	BSTR strNetworkResource = SysAllocString(szNetworkResource);
 	if (strNetworkResource) {
 
-		// Connect to the root\cimv2 namespace 
-		hres = (*pLoc)->ConnectServer(strNetworkResource, NULL, NULL, NULL, WBEM_FLAG_CONNECT_USE_MAX_WAIT, 0, 0, pSvc);
+		// Connect to the root\cimv2 namespace
+		hres =
+			(*pLoc)->ConnectServer(strNetworkResource, NULL, NULL, NULL,
+								   WBEM_FLAG_CONNECT_USE_MAX_WAIT, 0, 0, pSvc);
 		if (FAILED(hres)) {
 			SysFreeString(strNetworkResource);
 			print_last_error(_T("ConnectServer"));
@@ -837,9 +830,10 @@ BOOL InitWMI(IWbemServices** pSvc, IWbemLocator** pLoc, const TCHAR* szNetworkRe
 	}
 
 	// Set security levels on the proxy -------------------------
-	hres = CoSetProxyBlanket(*pSvc, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE);
-	if (FAILED(hres))
-	{
+	hres = CoSetProxyBlanket(*pSvc, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL,
+							 RPC_C_AUTHN_LEVEL_CALL,
+							 RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE);
+	if (FAILED(hres)) {
 		print_last_error(_T("CoSetProxyBlanket"));
 		(*pSvc)->Release();
 		(*pLoc)->Release();
@@ -850,7 +844,8 @@ BOOL InitWMI(IWbemServices** pSvc, IWbemLocator** pLoc, const TCHAR* szNetworkRe
 	return 1;
 }
 
-BOOL ExecWMIQuery(IWbemServices** pSvc, IWbemLocator** pLoc, IEnumWbemClassObject** pEnumerator, const TCHAR* szQuery)
+BOOL ExecWMIQuery(IWbemServices **pSvc, IWbemLocator **pLoc,
+				  IEnumWbemClassObject **pEnumerator, const TCHAR *szQuery)
 {
 	// Execute WMI query
 	BSTR strQueryLanguage = SysAllocString(OLESTR("WQL"));
@@ -861,8 +856,9 @@ BOOL ExecWMIQuery(IWbemServices** pSvc, IWbemLocator** pLoc, IEnumWbemClassObjec
 	if (strQueryLanguage && strQuery) {
 
 		HRESULT hres = (*pSvc)->ExecQuery(strQueryLanguage, strQuery,
-			WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
-			NULL, pEnumerator);
+										  WBEM_FLAG_FORWARD_ONLY |
+											  WBEM_FLAG_RETURN_IMMEDIATELY,
+										  NULL, pEnumerator);
 
 		if (FAILED(hres)) {
 			bQueryResult = FALSE;
@@ -871,15 +867,15 @@ BOOL ExecWMIQuery(IWbemServices** pSvc, IWbemLocator** pLoc, IEnumWbemClassObjec
 			(*pLoc)->Release();
 			CoUninitialize();
 		}
-
 	}
 
-	if (strQueryLanguage) SysFreeString(strQueryLanguage);
-	if (strQuery) SysFreeString(strQuery);
+	if (strQueryLanguage)
+		SysFreeString(strQueryLanguage);
+	if (strQuery)
+		SysFreeString(strQuery);
 
 	return bQueryResult;
 }
-
 
 ULONG get_idt_base()
 {
@@ -891,34 +887,39 @@ ULONG get_idt_base()
 	// sidt instruction stores the contents of the IDT Register
 	// (the IDTR which points to the IDT) in a processor register.
 
-#if defined (ENV32BIT)
+#if defined(ENV32BIT)
 	_asm sidt idtr
 #endif
-	idt = *((unsigned long*)&idtr[2]);
+		idt = *((unsigned long *)&idtr[2]);
 	// printf("IDT base: 0x%x\n", idt);
 
 	return idt;
 }
 
-
 ULONG get_ldt_base()
 {
 	// Get the base of Local Descriptor Table (LDT)
 
-	UCHAR ldtr[5] = "\xef\xbe\xad\xde";
-	ULONG ldt = 0;
+#if !defined(_WIN64) // 32-bit only
+	{
 
-	// sldt instruction stores the contents of the LDT Register
-	// (the LDTR which points to the LDT) in a processor register.
-#if defined (ENV32BIT)
-	_asm sldt ldtr
+		UCHAR ldtr[5] = "\xef\xbe\xad\xde";
+		ULONG ldt = 0;
+
+		// sldt instruction stores the contents of the LDT Register
+		// (the LDTR which points to the LDT) in a processor register.
+		_asm sldt ldtr;
+		ldt = *((unsigned long *)&ldtr[0]);
+		return ldt;
+	}
+#else // x64 implementation
+	{
+		// Windows x64 deliberately blocks user-mode LDT access
+		// SLDT instruction require kernel privileges
+		return 0xdead0000;
+	}
 #endif
-	ldt = *((unsigned long*)&ldtr[0]);
-	// printf("LDT base: 0x%x\n", ldt);
-
-	return ldt;
 }
-
 
 ULONG get_gdt_base()
 {
@@ -929,15 +930,14 @@ ULONG get_gdt_base()
 
 	// sgdt instruction stores the contents of the GDT Register
 	// (the GDTR which points to the GDT) in a processor register.
-#if defined (ENV32BIT)
+#if defined(ENV32BIT)
 	_asm sgdt gdtr
 #endif
-	gdt = *((unsigned long*)&gdtr[2]);
+		gdt = *((unsigned long *)&gdtr[2]);
 	// printf("GDT base: 0x%x\n", gdt);
 
 	return gdt;
 }
-
 
 /*
 Check if a process is running with admin rights
@@ -950,7 +950,8 @@ BOOL IsElevated()
 	if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken)) {
 		TOKEN_ELEVATION Elevation;
 		DWORD cbSize = sizeof(TOKEN_ELEVATION);
-		if (GetTokenInformation(hToken, TokenElevation, &Elevation, sizeof(Elevation), &cbSize)) {
+		if (GetTokenInformation(hToken, TokenElevation, &Elevation,
+								sizeof(Elevation), &cbSize)) {
 			fRet = Elevation.TokenIsElevated;
 		}
 	}
@@ -960,35 +961,34 @@ BOOL IsElevated()
 	return fRet;
 }
 
-
-BOOL find_str_in_data(PBYTE needle, size_t needleLen, PBYTE haystack, size_t haystackLen)
+BOOL find_str_in_data(PBYTE needle, size_t needleLen, PBYTE haystack,
+					  size_t haystackLen)
 {
-	for (size_t i = 0; i < haystackLen - needleLen; i++)
-	{
-		if (memcmp(&haystack[i], needle, needleLen) == 0)
-		{
+	for (size_t i = 0; i < haystackLen - needleLen; i++) {
+		if (memcmp(&haystack[i], needle, needleLen) == 0) {
 			return TRUE;
 		}
 	}
 	return FALSE;
 }
 
-
-UINT enum_system_firmware_tables(DWORD FirmwareTableProviderSignature, PVOID pFirmwareTableBuffer, DWORD BufferSize)
+UINT enum_system_firmware_tables(DWORD FirmwareTableProviderSignature,
+								 PVOID pFirmwareTableBuffer, DWORD BufferSize)
 {
-	if (!API::IsAvailable(API_IDENTIFIER::API_EnumSystemFirmwareTables))
-	{
+	if (!API::IsAvailable(API_IDENTIFIER::API_EnumSystemFirmwareTables)) {
 		return -1;
 	}
 
-	auto EnumSystemFirmwareTables = static_cast<pEnumSystemFirmwareTables>(API::GetAPI(API_IDENTIFIER::API_EnumSystemFirmwareTables));
-	return EnumSystemFirmwareTables(FirmwareTableProviderSignature, pFirmwareTableBuffer, BufferSize);
+	auto EnumSystemFirmwareTables = static_cast<pEnumSystemFirmwareTables>(
+		API::GetAPI(API_IDENTIFIER::API_EnumSystemFirmwareTables));
+	return EnumSystemFirmwareTables(FirmwareTableProviderSignature,
+									pFirmwareTableBuffer, BufferSize);
 }
 
-PBYTE get_system_firmware(_In_ DWORD signature, _In_ DWORD table, _Out_ PDWORD pBufferSize)
+PBYTE get_system_firmware(_In_ DWORD signature, _In_ DWORD table,
+						  _Out_ PDWORD pBufferSize)
 {
-	if (!API::IsAvailable(API_IDENTIFIER::API_GetSystemFirmwareTable))
-	{
+	if (!API::IsAvailable(API_IDENTIFIER::API_GetSystemFirmwareTable)) {
 		return NULL;
 	}
 
@@ -1000,27 +1000,27 @@ PBYTE get_system_firmware(_In_ DWORD signature, _In_ DWORD table, _Out_ PDWORD p
 
 	SecureZeroMemory(firmwareTable, bufferSize);
 
-	auto GetSystemFirmwareTable = static_cast<pGetSystemFirmwareTable>(API::GetAPI(API_IDENTIFIER::API_GetSystemFirmwareTable));
+	auto GetSystemFirmwareTable = static_cast<pGetSystemFirmwareTable>(
+		API::GetAPI(API_IDENTIFIER::API_GetSystemFirmwareTable));
 
-	DWORD resultBufferSize = GetSystemFirmwareTable(signature, table, firmwareTable, bufferSize);
-	if (resultBufferSize == 0)
-	{
+	DWORD resultBufferSize =
+		GetSystemFirmwareTable(signature, table, firmwareTable, bufferSize);
+	if (resultBufferSize == 0) {
 		printf("First call failed :(\n");
 		free(firmwareTable);
 		return NULL;
 	}
 
 	// if the buffer was too small, realloc and try again
-	if (resultBufferSize > bufferSize)
-	{
+	if (resultBufferSize > bufferSize) {
 		PBYTE tmp;
 
-		tmp = static_cast<BYTE*>(realloc(firmwareTable, resultBufferSize));
+		tmp = static_cast<BYTE *>(realloc(firmwareTable, resultBufferSize));
 		if (tmp) {
 			firmwareTable = tmp;
 			SecureZeroMemory(firmwareTable, resultBufferSize);
-			if (GetSystemFirmwareTable(signature, table, firmwareTable, resultBufferSize) == 0)
-			{
+			if (GetSystemFirmwareTable(signature, table, firmwareTable,
+									   resultBufferSize) == 0) {
 				printf("Second call failed :(\n");
 				free(firmwareTable);
 				return NULL;
@@ -1032,7 +1032,7 @@ PBYTE get_system_firmware(_In_ DWORD signature, _In_ DWORD table, _Out_ PDWORD p
 	return firmwareTable;
 }
 
-bool attempt_to_read_memory(void* addr, void* buf, int size)
+bool attempt_to_read_memory(void *addr, void *buf, int size)
 {
 	// this is a dumb trick and I love it
 	BOOL b = ReadProcessMemory(GetCurrentProcess(), addr, buf, size, nullptr);
@@ -1041,16 +1041,18 @@ bool attempt_to_read_memory(void* addr, void* buf, int size)
 
 bool attempt_to_read_memory_wow64(PVOID buffer, DWORD size, PVOID64 address)
 {
-	auto NtWow64ReadVirtualMemory64 = static_cast<pNtWow64ReadVirtualMemory64>(API::GetAPI(API_IDENTIFIER::API_NtWow64ReadVirtualMemory64));
+	auto NtWow64ReadVirtualMemory64 = static_cast<pNtWow64ReadVirtualMemory64>(
+		API::GetAPI(API_IDENTIFIER::API_NtWow64ReadVirtualMemory64));
 	ULONGLONG bytesRead = 0;
 
-	//printf("dbg: read %llx\n", reinterpret_cast<uint64_t>(address));
+	// printf("dbg: read %llx\n", reinterpret_cast<uint64_t>(address));
 
-	HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, GetCurrentProcessId());
+	HANDLE hProcess =
+		OpenProcess(PROCESS_ALL_ACCESS, FALSE, GetCurrentProcessId());
 
-	if (hProcess != NULL)
-	{
-		NTSTATUS status = NtWow64ReadVirtualMemory64(hProcess, address, buffer, size, &bytesRead);
+	if (hProcess != NULL) {
+		NTSTATUS status = NtWow64ReadVirtualMemory64(hProcess, address, buffer,
+													 size, &bytesRead);
 		/*if (status != 0)
 		printf("NTSTATUS: %x\n", status);*/
 
@@ -1059,16 +1061,18 @@ bool attempt_to_read_memory_wow64(PVOID buffer, DWORD size, PVOID64 address)
 		return status == 0;
 	}
 
-	printf("attempt_to_read_memory_wow64: Couldn't open process: %u\n", GetLastError());
+	printf("attempt_to_read_memory_wow64: Couldn't open process: %u\n",
+		   GetLastError());
 	return false;
 }
 
 bool attempt_to_read_memory_wow64(PVOID buffer, DWORD size, ULONGLONG address)
 {
-	return attempt_to_read_memory_wow64(buffer, size, reinterpret_cast<PVOID64>(address));
+	return attempt_to_read_memory_wow64(buffer, size,
+										reinterpret_cast<PVOID64>(address));
 }
 
-std::vector<PMEMORY_BASIC_INFORMATION>* enumerate_memory()
+std::vector<PMEMORY_BASIC_INFORMATION> *enumerate_memory()
 {
 	auto regions = new std::vector<PMEMORY_BASIC_INFORMATION>();
 
@@ -1079,8 +1083,7 @@ std::vector<PMEMORY_BASIC_INFORMATION>* enumerate_memory()
 #endif
 
 	PBYTE addr = 0;
-	while (addr < MaxAddress)
-	{
+	while (addr < MaxAddress) {
 		auto mbi = new MEMORY_BASIC_INFORMATION();
 		if (VirtualQuery(addr, mbi, sizeof(MEMORY_BASIC_INFORMATION)) <= 0)
 			break;
@@ -1093,34 +1096,34 @@ std::vector<PMEMORY_BASIC_INFORMATION>* enumerate_memory()
 	return regions;
 }
 
-std::vector<PMEMORY_BASIC_INFORMATION64>* enumerate_memory_wow64()
+std::vector<PMEMORY_BASIC_INFORMATION64> *enumerate_memory_wow64()
 {
-	if (IsWoW64() == FALSE)
-	{
+	if (IsWoW64() == FALSE) {
 		printf("Not WoW64.\n");
 		return nullptr;
 	}
 
-	if (!API::IsAvailable(API_NtWow64QueryVirtualMemory64))
-	{
+	if (!API::IsAvailable(API_NtWow64QueryVirtualMemory64)) {
 		printf("API unavailable.\n");
 		return nullptr;
 	}
 
-	auto NtWow64QueryVirtualMemory64 = static_cast<pNtWow64QueryVirtualMemory64>(API::GetAPI(API_IDENTIFIER::API_NtWow64QueryVirtualMemory64));
+	auto NtWow64QueryVirtualMemory64 =
+		static_cast<pNtWow64QueryVirtualMemory64>(
+			API::GetAPI(API_IDENTIFIER::API_NtWow64QueryVirtualMemory64));
 
 	auto regions = new std::vector<PMEMORY_BASIC_INFORMATION64>();
 
 	const INT64 MaxAddress = 0x7FFFFFFFFFFFFFFFULL;
 
 	INT64 addr = 0;
-	while (addr < MaxAddress)
-	{
+	while (addr < MaxAddress) {
 		auto mbi = new MEMORY_BASIC_INFORMATION64();
 		ULONG64 returnLength;
 		NTSTATUS status;
-		if ((status = NtWow64QueryVirtualMemory64(GetCurrentProcess(), (PVOID64)addr, 0, mbi, sizeof(MEMORY_BASIC_INFORMATION64), &returnLength)) != 0)
-		{
+		if ((status = NtWow64QueryVirtualMemory64(
+				 GetCurrentProcess(), (PVOID64)addr, 0, mbi,
+				 sizeof(MEMORY_BASIC_INFORMATION64), &returnLength)) != 0) {
 			printf("Failed at %llx with status %d.\n", addr, status);
 			break;
 		}
@@ -1133,43 +1136,49 @@ std::vector<PMEMORY_BASIC_INFORMATION64>* enumerate_memory_wow64()
 	return regions;
 }
 
-
-std::vector<wchar_t*>* enumerate_object_directory(const wchar_t* path)
+std::vector<wchar_t *> *enumerate_object_directory(const wchar_t *path)
 {
-	if (!API::IsAvailable(API_NtOpenDirectoryObject) || !API::IsAvailable(API_NtQueryDirectoryObject))
-	{
+	if (!API::IsAvailable(API_NtOpenDirectoryObject) ||
+		!API::IsAvailable(API_NtQueryDirectoryObject)) {
 		return nullptr;
 	}
 
 	UNICODE_STRING usPath = { 0 };
-	usPath.Buffer = const_cast<wchar_t*>(path);
+	usPath.Buffer = const_cast<wchar_t *>(path);
 	usPath.Length = static_cast<USHORT>(lstrlenW(path) * sizeof(wchar_t));
 	usPath.MaximumLength = usPath.Length;
 
 	OBJECT_ATTRIBUTES objAttr = { 0 };
-	InitializeObjectAttributes(&objAttr, &usPath, OBJ_CASE_INSENSITIVE, NULL, NULL);
+	InitializeObjectAttributes(&objAttr, &usPath, OBJ_CASE_INSENSITIVE, NULL,
+							   NULL);
 
-	auto ntOpenDirectoryObject = static_cast<pNtOpenDirectoryObject>(API::GetAPI(API_NtOpenDirectoryObject));
-	auto ntQueryDirectoryObject = static_cast<pNtQueryDirectoryObject>(API::GetAPI(API_NtQueryDirectoryObject));
+	auto ntOpenDirectoryObject = static_cast<pNtOpenDirectoryObject>(
+		API::GetAPI(API_NtOpenDirectoryObject));
+	auto ntQueryDirectoryObject = static_cast<pNtQueryDirectoryObject>(
+		API::GetAPI(API_NtQueryDirectoryObject));
 
 	const int DIRECTORY_QUERY = 0x0001;
 	HANDLE hDirectory = 0;
-	NTSTATUS status = ntOpenDirectoryObject(&hDirectory, DIRECTORY_QUERY, &objAttr);
-	if (status != 0)
-	{
-		//printf("\nNTODO failed: %x\n", status);
+	NTSTATUS status =
+		ntOpenDirectoryObject(&hDirectory, DIRECTORY_QUERY, &objAttr);
+	if (status != 0) {
+		// printf("\nNTODO failed: %x\n", status);
 		return nullptr;
 	}
 
-	auto pObjDirInfo = static_cast<OBJECT_DIRECTORY_INFORMATION*>(calloc(0x800, 1));
+	auto pObjDirInfo =
+		static_cast<OBJECT_DIRECTORY_INFORMATION *>(calloc(0x800, 1));
 	ULONG returnedLength = 0;
 	ULONG context = 0;
-	auto results = new std::vector<wchar_t*>();
-	while (ntQueryDirectoryObject(hDirectory, pObjDirInfo, 0x800, TRUE, FALSE, &context, &returnedLength) == 0 && returnedLength > 0)
-	{
-		//wprintf(L"\nobject: %s\n", pObjDirInfo->Name.Buffer);
-		wchar_t* name = static_cast<wchar_t*>(calloc(pObjDirInfo->Name.Length + 1, sizeof(wchar_t)));
-		memcpy(name, pObjDirInfo->Name.Buffer, pObjDirInfo->Name.Length * sizeof(wchar_t));
+	auto results = new std::vector<wchar_t *>();
+	while (ntQueryDirectoryObject(hDirectory, pObjDirInfo, 0x800, TRUE, FALSE,
+								  &context, &returnedLength) == 0 &&
+		   returnedLength > 0) {
+		// wprintf(L"\nobject: %s\n", pObjDirInfo->Name.Buffer);
+		wchar_t *name = static_cast<wchar_t *>(
+			calloc(pObjDirInfo->Name.Length + 1, sizeof(wchar_t)));
+		memcpy(name, pObjDirInfo->Name.Buffer,
+			   pObjDirInfo->Name.Length * sizeof(wchar_t));
 		results->push_back(name);
 	}
 
