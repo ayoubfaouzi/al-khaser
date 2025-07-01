@@ -94,6 +94,23 @@ VOID exec_check(int(*callback)(), const TCHAR* szMsg)
 		_print_check_result(result, szMsg);
 }
 
+/* Run a check function pointer, print message, and record stats */
+VOID exec_check(Category category, int(*callback)(), const TCHAR* szMsg)
+{
+	/* Print the text to screen so we can see what's currently running */
+	_print_check_text(szMsg);
+
+	/* Call our check */
+	int result = callback();
+
+	/* Record the result for statistics */
+	stats_record((category), result);
+
+	/* Print / Log the result */
+	if (szMsg)
+		_print_check_result(result, szMsg);
+}
+
 VOID resize_console_window()
 {
 	// Change the window title:

@@ -18,10 +18,14 @@ VOID virtual_pc_process()
 	{
 		TCHAR msg[256] = _T("");
 		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking Virtual PC processes %s "), szProcesses[i]);
-		if (GetProcessIdFromName(szProcesses[i]))
+		if (GetProcessIdFromName(szProcesses[i])){
 			print_results(TRUE, msg);
-		else
+			stats_record(CAT_VPC, TRUE);
+		}
+		else {
 			print_results(FALSE, msg);
+			stats_record(CAT_VPC, FALSE);
+		}
 	}
 }
 
@@ -42,9 +46,13 @@ VOID virtual_pc_reg_keys()
 	{
 		TCHAR msg[256] = _T("");
 		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking reg key %s "), szKeys[i]);
-		if (Is_RegKeyExists(HKEY_LOCAL_MACHINE, szKeys[i]))
+		if (Is_RegKeyExists(HKEY_LOCAL_MACHINE, szKeys[i])) {
 			print_results(TRUE, msg);
-		else
+			stats_record(CAT_VPC, TRUE);
+		}
+		else {
 			print_results(FALSE, msg);
+			stats_record(CAT_VPC, FALSE);
+		}
 	}
 }

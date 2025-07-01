@@ -240,6 +240,7 @@
     <ClInclude Include="Shared\VersionHelpers.h" />
     <ClInclude Include="Shared\winapifamily.h" />
     <ClInclude Include="Shared\WinStructs.h" />
+    <ClInclude Include="Shared\stats.h" />
     <ClInclude Include="TimingAttacks\pch.h" />
     <ClInclude Include="TimingAttacks\timing.h" />
   </ItemGroup>
@@ -313,6 +314,7 @@
     <ClCompile Include="Shared\Common.cpp" />
     <ClCompile Include="Shared\log.cpp" />
     <ClCompile Include="Shared\Utils.cpp" />
+    <ClCompile Include="Shared\stats.cpp" />
     <ClCompile Include="TimingAttacks\timing.cpp" />
   </ItemGroup>
   <ItemGroup>

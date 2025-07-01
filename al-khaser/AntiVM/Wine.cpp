@@ -41,9 +41,13 @@ VOID wine_reg_keys()
 	{
 		TCHAR msg[256] = _T("");
 		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking reg key %s "), szKeys[i]);
-		if (Is_RegKeyExists(HKEY_CURRENT_USER, szKeys[i]))
+		if (Is_RegKeyExists(HKEY_CURRENT_USER, szKeys[i])) {
 			print_results(TRUE, msg);
-		else
+			stats_record(CAT_WINE, TRUE);
+		}
+		else {
 			print_results(FALSE, msg);
+			stats_record(CAT_WINE, FALSE);
+		}
 	}
 }

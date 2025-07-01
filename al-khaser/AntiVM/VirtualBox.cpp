@@ -21,10 +21,14 @@ VOID vbox_reg_key_value()
 	{
 		TCHAR msg[256] = _T("");
 		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking reg key HARDWARE\\Description\\System - %s is set to %s"), szEntries[i][1], szEntries[i][2]);
-		if (Is_RegKeyValueExists(HKEY_LOCAL_MACHINE, szEntries[i][0], szEntries[i][1], szEntries[i][2]))
+		if (Is_RegKeyValueExists(HKEY_LOCAL_MACHINE, szEntries[i][0], szEntries[i][1], szEntries[i][2])){
 			print_results(TRUE, msg);
-		else
+			stats_record(CAT_VBOX, TRUE);
+		}
+		else {
 			print_results(FALSE, msg);
+			stats_record(CAT_VBOX, FALSE);
+		}
 	}
 }
 
@@ -55,10 +59,14 @@ VOID vbox_reg_keys()
 	{
 		TCHAR msg[256] = _T("");
 		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking reg key %s "), szKeys[i]);
-		if (Is_RegKeyExists(HKEY_LOCAL_MACHINE, szKeys[i]))
+		if (Is_RegKeyExists(HKEY_LOCAL_MACHINE, szKeys[i])) {
 			print_results(TRUE, msg);
-		else
+			stats_record(CAT_VBOX, TRUE);
+		}
+		else {
 			print_results(FALSE, msg);
+			stats_record(CAT_VBOX, FALSE);
+		}
 	}
 }
 
@@ -107,10 +115,14 @@ VOID vbox_files()
 		PathCombine(szPath, szWinDir, szPaths[i]);
 		TCHAR msg[256] = _T("");
 		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking file %s "), szPath);
-		if (is_FileExists(szPath))
+		if (is_FileExists(szPath)){
 			print_results(TRUE, msg);
-		else
+			stats_record(CAT_VBOX, TRUE);
+		}
+		else {
 			print_results(FALSE, msg);
+			stats_record(CAT_VBOX, FALSE);
+		}
 	}
 
 	if (IsWoW64()) {
@@ -167,12 +179,15 @@ VOID vbox_devices()
 		HANDLE hFile = CreateFile(devices[i], GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 		TCHAR msg[256] = _T("");
 		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking device %s "), devices[i]);
-		if (hFile != INVALID_HANDLE_VALUE) {
+		if (hFile != INVALID_HANDLE_VALUE){
 			CloseHandle(hFile);
 			print_results(TRUE, msg);
+			stats_record(CAT_VBOX, TRUE);
 		}
-		else
+		else {
 			print_results(FALSE, msg);
+			stats_record(CAT_VBOX, FALSE);
+		}
 	}
 }
 
@@ -226,10 +241,14 @@ VOID vbox_processes()
 	{
 		TCHAR msg[256] = _T("");
 		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking VirtualBox process %s "), szProcesses[i]);
-		if (GetProcessIdFromName(szProcesses[i]))
+		if (GetProcessIdFromName(szProcesses[i])){
 			print_results(TRUE, msg);
-		else
+			stats_record(CAT_VBOX, TRUE);
+		}
+		else {
 			print_results(FALSE, msg);
+			stats_record(CAT_VBOX, FALSE);
+		}
 	}
 }
 

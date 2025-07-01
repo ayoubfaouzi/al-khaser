@@ -64,9 +64,13 @@ VOID analysis_tools_process()
 	{
 		TCHAR msg[256] = _T("");
 		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking process of malware analysis tool: %s "), szProcesses[i]);
-		if (GetProcessIdFromName(szProcesses[i]))
+		if (GetProcessIdFromName(szProcesses[i])) {
 			print_results(TRUE, msg);
-		else
+			stats_record(CAT_ANALYSIS_TOOLS, TRUE);
+		}
+		else {
 			print_results(FALSE, msg);
+			stats_record(CAT_ANALYSIS_TOOLS, FALSE);
+		}
 	}
 }
