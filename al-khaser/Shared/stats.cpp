@@ -46,7 +46,7 @@ void stats_record(Category cat, int result) {
 void stats_print(void) {
 	printf("\n==== Per-Category Statistics ====\n");
 	for (int i = 0; i < CAT_COUNT; ++i) {
-		printf("%-16s: Passed %3d | Failed %3d\n",
+		printf("%-40s: Passed %3d | Failed %3d\n",
 			category_names[i], category_stats[i].passed, category_stats[i].failed);
 	}
 	printf("\n==== Overall Statistics ====\n");
