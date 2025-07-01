@@ -24,6 +24,39 @@ It performs a bunch of common malware tricks with the goal of seeing if you stay
 
 ![Logo](https://i.imgur.com/jEFhsJT.png)
 
+### Usage
+```
+$ ./al-khaser.exe -h
+Usage: al-khaser.exe [OPTIONS]
+Options:
+  --check <type>      Enable specific check(s). Can be used multiple times. Valid types are:
+                        TLS              (Thread Local Storage callback checks)
+                        DEBUG            (Anti-debugging checks)
+                        INJECTION        (Code injection checks)
+                        GEN_SANDBOX      (Generic sandbox checks)
+                        VBOX             (VirtualBox detection)
+                        VMWARE           (VMware detection)
+                        VPC              (Virtual PC detection)
+                        QEMU             (QEMU detection)
+                        KVM              (KVM detection)
+                        XEN              (Xen detection)
+                        WINE             (Wine detection)
+                        PARALLELS        (Parallels detection)
+                        HYPERV           (Hyper-V detection)
+                        CODE_INJECTIONS  (Additional code injection techniques)
+                        TIMING_ATTACKS   (Timing/sleep-based sandbox evasion)
+                        DUMPING_CHECK    (Dumping memory/process checks)
+                        ANALYSIS_TOOLS   (Analysis tools detection)
+                        ANTI_DISASSM     (Anti-disassembly checks)
+  --sleep <seconds>   Set sleep/delay duration in seconds (default: 600).
+  --delay <seconds>   Alias for --sleep.
+  -h, --help          Show this help message and exit.
+
+Examples:
+  al-khaser.exe --check DEBUG --check TIMING_ATTACKS --sleep 30
+  al-khaser.exe --check VMWARE --check QEMU
+  al-khaser.exe --sleep 30
+```
 
 ## Download
 

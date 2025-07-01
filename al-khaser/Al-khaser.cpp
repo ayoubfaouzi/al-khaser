@@ -22,6 +22,7 @@ BOOL ENABLE_TIMING_ATTACKS = FALSE;
 BOOL ENABLE_DUMPING_CHECK = FALSE;
 BOOL ENABLE_ANALYSIS_TOOLS_CHECK = FALSE;
 BOOL ENABLE_ANTI_DISASSM_CHECKS = FALSE;
+const char* PROGRAM_NAME = "al-khaser.exe";
 
 
 void EnableDefaultChecks() {
@@ -66,20 +67,84 @@ void EnableChecks(std::string checkType) {
 	else if (checkType == "ANTI_DISASSM")		ENABLE_ANTI_DISASSM_CHECKS = TRUE;
 }
 
+void print_help(const char* prog_name){
+	printf(
+		"Usage: %s [OPTIONS]\n"
+		"Options:\n"
+		"  --check <type>      Enable specific check(s). Can be used multiple times. Valid types are:\n"
+		"                        TLS              (Thread Local Storage callback checks)\n"
+		"                        DEBUG            (Anti-debugging checks)\n"
+		"                        INJECTION        (Code injection checks)\n"
+		"                        GEN_SANDBOX      (Generic sandbox checks)\n"
+		"                        VBOX             (VirtualBox detection)\n"
+		"                        VMWARE           (VMware detection)\n"
+		"                        VPC              (Virtual PC detection)\n"
+		"                        QEMU             (QEMU detection)\n"
+		"                        KVM              (KVM detection)\n"
+		"                        XEN              (Xen detection)\n"
+		"                        WINE             (Wine detection)\n"
+		"                        PARALLELS        (Parallels detection)\n"
+		"                        HYPERV           (Hyper-V detection)\n"
+		"                        CODE_INJECTIONS  (Additional code injection techniques)\n"
+		"                        TIMING_ATTACKS   (Timing/sleep-based sandbox evasion)\n"
+		"                        DUMPING_CHECK    (Dumping memory/process checks)\n"
+		"                        ANALYSIS_TOOLS   (Analysis tools detection)\n"
+		"                        ANTI_DISASSM     (Anti-disassembly checks)\n"
+		"  --sleep <seconds>   Set sleep/delay duration in seconds (default: 600).\n"
+		"  --delay <seconds>   Alias for --sleep.\n"
+		"  -h, --help          Show this help message and exit.\n"
+		"\n"
+		"Examples:\n"
+		"  %s --check DEBUG --check TIMING_ATTACKS --sleep 30\n"
+		"  %s --check VMWARE --check QEMU\n"
+		"  %s --sleep 30\n"
+		"\n"
+		"If no --check options are given, all checks are executed by default.\n"
+		"If no other options are given, the default delay is 600 seconds.\n",
+		prog_name, prog_name, prog_name, prog_name
+	);
+}
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]){
 	/* enable functions */
+	UINT delayInSeconds = 600U; // default value
+	int enabled_checks = 0;
+
 	if (argc > 1) {
-		for (int i = 1; i < argc; i += 2) {
-			if (strcmp(argv[i], "--check") == 0 && (i + 1 < argc)) {
+		for (int i = 1; i < argc; ++i) {
+			if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
+				//print_help(argv[0]);
+				print_help(PROGRAM_NAME);
+				return 0;
+			} else if ((strcmp(argv[i], "--sleep") == 0 || strcmp(argv[i], "--delay") == 0) && i + 1 < argc) {
+				char* endptr;
+				errno = 0;
+				long val = strtol(argv[i + 1], &endptr, 10);
+
+				if (errno == ERANGE || val > UINT_MAX || val <= 0) {
+					printf("[!] Invalid delay value: %s. Using default %u seconds.\n", argv[i + 1], delayInSeconds);
+				}
+				else if (endptr == argv[i + 1] || *endptr != '\0') {
+					printf("[!] Non-numeric delay value: %s. Using default %u seconds.\n", argv[i + 1], delayInSeconds);
+				}
+				else {
+					delayInSeconds = (UINT)val;
+				}
+				i++; // skip the value
+			} else if ((strcmp(argv[i], "--check") == 0) && i + 1 < argc) {
 				EnableChecks(argv[i + 1]);
+				enabled_checks++;
+				i++; // skip the value
 			}
+			// Add more flags here as needed
+			// else if (strcmp(argv[i], "--otherflag") == 0) { ... }
 		}
 	}
-	else {
+	
+	if (!enabled_checks) {
 		EnableDefaultChecks();
 	}
+	
 
 	/* Resize the console window for better visibility */
 	resize_console_window();
@@ -326,9 +391,9 @@ int main(int argc, char* argv[])
 	/* Timing Attacks */
 	if (ENABLE_TIMING_ATTACKS) {
 		print_category(TEXT("Timing-attacks"));
-		UINT delayInSeconds = 600U;
+
 		UINT delayInMillis = delayInSeconds * 1000U;
-		printf("\n[*] Delay value is set to %u minutes ...\n", delayInSeconds / 60);
+		printf("\n[*] Delay value is set to %u seconds (%u minutes) ...\n", delayInSeconds, delayInSeconds / 60);
 
 		exec_check(timing_NtDelayexecution, delayInMillis, TEXT("Performing a sleep using NtDelayExecution ..."));
 		exec_check(timing_sleep_loop, delayInMillis, TEXT("Performing a sleep() in a loop ..."));
