@@ -47,6 +47,7 @@ ipch/
 *.cachefile
 
 # Build results
+.vs/
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/

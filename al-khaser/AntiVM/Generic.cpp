@@ -11,27 +11,28 @@ VOID loaded_dlls()
 	HMODULE hDll;
 
 	/* Array of strings of blacklisted dlls */
-	CONST TCHAR* szDlls[] = {
-		_T("avghookx.dll"),		// AVG
-		_T("avghooka.dll"),		// AVG
-		_T("snxhk.dll"),		// Avast
-		_T("sbiedll.dll"),		// Sandboxie
-		_T("dbghelp.dll"),		// WindBG
-		_T("api_log.dll"),		// iDefense Lab
-		_T("dir_watch.dll"),	// iDefense Lab
-		_T("pstorec.dll"),		// SunBelt Sandbox
-		_T("vmcheck.dll"),		// Virtual PC
-		_T("wpespy.dll"),		// WPE Pro
-		_T("cmdvrt64.dll"),		// Comodo Container
-		_T("cmdvrt32.dll"),		// Comodo Container
+	CONST TCHAR *szDlls[] = {
+		_T("avghookx.dll"),	 // AVG
+		_T("avghooka.dll"),	 // AVG
+		_T("snxhk.dll"),	 // Avast
+		_T("sbiedll.dll"),	 // Sandboxie
+		_T("dbghelp.dll"),	 // WindBG
+		_T("api_log.dll"),	 // iDefense Lab
+		_T("dir_watch.dll"), // iDefense Lab
+		_T("pstorec.dll"),	 // SunBelt Sandbox
+		_T("vmcheck.dll"),	 // Virtual PC
+		_T("wpespy.dll"),	 // WPE Pro
+		_T("cmdvrt64.dll"),	 // Comodo Container
+		_T("cmdvrt32.dll"),	 // Comodo Container
 
 	};
 
 	WORD dwlength = sizeof(szDlls) / sizeof(szDlls[0]);
-	for (int i = 0; i < dwlength; i++)
-	{
+	for (int i = 0; i < dwlength; i++) {
 		TCHAR msg[256] = _T("");
-		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking if process loaded modules contains: %s "), szDlls[i]);
+		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR),
+					_T("Checking if process loaded modules contains: %s "),
+					szDlls[i]);
 
 		/* Check if process loaded modules contains the blacklisted dll */
 		hDll = GetModuleHandle(szDlls[i]);
@@ -46,22 +47,18 @@ VOID loaded_dlls()
 Check if the file name contains any of the following strings.
 This is likely an automated malware sandbox.
 */
-VOID known_file_names() {
+VOID known_file_names()
+{
 
 	/* Array of strings of filenames seen in sandboxes */
-	CONST TCHAR* szFilenames[] = {
-		_T("sample.exe"),
-		_T("bot.exe"),
-		_T("sandbox.exe"),
-		_T("malware.exe"),
-		_T("test.exe"),
-		_T("klavme.exe"),
-		_T("myapp.exe"),
-		_T("testapp.exe"),
+	CONST TCHAR *szFilenames[] = {
+		_T("sample.exe"),  _T("bot.exe"),	  _T("sandbox.exe"),
+		_T("malware.exe"), _T("test.exe"),	  _T("klavme.exe"),
+		_T("myapp.exe"),   _T("testapp.exe"),
 
 	};
 
-#if defined (ENV64BIT)
+#if defined(ENV64BIT)
 	PPEB pPeb = (PPEB)__readgsqword(0x60);
 
 #elif defined(ENV32BIT)
@@ -73,13 +70,15 @@ VOID known_file_names() {
 	}
 
 	// Get the file name from path/
-	WCHAR* szFileName = PathFindFileNameW(pPeb->ProcessParameters->ImagePathName.Buffer);
+	WCHAR *szFileName =
+		PathFindFileNameW(pPeb->ProcessParameters->ImagePathName.Buffer);
 
 	TCHAR msg[256] = _T("");
 	WORD dwlength = sizeof(szFilenames) / sizeof(szFilenames[0]);
-	for (int i = 0; i < dwlength; i++)
-	{
-		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking if process file name contains: %s "), szFilenames[i]);
+	for (int i = 0; i < dwlength; i++) {
+		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR),
+					_T("Checking if process file name contains: %s "),
+					szFilenames[i]);
 
 		/* Check if file name matches any blacklisted filenames */
 		if (StrCmpIW(szFilenames[i], szFileName) != 0)
@@ -90,18 +89,23 @@ VOID known_file_names() {
 
 	// Some malware do check if the file name is a known hash (like md5 or sha1)
 	PathRemoveExtensionW(szFileName);
-	_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking if process file name looks like a hash: %s "), szFileName);
-	if ((wcslen(szFileName) == 32 || wcslen(szFileName) == 40 || wcslen(szFileName) == 64) && IsHexString(szFileName))
+	_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR),
+				_T("Checking if process file name looks like a hash: %s "),
+				szFileName);
+	if ((wcslen(szFileName) == 32 || wcslen(szFileName) == 40 ||
+		 wcslen(szFileName) == 64) &&
+		IsHexString(szFileName))
 		print_results(TRUE, msg);
 	else
 		print_results(FALSE, msg);
 }
 
-static TCHAR* get_username() {
-	TCHAR* username;
+static TCHAR *get_username()
+{
+	TCHAR *username;
 	DWORD nSize = (UNLEN + 1);
 
-	username = (TCHAR*)malloc(nSize * sizeof(TCHAR));
+	username = (TCHAR *)malloc(nSize * sizeof(TCHAR));
 	if (!username) {
 		return NULL;
 	}
@@ -115,44 +119,39 @@ static TCHAR* get_username() {
 /*
 Check for usernames associated with sandboxes
 */
-VOID known_usernames() {
+VOID known_usernames()
+{
 
 	/* Array of strings of usernames seen in sandboxes */
-	CONST TCHAR* szUsernames[] = {
+	CONST TCHAR *szUsernames[] = {
 		/* Checked for by Gootkit
-		 * https://www.sentinelone.com/blog/gootkit-banking-trojan-deep-dive-anti-analysis-features/ */
-		_T("CurrentUser"),
-		_T("Sandbox"),
+		 * https://www.sentinelone.com/blog/gootkit-banking-trojan-deep-dive-anti-analysis-features/
+		 */
+		_T("CurrentUser"), _T("Sandbox"),
 
 		/* Checked for by ostap
-		 * https://www.bromium.com/deobfuscating-ostap-trickbots-javascript-downloader/ */
-		_T("Emily"),
-		_T("HAPUBWS"),
-		_T("Hong Lee"),
-		_T("IT-ADMIN"),
+		 * https://www.bromium.com/deobfuscating-ostap-trickbots-javascript-downloader/
+		 */
+		_T("Emily"), _T("HAPUBWS"), _T("Hong Lee"), _T("IT-ADMIN"),
 		_T("Johnson"), /* Lastline Sandbox */
-		_T("Miller"), /* Lastline Sandbox */
-		_T("milozs"),
-		_T("Peter Wilson"),
-		_T("timmy"),
-		_T("user"),
+		_T("Miller"),  /* Lastline Sandbox */
+		_T("milozs"), _T("Peter Wilson"), _T("timmy"), _T("user"),
 
 		/* Checked for by Betabot (not including ones from above)
-		 * https://www.bromium.com/deobfuscating-ostap-trickbots-javascript-downloader/ */
-		_T("sand box"),
-		_T("malware"),
-		_T("maltest"),
-		_T("test user"),
+		 * https://www.bromium.com/deobfuscating-ostap-trickbots-javascript-downloader/
+		 */
+		_T("sand box"), _T("malware"), _T("maltest"), _T("test user"),
 
 		/* Checked for by Satan (not including ones from above)
 		 * https://cofense.com/satan/ */
 		_T("virus"),
 
 		/* Checked for by Emotet (not including ones from above)
-		 * https://blog.trendmicro.com/trendlabs-security-intelligence/new-emotet-hijacks-windows-api-evades-sandbox-analysis/ */
+		 * https://blog.trendmicro.com/trendlabs-security-intelligence/new-emotet-hijacks-windows-api-evades-sandbox-analysis/
+		 */
 		_T("John Doe"), /* VirusTotal Cuckoofork Sandbox */
 	};
-	TCHAR* username;
+	TCHAR *username;
 
 	if (NULL == (username = get_username())) {
 		return;
@@ -162,7 +161,8 @@ VOID known_usernames() {
 	WORD dwlength = sizeof(szUsernames) / sizeof(szUsernames[0]);
 	for (int i = 0; i < dwlength; i++) {
 
-		_stprintf_s(msg, sizeof(msg) / sizeof(msg[0]), _T("Checking if username matches : %s "), szUsernames[i]);
+		_stprintf_s(msg, sizeof(msg) / sizeof(msg[0]),
+					_T("Checking if username matches : %s "), szUsernames[i]);
 
 		/* Do a case-insensitive search for all entries in szHostnames */
 		BOOL matched = FALSE;
@@ -176,11 +176,12 @@ VOID known_usernames() {
 	free(username);
 }
 
-static TCHAR* get_netbios_hostname() {
-	TCHAR* hostname;
+static TCHAR *get_netbios_hostname()
+{
+	TCHAR *hostname;
 	DWORD nSize = (MAX_COMPUTERNAME_LENGTH + 1);
 
-	hostname = (TCHAR*)malloc(nSize * sizeof(TCHAR));
+	hostname = (TCHAR *)malloc(nSize * sizeof(TCHAR));
 	if (!hostname) {
 		return NULL;
 	}
@@ -191,12 +192,13 @@ static TCHAR* get_netbios_hostname() {
 	return hostname;
 }
 
-static TCHAR* get_dns_hostname() {
-	TCHAR* hostname;
+static TCHAR *get_dns_hostname()
+{
+	TCHAR *hostname;
 	DWORD nSize = 0;
 
 	GetComputerNameEx(ComputerNameDnsHostname, NULL, &nSize);
-	hostname = (TCHAR*)malloc((nSize + 1) * sizeof(TCHAR));
+	hostname = (TCHAR *)malloc((nSize + 1) * sizeof(TCHAR));
 	if (!hostname) {
 		return NULL;
 	}
@@ -210,32 +212,33 @@ static TCHAR* get_dns_hostname() {
 /*
 Check for hostnames associated with sandboxes
 */
-VOID known_hostnames() {
+VOID known_hostnames()
+{
 
 	/* Array of strings of hostnames seen in sandboxes */
-	CONST TCHAR* szHostnames[] = {
+	CONST TCHAR *szHostnames[] = {
 		/* Checked for by Gootkit
-		 * https://www.sentinelone.com/blog/gootkit-banking-trojan-deep-dive-anti-analysis-features/ */
-		_T("SANDBOX"),
-		_T("7SILVIA"),
+		 * https://www.sentinelone.com/blog/gootkit-banking-trojan-deep-dive-anti-analysis-features/
+		 */
+		_T("SANDBOX"), _T("7SILVIA"),
 
 		/* Checked for by ostap
-		 * https://www.bromium.com/deobfuscating-ostap-trickbots-javascript-downloader/ */
-		_T("HANSPETER-PC"),
-		_T("JOHN-PC"),
-		_T("MUELLER-PC"),
-		_T("WIN7-TRAPS"),
+		 * https://www.bromium.com/deobfuscating-ostap-trickbots-javascript-downloader/
+		 */
+		_T("HANSPETER-PC"), _T("JOHN-PC"), _T("MUELLER-PC"), _T("WIN7-TRAPS"),
 
 		/* Checked for by Shifu (not including ones from above)
-		 * https://www.mcafee.com/blogs/other-blogs/mcafee-labs/japanese-banking-trojan-shifu-combines-malware-tools */
+		 * https://www.mcafee.com/blogs/other-blogs/mcafee-labs/japanese-banking-trojan-shifu-combines-malware-tools
+		 */
 		_T("FORTINET"),
 
 		/* Checked for by Emotet (not including ones from above)
-		 * https://blog.trendmicro.com/trendlabs-security-intelligence/new-emotet-hijacks-windows-api-evades-sandbox-analysis/ */
+		 * https://blog.trendmicro.com/trendlabs-security-intelligence/new-emotet-hijacks-windows-api-evades-sandbox-analysis/
+		 */
 		_T("TEQUILABOOMBOOM"), /* VirusTotal Cuckoofork Sandbox */
 	};
-	TCHAR* NetBIOSHostName;
-	TCHAR* DNSHostName;
+	TCHAR *NetBIOSHostName;
+	TCHAR *DNSHostName;
 
 	if (NULL == (NetBIOSHostName = get_netbios_hostname())) {
 		return;
@@ -250,14 +253,14 @@ VOID known_hostnames() {
 	WORD dwlength = sizeof(szHostnames) / sizeof(szHostnames[0]);
 	for (int i = 0; i < dwlength; i++) {
 
-		_stprintf_s(msg, sizeof(msg) / sizeof(msg[0]), _T("Checking if hostname matches : %s "), szHostnames[i]);
+		_stprintf_s(msg, sizeof(msg) / sizeof(msg[0]),
+					_T("Checking if hostname matches : %s "), szHostnames[i]);
 
 		/* Do a case-insensitive search for all entries in szHostnames */
 		BOOL matched = FALSE;
 		if (0 == _tcsicmp(szHostnames[i], NetBIOSHostName)) {
 			matched = TRUE;
-		}
-		else if (0 == _tcsicmp(szHostnames[i], DNSHostName)) {
+		} else if (0 == _tcsicmp(szHostnames[i], DNSHostName)) {
 			matched = TRUE;
 		}
 
@@ -271,10 +274,11 @@ VOID known_hostnames() {
 /*
 Check for a combination of environmental conditions, replicating what malware
 could/has used to detect that it's running in a sandbox. */
-VOID other_known_sandbox_environment_checks() {
-	TCHAR* NetBIOSHostName;
-	TCHAR* DNSHostName;
-	TCHAR* username;
+VOID other_known_sandbox_environment_checks()
+{
+	TCHAR *NetBIOSHostName;
+	TCHAR *DNSHostName;
+	TCHAR *username;
 	BOOL matched;
 
 	if (NULL == (username = get_username())) {
@@ -291,52 +295,62 @@ VOID other_known_sandbox_environment_checks() {
 		return;
 	}
 	/* From Emotet
-	 * https://blog.trendmicro.com/trendlabs-security-intelligence/new-emotet-hijacks-windows-api-evades-sandbox-analysis/ */
+	 * https://blog.trendmicro.com/trendlabs-security-intelligence/new-emotet-hijacks-windows-api-evades-sandbox-analysis/
+	 */
 
 	matched = FALSE;
 	if ((0 == StrCmp(username, _T("Wilber"))) &&
 		((0 == StrCmpNI(NetBIOSHostName, _T("SC"), 2)) ||
-			(0 == StrCmpNI(NetBIOSHostName, _T("SW"), 2)))) {
+		 (0 == StrCmpNI(NetBIOSHostName, _T("SW"), 2)))) {
 		matched = TRUE;
 	}
-	print_results(matched, (TCHAR*)_T("Checking whether username is 'Wilber' and NetBIOS name starts with 'SC' or 'SW' "));
+	print_results(matched,
+				  (TCHAR *)_T("Checking whether username is 'Wilber' and ")
+						   _T("NetBIOS name starts with 'SC' or 'SW' "));
 
 	matched = FALSE;
-	if ((0 == StrCmp(username, _T("admin"))) && (0 == StrCmp(NetBIOSHostName, _T("SystemIT")))) {
+	if ((0 == StrCmp(username, _T("admin"))) &&
+		(0 == StrCmp(NetBIOSHostName, _T("SystemIT")))) {
 		matched = TRUE;
 	}
-	print_results(matched, (TCHAR*)_T("Checking whether username is 'admin' and NetBIOS name is 'SystemIT' "));
+	print_results(matched, (TCHAR *)_T("Checking whether username is 'admin' ")
+									_T("and NetBIOS name is 'SystemIT' "));
 
 	matched = FALSE;
-	if ((0 == StrCmp(username, _T("admin"))) && (0 == StrCmp(DNSHostName, _T("KLONE_X64-PC")))) {
+	if ((0 == StrCmp(username, _T("admin"))) &&
+		(0 == StrCmp(DNSHostName, _T("KLONE_X64-PC")))) {
 		matched = TRUE;
 	}
-	print_results(matched, (TCHAR*)_T("Checking whether username is 'admin' and DNS hostname is 'KLONE_X64-PC' "));
+	print_results(matched, (TCHAR *)_T("Checking whether username is 'admin' ")
+									_T("and DNS hostname is 'KLONE_X64-PC' "));
 
 	matched = FALSE;
 	if ((0 == StrCmp(username, _T("John"))) &&
-		(is_FileExists((TCHAR*)_T("C:\\take_screenshot.ps1"))) &&
-		(is_FileExists((TCHAR*)_T("C:\\loaddll.exe")))) {
+		(is_FileExists((TCHAR *)_T("C:\\take_screenshot.ps1"))) &&
+		(is_FileExists((TCHAR *)_T("C:\\loaddll.exe")))) {
 		matched = TRUE;
 	}
-	print_results(matched, (TCHAR*)_T("Checking whether username is 'John' and two sandbox files exist "));
+	print_results(matched, (TCHAR *)_T("Checking whether username is 'John' ")
+									_T("and two sandbox files exist "));
 
 	matched = FALSE;
-	if ((is_FileExists((TCHAR*)_T("C:\\email.doc"))) &&
-		(is_FileExists((TCHAR*)_T("C:\\email.htm"))) &&
-		(is_FileExists((TCHAR*)_T("C:\\123\\email.doc"))) &&
-		(is_FileExists((TCHAR*)_T("C:\\123\\email.docx")))) {
+	if ((is_FileExists((TCHAR *)_T("C:\\email.doc"))) &&
+		(is_FileExists((TCHAR *)_T("C:\\email.htm"))) &&
+		(is_FileExists((TCHAR *)_T("C:\\123\\email.doc"))) &&
+		(is_FileExists((TCHAR *)_T("C:\\123\\email.docx")))) {
 		matched = TRUE;
 	}
-	print_results(matched, (TCHAR*)_T("Checking whether four known sandbox 'email' file paths exist "));
+	print_results(matched, (TCHAR *)_T("Checking whether four known sandbox ")
+									_T("'email' file paths exist "));
 
 	matched = FALSE;
-	if ((is_FileExists((TCHAR*)_T("C:\\a\\foobar.bmp"))) &&
-		(is_FileExists((TCHAR*)_T("C:\\a\\foobar.doc"))) &&
-		(is_FileExists((TCHAR*)_T("C:\\a\\foobar.gif")))) {
+	if ((is_FileExists((TCHAR *)_T("C:\\a\\foobar.bmp"))) &&
+		(is_FileExists((TCHAR *)_T("C:\\a\\foobar.doc"))) &&
+		(is_FileExists((TCHAR *)_T("C:\\a\\foobar.gif")))) {
 		matched = TRUE;
 	}
-	print_results(matched, (TCHAR*)_T("Checking whether three known sandbox 'foobar' files exist "));
+	print_results(matched, (TCHAR *)_T("Checking whether three known sandbox ")
+									_T("'foobar' files exist "));
 
 	free(username);
 	free(NetBIOSHostName);
@@ -357,7 +371,7 @@ Number of Processors in VM
 
 BOOL NumberOfProcessors()
 {
-#if defined (ENV64BIT)
+#if defined(ENV64BIT)
 	PULONG ulNumberProcessors = (PULONG)(__readgsqword(0x60) + 0xB8);
 
 #elif defined(ENV32BIT)
@@ -370,7 +384,6 @@ BOOL NumberOfProcessors()
 	else
 		return FALSE;
 }
-
 
 /*
 This trick  involves looking at pointers to critical operating system tables
@@ -395,14 +408,13 @@ Same for Local Descriptor Table (LDT)
 */
 BOOL ldt_trick()
 {
-	UINT ldt_base = get_ldt_base();
+	auto ldt_base = get_ldt_base();
 
 	if (ldt_base == 0xdead0000)
 		return FALSE;
 	else
-		return TRUE; // VMWare detected	
+		return TRUE; // VMWare detected
 }
-
 
 /*
 Same for Global Descriptor Table (GDT)
@@ -412,68 +424,66 @@ BOOL gdt_trick()
 	UINT gdt_base = get_gdt_base();
 
 	if ((gdt_base >> 24) == 0xff)
-		return TRUE; // VMWare detected	
+		return TRUE; // VMWare detected
 
 	else
 		return FALSE;
 }
 
-
 /*
 The instruction STR (Store Task Register) stores the selector segment of the TR
-register (Task Register) in the specified operand (memory or other general purpose register).
-All x86 processors can manage tasks in the same way as an operating system would do it.
-That is, keeping the task state and recovering it when that task is executed again. All
-the states of a task are kept in its TSS; there is one TSS per task. How can we know which
-is the TSS associated to the execution task? Using STR instruction, due to the fact that
-the selector segment that was brought back points into the TSS of the present task.
-In all the tests that were done, the value brought back by STR from within a virtual machine
-was different to the obtained from a native system, so apparently, it can be used as a another
-mechanism of a unique instruction in assembler to detect virtual machines.
+register (Task Register) in the specified operand (memory or other general
+purpose register). All x86 processors can manage tasks in the same way as an
+operating system would do it. That is, keeping the task state and recovering it
+when that task is executed again. All the states of a task are kept in its TSS;
+there is one TSS per task. How can we know which is the TSS associated to the
+execution task? Using STR instruction, due to the fact that the selector segment
+that was brought back points into the TSS of the present task. In all the tests
+that were done, the value brought back by STR from within a virtual machine was
+different to the obtained from a native system, so apparently, it can be used as
+a another mechanism of a unique instruction in assembler to detect virtual
+machines.
 */
 BOOL str_trick()
 {
 	UCHAR mem[4] = { 0, 0, 0, 0 };
 
-#if defined (ENV32BIT)
+#if defined(ENV32BIT)
 	__asm str mem;
 #endif
 
 	if ((mem[0] == 0x00) && (mem[1] == 0x40))
-		return TRUE; // VMWare detected	
+		return TRUE; // VMWare detected
 	else
 		return FALSE;
 }
-
 
 /*
 Check number of cores using WMI
 */
 BOOL number_cores_wmi()
 {
-	IWbemServices* pSvc = NULL;
-	IWbemLocator* pLoc = NULL;
-	IEnumWbemClassObject* pEnumerator = NULL;
+	IWbemServices *pSvc = NULL;
+	IWbemLocator *pLoc = NULL;
+	IEnumWbemClassObject *pEnumerator = NULL;
 	BOOL bStatus = FALSE;
 	HRESULT hRes;
 	BOOL bFound = FALSE;
 
 	// Init WMI
 	bStatus = InitWMI(&pSvc, &pLoc, _T("ROOT\\CIMV2"));
-	if (bStatus)
-	{
+	if (bStatus) {
 		// If success, execute the desired query
-		bStatus = ExecWMIQuery(&pSvc, &pLoc, &pEnumerator, _T("SELECT * FROM Win32_Processor"));
-		if (bStatus)
-		{
+		bStatus = ExecWMIQuery(&pSvc, &pLoc, &pEnumerator,
+							   _T("SELECT * FROM Win32_Processor"));
+		if (bStatus) {
 			// Get the data from the query
-			IWbemClassObject* pclsObj = NULL;
+			IWbemClassObject *pclsObj = NULL;
 			ULONG uReturn = 0;
 			VARIANT vtProp;
 
 			// Iterate over our enumator
-			while (pEnumerator)
-			{
+			while (pEnumerator) {
 				hRes = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
 				if (0 == uReturn)
 					break;
@@ -515,7 +525,7 @@ BOOL number_cores_wmi()
 /*
 Filter for removable disk, CD-ROM, network drive or RAM disk
 */
-BOOL checkDriveType(IWbemClassObject* pclsObj)
+BOOL checkDriveType(IWbemClassObject *pclsObj)
 {
 	if (!pclsObj)
 		return FALSE;
@@ -525,14 +535,12 @@ BOOL checkDriveType(IWbemClassObject* pclsObj)
 	HRESULT hResDriveType;
 
 	hResDriveType = pclsObj->Get(_T("DriveType"), 0, &vtDriveType, NULL, 0);
-	if (SUCCEEDED(hResDriveType) && V_VT(&vtDriveType) != VT_NULL)
-	{
-		if (vtDriveType.uintVal == 2 // removable disk (USB)
+	if (SUCCEEDED(hResDriveType) && V_VT(&vtDriveType) != VT_NULL) {
+		if (vtDriveType.uintVal == 2	// removable disk (USB)
 			|| vtDriveType.uintVal == 4 // network drive
 			|| vtDriveType.uintVal == 5 // CD-ROM
 			|| vtDriveType.uintVal == 6 // RAM disk
-			)
-		{
+		) {
 			res = TRUE;
 		}
 		VariantClear(&vtDriveType);
@@ -545,9 +553,9 @@ Check hard disk size using WMI
 */
 BOOL disk_size_wmi()
 {
-	IWbemServices* pSvc = NULL;
-	IWbemLocator* pLoc = NULL;
-	IEnumWbemClassObject* pEnumerator = NULL;
+	IWbemServices *pSvc = NULL;
+	IWbemLocator *pLoc = NULL;
+	IEnumWbemClassObject *pEnumerator = NULL;
 	BOOL bStatus = FALSE;
 	HRESULT hRes;
 	BOOL bFound = FALSE;
@@ -555,20 +563,18 @@ BOOL disk_size_wmi()
 
 	// Init WMI
 	bStatus = InitWMI(&pSvc, &pLoc, _T("ROOT\\CIMV2"));
-	if (bStatus)
-	{
+	if (bStatus) {
 		// If success, execute the desired query
-		bStatus = ExecWMIQuery(&pSvc, &pLoc, &pEnumerator, _T("SELECT * FROM Win32_LogicalDisk"));
-		if (bStatus)
-		{
+		bStatus = ExecWMIQuery(&pSvc, &pLoc, &pEnumerator,
+							   _T("SELECT * FROM Win32_LogicalDisk"));
+		if (bStatus) {
 			// Get the data from the query
-			IWbemClassObject* pclsObj = NULL;
+			IWbemClassObject *pclsObj = NULL;
 			ULONG uReturn = 0;
 			VARIANT vtProp;
 
 			// Iterate over our enumator
-			while (pEnumerator)
-			{
+			while (pEnumerator) {
 				hRes = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
 				if (0 == uReturn)
 					break;
@@ -582,16 +588,16 @@ BOOL disk_size_wmi()
 				// Get the value of the Name property
 				hRes = pclsObj->Get(_T("Size"), 0, &vtProp, NULL, 0);
 				if (SUCCEEDED(hRes)) {
-					if (V_VT(&vtProp) != VT_NULL)
-					{
+					if (V_VT(&vtProp) != VT_NULL) {
 						// convert disk size string to bytes
 						errno = 0;
-						unsigned long long diskSizeBytes = _tcstoui64_l(vtProp.bstrVal, NULL, 10, _get_current_locale());
+						unsigned long long diskSizeBytes = _tcstoui64_l(
+							vtProp.bstrVal, NULL, 10, _get_current_locale());
 						// do the check only if we successfuly got the disk size
-						if (errno == 0)
-						{
+						if (errno == 0) {
 							// Do our comparison
-							if (diskSizeBytes < minHardDiskSize) { // Less than 80GB
+							if (diskSizeBytes <
+								minHardDiskSize) { // Less than 80GB
 								bFound = TRUE;
 							}
 						}
@@ -619,10 +625,10 @@ BOOL disk_size_wmi()
 	return bFound;
 }
 
-
 /*
-DeviceIoControl works with disks directly rather than partitions (GetDiskFreeSpaceEx)
-We can send IOCTL_DISK_GET_LENGTH_INFO code to get the raw byte size of the physical disk
+DeviceIoControl works with disks directly rather than partitions
+(GetDiskFreeSpaceEx) We can send IOCTL_DISK_GET_LENGTH_INFO code to get the raw
+byte size of the physical disk
 */
 BOOL dizk_size_deviceiocontrol()
 {
@@ -638,9 +644,10 @@ BOOL dizk_size_deviceiocontrol()
 	if (!IsElevated() && IsWindowsVistaOrGreater())
 		return FALSE;
 
-	// This code tries to get the physical disk(s) associated with the drive that Windows is on.
-	// This is not always C:\ or PhysicalDrive0 so we need to do some work to account for multi-disk volumes.
-	// By default we fall back to PhysicalDrive0 if any of this fails.
+	// This code tries to get the physical disk(s) associated with the drive
+	// that Windows is on. This is not always C:\ or PhysicalDrive0 so we need
+	// to do some work to account for multi-disk volumes. By default we fall
+	// back to PhysicalDrive0 if any of this fails.
 
 	bool defaultToDrive0 = true;
 
@@ -649,79 +656,74 @@ BOOL dizk_size_deviceiocontrol()
 	SecureZeroMemory(winDirBuffer, MAX_PATH);
 	UINT winDirLen = GetSystemWindowsDirectory(winDirBuffer, MAX_PATH);
 
-	if (winDirLen)
-	{
+	if (winDirLen) {
 		// get the drive number (0-25 for A-Z) associated with the directory
 		int driveNumber = PathGetDriveNumber(winDirBuffer);
-		if (driveNumber >= 0)
-		{
+		if (driveNumber >= 0) {
 			// convert the drive number to a root path (e.g. C:\)
 			wchar_t driveRootPathBuffer[MAX_PATH];
 			SecureZeroMemory(driveRootPathBuffer, MAX_PATH);
 
-			wnsprintf(driveRootPathBuffer, MAX_PATH, _T("\\\\.\\%C:"), _T('A') + driveNumber);
+			wnsprintf(driveRootPathBuffer, MAX_PATH, _T("\\\\.\\%C:"),
+					  _T('A') + driveNumber);
 
 			// open a handle to the volume
-			HANDLE hVolume = CreateFile(
-				driveRootPathBuffer,
-				GENERIC_READ,
-				FILE_SHARE_READ | FILE_SHARE_WRITE,
-				NULL,
-				OPEN_EXISTING,
-				FILE_FLAG_BACKUP_SEMANTICS,
-				NULL);
+			HANDLE hVolume =
+				CreateFile(driveRootPathBuffer, GENERIC_READ,
+						   FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+						   OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
 
-			if (hVolume != INVALID_HANDLE_VALUE)
-			{
-				DWORD extentSize = 8192; //256 VOLUME_DISK_EXTENTS entries
+			if (hVolume != INVALID_HANDLE_VALUE) {
+				DWORD extentSize = 8192; // 256 VOLUME_DISK_EXTENTS entries
 				PVOLUME_DISK_EXTENTS diskExtents = NULL;
 
-				diskExtents = static_cast<PVOLUME_DISK_EXTENTS>(LocalAlloc(LPTR, extentSize));
+				diskExtents = static_cast<PVOLUME_DISK_EXTENTS>(
+					LocalAlloc(LPTR, extentSize));
 				if (diskExtents) {
 
 					DWORD dummy = 0;
-					BOOL extentsIoctlOK = DeviceIoControl(hVolume, IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS, NULL, 0, diskExtents, extentSize, &dummy, NULL);
+					BOOL extentsIoctlOK = DeviceIoControl(
+						hVolume, IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS, NULL, 0,
+						diskExtents, extentSize, &dummy, NULL);
 
-					if (extentsIoctlOK && diskExtents->NumberOfDiskExtents > 0)
-					{
+					if (extentsIoctlOK &&
+						diskExtents->NumberOfDiskExtents > 0) {
 						// loop through disks associated with this drive
 						// we want to sum the disk
 						wchar_t physicalPathBuffer[MAX_PATH];
 
-						for (DWORD i = 0; i < diskExtents->NumberOfDiskExtents; i++)
-						{
-							if (wnsprintf(physicalPathBuffer, MAX_PATH, _T("\\\\.\\PhysicalDrive%u"), diskExtents->Extents[i].DiskNumber) > 0)
-							{
+						for (DWORD i = 0; i < diskExtents->NumberOfDiskExtents;
+							 i++) {
+							if (wnsprintf(physicalPathBuffer, MAX_PATH,
+										  _T("\\\\.\\PhysicalDrive%u"),
+										  diskExtents->Extents[i].DiskNumber) >
+								0) {
 								// open the physical disk
-								hDevice = CreateFile(
-									physicalPathBuffer,
-									GENERIC_READ,
-									FILE_SHARE_READ,
-									NULL,
-									OPEN_EXISTING,
-									0,
-									NULL);
+								hDevice =
+									CreateFile(physicalPathBuffer, GENERIC_READ,
+											   FILE_SHARE_READ, NULL,
+											   OPEN_EXISTING, 0, NULL);
 
-								if (hDevice != INVALID_HANDLE_VALUE)
-								{
+								if (hDevice != INVALID_HANDLE_VALUE) {
 									// fetch the size info
 									bResult = DeviceIoControl(
-										hDevice,					// device to be queried
-										IOCTL_DISK_GET_LENGTH_INFO, // operation to perform
-										NULL, 0,					// no input buffer
+										hDevice, // device to be queried
+										IOCTL_DISK_GET_LENGTH_INFO, // operation
+																	// to
+																	// perform
+										NULL, 0, // no input buffer
 										&size, sizeof(GET_LENGTH_INFORMATION),
-										&lpBytesReturned,			// bytes returned
-										(LPOVERLAPPED)NULL);		// synchronous I/O
+										&lpBytesReturned,	 // bytes returned
+										(LPOVERLAPPED)NULL); // synchronous I/O
 
-									if (bResult)
-									{
+									if (bResult) {
 										// add size :)
-										totalDiskSize.QuadPart += size.Length.QuadPart;
-										// we've been successful so far, so let's say it's fine
+										totalDiskSize.QuadPart +=
+											size.Length.QuadPart;
+										// we've been successful so far, so
+										// let's say it's fine
 										defaultToDrive0 = false;
-									}
-									else
-									{
+									} else {
 										// failed IOCTL call
 										defaultToDrive0 = true;
 									}
@@ -730,17 +732,14 @@ BOOL dizk_size_deviceiocontrol()
 
 									if (!bResult)
 										break;
-								}
-								else
-								{
+								} else {
 									// failed to open the drive
 									defaultToDrive0 = true;
 									break;
 								}
-							}
-							else
-							{
-								// failed to construct the path string for some reason
+							} else {
+								// failed to construct the path string for some
+								// reason
 								defaultToDrive0 = true;
 								break;
 							}
@@ -755,27 +754,26 @@ BOOL dizk_size_deviceiocontrol()
 		}
 	}
 
-	// for some reason we couldn't enumerate the disks associated with the system drive
-	// so we'll just check PhysicalDrive0 as a backup
-	if (defaultToDrive0)
-	{
+	// for some reason we couldn't enumerate the disks associated with the
+	// system drive so we'll just check PhysicalDrive0 as a backup
+	if (defaultToDrive0) {
 		hDevice = CreateFile(_T("\\\\.\\PhysicalDrive0"),
-			GENERIC_READ,               // no access to the drive
-			FILE_SHARE_READ, 			// share mode
-			NULL,						// default security attributes
-			OPEN_EXISTING,				// disposition
-			0,							// file attributes
-			NULL);						// do not copy file attributes
+							 GENERIC_READ,	  // no access to the drive
+							 FILE_SHARE_READ, // share mode
+							 NULL,			  // default security attributes
+							 OPEN_EXISTING,	  // disposition
+							 0,				  // file attributes
+							 NULL);			  // do not copy file attributes
 
 		if (hDevice != INVALID_HANDLE_VALUE) {
 
 			if (DeviceIoControl(
-				hDevice,					// device to be queried
-				IOCTL_DISK_GET_LENGTH_INFO, // operation to perform
-				NULL, 0,					// no input buffer
-				&size, sizeof(GET_LENGTH_INFORMATION),
-				&lpBytesReturned,			// bytes returned
-				(LPOVERLAPPED)NULL))		// synchronous I/O
+					hDevice,					// device to be queried
+					IOCTL_DISK_GET_LENGTH_INFO, // operation to perform
+					NULL, 0,					// no input buffer
+					&size, sizeof(GET_LENGTH_INFORMATION),
+					&lpBytesReturned,	 // bytes returned
+					(LPOVERLAPPED)NULL)) // synchronous I/O
 			{
 				totalDiskSize.QuadPart = size.Length.QuadPart;
 			}
@@ -791,7 +789,6 @@ BOOL dizk_size_deviceiocontrol()
 	return bResult;
 }
 
-
 BOOL setupdi_diskdrive()
 {
 	HDEVINFO hDevInfo;
@@ -801,9 +798,8 @@ BOOL setupdi_diskdrive()
 
 	// Create a HDEVINFO with all present devices.
 	hDevInfo = SetupDiGetClassDevs((LPGUID)&GUID_DEVCLASS_DISKDRIVE,
-		0, // Enumerator
-		0,
-		DIGCF_PRESENT);
+								   0, // Enumerator
+								   0, DIGCF_PRESENT);
 
 	if (hDevInfo == INVALID_HANDLE_VALUE)
 		return FALSE;
@@ -816,23 +812,21 @@ BOOL setupdi_diskdrive()
 	LPTSTR buffer = NULL;
 	DWORD dwSize = 0;
 
-	for (i = 0; SetupDiEnumDeviceInfo(hDevInfo, i, &DeviceInfoData); i++)
-	{
-		while (!SetupDiGetDeviceRegistryProperty(hDevInfo, &DeviceInfoData, SPDRP_HARDWAREID,
-			&dwPropertyRegDataType, (PBYTE)buffer, dwSize, &dwSize))
-		{
+	for (i = 0; SetupDiEnumDeviceInfo(hDevInfo, i, &DeviceInfoData); i++) {
+		while (!SetupDiGetDeviceRegistryProperty(
+			hDevInfo, &DeviceInfoData, SPDRP_HARDWAREID, &dwPropertyRegDataType,
+			(PBYTE)buffer, dwSize, &dwSize)) {
 			if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
 				// Change the buffer size.
-				if (buffer)LocalFree(buffer);
-				// Double the size to avoid problems on 
-				// W2k MBCS systems per KB 888609. 
+				if (buffer)
+					LocalFree(buffer);
+				// Double the size to avoid problems on
+				// W2k MBCS systems per KB 888609.
 				buffer = (LPTSTR)LocalAlloc(LPTR, dwSize * 2);
 				if (buffer == NULL)
 					break;
-			}
-			else
+			} else
 				break;
-
 		}
 
 		if (buffer) {
@@ -840,8 +834,7 @@ BOOL setupdi_diskdrive()
 			if ((StrStrI(buffer, _T("vbox")) != NULL) ||
 				(StrStrI(buffer, _T("vmware")) != NULL) ||
 				(StrStrI(buffer, _T("qemu")) != NULL) ||
-				(StrStrI(buffer, _T("virtual")) != NULL))
-			{
+				(StrStrI(buffer, _T("virtual")) != NULL)) {
 				bFound = TRUE;
 				break;
 			}
@@ -860,11 +853,11 @@ BOOL setupdi_diskdrive()
 	return bFound;
 }
 
-
 /*
 Check if there is any mouse movement in the sandbox.
 */
-BOOL mouse_movement() {
+BOOL mouse_movement()
+{
 
 	POINT positionA = {};
 	POINT positionB = {};
@@ -886,16 +879,16 @@ BOOL mouse_movement() {
 		return FALSE;
 }
 
-
 /*
 Check for the lack of user input.
 This version is slightly different from the original:
 https://www.lastline.com/labsblog/malware-evasion-techniques/
 It does not run inside an infinite loop (preventing al-khaser to get stuck)
 */
-BOOL lack_user_input() {
+BOOL lack_user_input()
+{
 	int correct_idle_time_counter = 0;
-	DWORD current_tick_count = 0, idle_time = 0;
+	DWORD current_tick_count = 0;
 	LASTINPUTINFO last_input_info; // Contains the time of the last input
 	last_input_info.cbSize = sizeof(LASTINPUTINFO);
 
@@ -912,18 +905,16 @@ BOOL lack_user_input() {
 				if (correct_idle_time_counter >= 10)
 					return FALSE;
 			}
-		}
-		else  // GetLastInputInfo must not fail
+		} else // GetLastInputInfo must not fail
 			return TRUE;
 	}
 	return TRUE;
 }
 
-
 /*
 Check if the machine have enough memory space, usually VM get a small ammount,
-one reason if because several VMs are running on the same servers so they can run
-more tasks at the same time.
+one reason if because several VMs are running on the same servers so they can
+run more tasks at the same time.
 */
 BOOL memory_space()
 {
@@ -949,14 +940,16 @@ BOOL disk_size_getdiskfreespace()
 	// 64 bits integer, low and high bytes
 	ULARGE_INTEGER totalNumberOfBytes;
 
-	// If the function succeeds, the return value is nonzero. If the function fails, the return value is 0 (zero).
+	// If the function succeeds, the return value is nonzero. If the function
+	// fails, the return value is 0 (zero).
 	bStatus = GetDiskFreeSpaceEx(pszDrive, NULL, &totalNumberOfBytes, NULL);
 	if (bStatus) {
-		if (totalNumberOfBytes.QuadPart < minHardDiskSize)  // 80GB
+		if (totalNumberOfBytes.QuadPart < minHardDiskSize) // 80GB
 			return TRUE;
 	}
 
-	return FALSE;;
+	return FALSE;
+	;
 }
 
 /*
@@ -967,7 +960,8 @@ BOOL accelerated_sleep()
 	DWORD dwStart = 0, dwEnd = 0, dwDiff = 0;
 	DWORD dwMillisecondsToSleep = 60 * 1000;
 
-	/* Retrieves the number of milliseconds that have elapsed since the system was started */
+	/* Retrieves the number of milliseconds that have elapsed since the system
+	 * was started */
 	dwStart = GetTickCount();
 
 	/* Let's sleep 1 minute so Sandbox is interested to patch that */
@@ -985,10 +979,10 @@ BOOL accelerated_sleep()
 }
 
 /*
-The CPUID instruction is a processor supplementary instruction (its name derived from
-CPU IDentification) for the x86 architecture allowing software to discover details of
-the processor. By calling CPUID with EAX =1, The 31bit of ECX register if set will
-reveal the precense of a hypervisor.
+The CPUID instruction is a processor supplementary instruction (its name derived
+from CPU IDentification) for the x86 architecture allowing software to discover
+details of the processor. By calling CPUID with EAX =1, The 31bit of ECX
+register if set will reveal the precense of a hypervisor.
 */
 BOOL cpuid_is_hypervisor()
 {
@@ -1002,44 +996,45 @@ BOOL cpuid_is_hypervisor()
 		return FALSE;
 }
 
-
 /*
-If HV presence confirmed then it is good to know which type of hypervisor we have
-When CPUID is called with EAX=0x40000000, cpuid return the hypervisor signature.
+If HV presence confirmed then it is good to know which type of hypervisor we
+have When CPUID is called with EAX=0x40000000, cpuid return the hypervisor
+signature.
 */
 BOOL cpuid_hypervisor_vendor()
 {
 	INT CPUInfo[4] = { -1 };
 	CHAR szHypervisorVendor[0x40];
-	WCHAR* pwszConverted;
+	WCHAR *pwszConverted;
 
 	BOOL bResult = FALSE;
 
-	const TCHAR* szBlacklistedHypervisors[] = {
-		_T("KVMKVMKVM\0\0\0"),	/* KVM */
-		_T("Microsoft Hv"),		/* Microsoft Hyper-V or Windows Virtual PC */
-		_T("VMwareVMware"),		/* VMware */
-		_T("XenVMMXenVMM"),		/* Xen */
-		_T("prl hyperv  "),		/* Parallels */
-		_T("VBoxVBoxVBox"),		/* VirtualBox */
+	const TCHAR *szBlacklistedHypervisors[] = {
+		_T("KVMKVMKVM\0\0\0"), /* KVM */
+		_T("Microsoft Hv"),	   /* Microsoft Hyper-V or Windows Virtual PC */
+		_T("VMwareVMware"),	   /* VMware */
+		_T("XenVMMXenVMM"),	   /* Xen */
+		_T("prl hyperv  "),	   /* Parallels */
+		_T("VBoxVBoxVBox"),	   /* VirtualBox */
 	};
-	WORD dwlength = sizeof(szBlacklistedHypervisors) / sizeof(szBlacklistedHypervisors[0]);
+	WORD dwlength =
+		sizeof(szBlacklistedHypervisors) / sizeof(szBlacklistedHypervisors[0]);
 
 	// __cpuid with an InfoType argument of 0 returns the number of
 	// valid Ids in CPUInfo[0] and the CPU identification string in
 	// the other three array elements. The CPU identification string is
-	// not in linear order. The code below arranges the information 
+	// not in linear order. The code below arranges the information
 	// in a human readable form.
 	__cpuid(CPUInfo, 0x40000000);
 	memset(szHypervisorVendor, 0, sizeof(szHypervisorVendor));
 	memcpy(szHypervisorVendor, CPUInfo + 1, 12);
 
-	for (int i = 0; i < dwlength; i++)
-	{
+	for (int i = 0; i < dwlength; i++) {
 		pwszConverted = ascii_to_wide_str(szHypervisorVendor);
 		if (pwszConverted) {
 
-			bResult = (_tcscmp(pwszConverted, szBlacklistedHypervisors[i]) == 0);
+			bResult =
+				(_tcscmp(pwszConverted, szBlacklistedHypervisors[i]) == 0);
 
 			free(pwszConverted);
 
@@ -1051,15 +1046,14 @@ BOOL cpuid_hypervisor_vendor()
 	return FALSE;
 }
 
-
 /*
 Check SerialNumber devices using WMI
 */
 BOOL serial_number_bios_wmi()
 {
-	IWbemServices* pSvc = NULL;
-	IWbemLocator* pLoc = NULL;
-	IEnumWbemClassObject* pEnumerator = NULL;
+	IWbemServices *pSvc = NULL;
+	IWbemLocator *pLoc = NULL;
+	IEnumWbemClassObject *pEnumerator = NULL;
 	BOOL bStatus = FALSE;
 	HRESULT hRes;
 	BOOL bFound = FALSE;
@@ -1067,19 +1061,17 @@ BOOL serial_number_bios_wmi()
 	// Init WMI
 	bStatus = InitWMI(&pSvc, &pLoc, _T("ROOT\\CIMV2"));
 
-	if (bStatus)
-	{
+	if (bStatus) {
 		// If success, execute the desired query
-		bStatus = ExecWMIQuery(&pSvc, &pLoc, &pEnumerator, _T("SELECT * FROM Win32_BIOS"));
-		if (bStatus)
-		{
+		bStatus = ExecWMIQuery(&pSvc, &pLoc, &pEnumerator,
+							   _T("SELECT * FROM Win32_BIOS"));
+		if (bStatus) {
 			// Get the data from the query
-			IWbemClassObject* pclsObj = NULL;
+			IWbemClassObject *pclsObj = NULL;
 			ULONG uReturn = 0;
 			VARIANT vtProp;
 
-			while (pEnumerator)
-			{
+			while (pEnumerator) {
 				hRes = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
 				if (0 == uReturn)
 					break;
@@ -1090,14 +1082,12 @@ BOOL serial_number_bios_wmi()
 					if (vtProp.vt == VT_BSTR) {
 
 						// Do our comparison
-						if (
-							(StrStrI(vtProp.bstrVal, _T("VMWare")) != 0) ||
-							(wcscmp(vtProp.bstrVal, _T("0")) == 0) || // VBox (serial is just "0")
+						if ((StrStrI(vtProp.bstrVal, _T("VMWare")) != 0) ||
+							(wcscmp(vtProp.bstrVal, _T("0")) ==
+							 0) || // VBox (serial is just "0")
 							(StrStrI(vtProp.bstrVal, _T("Xen")) != 0) ||
 							(StrStrI(vtProp.bstrVal, _T("Virtual")) != 0) ||
-							(StrStrI(vtProp.bstrVal, _T("A M I")) != 0)
-							)
-						{
+							(StrStrI(vtProp.bstrVal, _T("A M I")) != 0)) {
 							VariantClear(&vtProp);
 							pclsObj->Release();
 							bFound = TRUE;
@@ -1122,15 +1112,14 @@ BOOL serial_number_bios_wmi()
 	return bFound;
 }
 
-
 /*
 Check Model from ComputerSystem using WMI
 */
 BOOL model_computer_system_wmi()
 {
-	IWbemServices* pSvc = NULL;
-	IWbemLocator* pLoc = NULL;
-	IEnumWbemClassObject* pEnumerator = NULL;
+	IWbemServices *pSvc = NULL;
+	IWbemLocator *pLoc = NULL;
+	IEnumWbemClassObject *pEnumerator = NULL;
 	BOOL bStatus = FALSE;
 	HRESULT hRes;
 	BOOL bFound = FALSE;
@@ -1138,19 +1127,17 @@ BOOL model_computer_system_wmi()
 	// Init WMI
 	bStatus = InitWMI(&pSvc, &pLoc, _T("ROOT\\CIMV2"));
 
-	if (bStatus)
-	{
+	if (bStatus) {
 		// If success, execute the desired query
-		bStatus = ExecWMIQuery(&pSvc, &pLoc, &pEnumerator, _T("SELECT * FROM Win32_ComputerSystem"));
-		if (bStatus)
-		{
+		bStatus = ExecWMIQuery(&pSvc, &pLoc, &pEnumerator,
+							   _T("SELECT * FROM Win32_ComputerSystem"));
+		if (bStatus) {
 			// Get the data from the query
-			IWbemClassObject* pclsObj = NULL;
+			IWbemClassObject *pclsObj = NULL;
 			ULONG uReturn = 0;
 			VARIANT vtProp;
 
-			while (pEnumerator)
-			{
+			while (pEnumerator) {
 				hRes = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
 				if (0 == uReturn)
 					break;
@@ -1161,12 +1148,10 @@ BOOL model_computer_system_wmi()
 					if (vtProp.vt == VT_BSTR) {
 
 						// Do our comparison
-						if (
-							(StrStrI(vtProp.bstrVal, _T("VirtualBox")) != 0) ||
-							(StrStrI(vtProp.bstrVal, _T("HVM domU")) != 0) || //Xen
-							(StrStrI(vtProp.bstrVal, _T("VMWare")) != 0)
-							)
-						{
+						if ((StrStrI(vtProp.bstrVal, _T("VirtualBox")) != 0) ||
+							(StrStrI(vtProp.bstrVal, _T("HVM domU")) !=
+							 0) || // Xen
+							(StrStrI(vtProp.bstrVal, _T("VMWare")) != 0)) {
 							VariantClear(&vtProp);
 							pclsObj->Release();
 							bFound = TRUE;
@@ -1191,15 +1176,14 @@ BOOL model_computer_system_wmi()
 	return bFound;
 }
 
-
 /*
 Check Manufacturer from ComputerSystem using WMI
 */
 BOOL manufacturer_computer_system_wmi()
 {
-	IWbemServices* pSvc = NULL;
-	IWbemLocator* pLoc = NULL;
-	IEnumWbemClassObject* pEnumerator = NULL;
+	IWbemServices *pSvc = NULL;
+	IWbemLocator *pLoc = NULL;
+	IEnumWbemClassObject *pEnumerator = NULL;
 	BOOL bStatus = FALSE;
 	HRESULT hRes;
 	BOOL bFound = FALSE;
@@ -1207,19 +1191,17 @@ BOOL manufacturer_computer_system_wmi()
 	// Init WMI
 	bStatus = InitWMI(&pSvc, &pLoc, _T("ROOT\\CIMV2"));
 
-	if (bStatus)
-	{
+	if (bStatus) {
 		// If success, execute the desired query
-		bStatus = ExecWMIQuery(&pSvc, &pLoc, &pEnumerator, _T("SELECT * FROM Win32_ComputerSystem"));
-		if (bStatus)
-		{
+		bStatus = ExecWMIQuery(&pSvc, &pLoc, &pEnumerator,
+							   _T("SELECT * FROM Win32_ComputerSystem"));
+		if (bStatus) {
 			// Get the data from the query
-			IWbemClassObject* pclsObj = NULL;
+			IWbemClassObject *pclsObj = NULL;
 			ULONG uReturn = 0;
 			VARIANT vtProp;
 
-			while (pEnumerator)
-			{
+			while (pEnumerator) {
 				hRes = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
 				if (0 == uReturn)
 					break;
@@ -1230,13 +1212,11 @@ BOOL manufacturer_computer_system_wmi()
 					if (vtProp.vt == VT_BSTR) {
 
 						// Do our comparison
-						if (
-							(StrStrI(vtProp.bstrVal, _T("VMWare")) != 0) ||
+						if ((StrStrI(vtProp.bstrVal, _T("VMWare")) != 0) ||
 							(StrStrI(vtProp.bstrVal, _T("Xen")) != 0) ||
-							(StrStrI(vtProp.bstrVal, _T("innotek GmbH")) != 0) || // Vbox
-							(StrStrI(vtProp.bstrVal, _T("QEMU")) != 0)
-							)
-						{
+							(StrStrI(vtProp.bstrVal, _T("innotek GmbH")) !=
+							 0) || // Vbox
+							(StrStrI(vtProp.bstrVal, _T("QEMU")) != 0)) {
 							VariantClear(&vtProp);
 							pclsObj->Release();
 							bFound = TRUE;
@@ -1260,16 +1240,15 @@ BOOL manufacturer_computer_system_wmi()
 	return bFound;
 }
 
-
 /*
 Check Current Temperature using WMI, this requires admin privileges
 In my tests, it works against vbox, vmware, kvm and xen.
 */
 BOOL current_temperature_acpi_wmi()
 {
-	IWbemServices* pSvc = NULL;
-	IWbemLocator* pLoc = NULL;
-	IEnumWbemClassObject* pEnumerator = NULL;
+	IWbemServices *pSvc = NULL;
+	IWbemLocator *pLoc = NULL;
+	IEnumWbemClassObject *pEnumerator = NULL;
 	BOOL bStatus = FALSE;
 	HRESULT hRes;
 	BOOL bFound = FALSE;
@@ -1281,19 +1260,18 @@ BOOL current_temperature_acpi_wmi()
 	// Init WMI
 	bStatus = InitWMI(&pSvc, &pLoc, _T("root\\WMI"));
 
-	if (bStatus)
-	{
+	if (bStatus) {
 		// If success, execute the desired query
-		bStatus = ExecWMIQuery(&pSvc, &pLoc, &pEnumerator, _T("SELECT * FROM MSAcpi_ThermalZoneTemperature"));
-		if (bStatus)
-		{
+		bStatus =
+			ExecWMIQuery(&pSvc, &pLoc, &pEnumerator,
+						 _T("SELECT * FROM MSAcpi_ThermalZoneTemperature"));
+		if (bStatus) {
 			// Get the data from the query
-			IWbemClassObject* pclsObj = NULL;
+			IWbemClassObject *pclsObj = NULL;
 			ULONG uReturn = 0;
 			VARIANT vtProp;
 
-			while (pEnumerator)
-			{
+			while (pEnumerator) {
 				hRes = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
 				if (0 == uReturn) {
 					bFound = TRUE;
@@ -1330,9 +1308,9 @@ KVM, XEN anv VMWare seems to return something, VBOX return NULL
 */
 BOOL process_id_processor_wmi()
 {
-	IWbemServices* pSvc = NULL;
-	IWbemLocator* pLoc = NULL;
-	IEnumWbemClassObject* pEnumerator = NULL;
+	IWbemServices *pSvc = NULL;
+	IWbemLocator *pLoc = NULL;
+	IEnumWbemClassObject *pEnumerator = NULL;
 	BOOL bStatus = FALSE;
 	HRESULT hRes;
 	BOOL bFound = FALSE;
@@ -1340,19 +1318,17 @@ BOOL process_id_processor_wmi()
 	// Init WMI
 	bStatus = InitWMI(&pSvc, &pLoc, _T("ROOT\\CIMV2"));
 
-	if (bStatus)
-	{
+	if (bStatus) {
 		// If success, execute the desired query
-		bStatus = ExecWMIQuery(&pSvc, &pLoc, &pEnumerator, _T("SELECT * FROM Win32_Processor"));
-		if (bStatus)
-		{
+		bStatus = ExecWMIQuery(&pSvc, &pLoc, &pEnumerator,
+							   _T("SELECT * FROM Win32_Processor"));
+		if (bStatus) {
 			// Get the data from the query
-			IWbemClassObject* pclsObj = NULL;
+			IWbemClassObject *pclsObj = NULL;
 			ULONG uReturn = 0;
 			VARIANT vtProp;
 
-			while (pEnumerator)
-			{
+			while (pEnumerator) {
 				hRes = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
 				if (0 == uReturn)
 					break;
@@ -1362,8 +1338,7 @@ BOOL process_id_processor_wmi()
 				if (SUCCEEDED(hRes)) {
 
 					// Do our comparison
-					if (vtProp.bstrVal == NULL)
-					{
+					if (vtProp.bstrVal == NULL) {
 						bFound = TRUE;
 					}
 				}
@@ -1389,17 +1364,17 @@ BOOL process_id_processor_wmi()
 
 /*
 Check what power states are enabled.
-Most VMs don't support S1-S4 power states whereas most hardware does, and thermal control is usually not found either.
-This has been tested on VirtualBox and Hyper-V, as well as a physical desktop and laptop.
+Most VMs don't support S1-S4 power states whereas most hardware does, and
+thermal control is usually not found either. This has been tested on VirtualBox
+and Hyper-V, as well as a physical desktop and laptop.
 */
 BOOL power_capabilities()
 {
 	SYSTEM_POWER_CAPABILITIES powerCaps;
 	BOOL bFound = FALSE;
-	if (GetPwrCapabilities(&powerCaps) == TRUE)
-	{
-		if ((powerCaps.SystemS1 | powerCaps.SystemS2 | powerCaps.SystemS3 | powerCaps.SystemS4) == FALSE)
-		{
+	if (GetPwrCapabilities(&powerCaps) == TRUE) {
+		if ((powerCaps.SystemS1 | powerCaps.SystemS2 | powerCaps.SystemS3 |
+			 powerCaps.SystemS4) == FALSE) {
 			bFound = (powerCaps.ThermalControl == FALSE);
 		}
 	}
@@ -1407,17 +1382,17 @@ BOOL power_capabilities()
 	return bFound;
 }
 
-
 /*
-According to MSDN, this query should return a class that provides statistics on the CPU fan.
-Win32/OilRig checks to see if the result of this query returned a class with more than 0 elements,
-which would most likely be true in a non-virtual environment.
+According to MSDN, this query should return a class that provides statistics on
+the CPU fan. Win32/OilRig checks to see if the result of this query returned a
+class with more than 0 elements, which would most likely be true in a
+non-virtual environment.
 */
 BOOL cpu_fan_wmi()
 {
-	IWbemServices* pSvc = NULL;
-	IWbemLocator* pLoc = NULL;
-	IEnumWbemClassObject* pEnumerator = NULL;
+	IWbemServices *pSvc = NULL;
+	IWbemLocator *pLoc = NULL;
+	IEnumWbemClassObject *pEnumerator = NULL;
 	BOOL bStatus = FALSE;
 	HRESULT hRes;
 	BOOL bFound = FALSE;
@@ -1425,23 +1400,20 @@ BOOL cpu_fan_wmi()
 
 	// Init WMI
 	bStatus = InitWMI(&pSvc, &pLoc, _T("ROOT\\CIMV2"));
-	if (bStatus)
-	{
+	if (bStatus) {
 		// If success, execute the desired query
-		bStatus = ExecWMIQuery(&pSvc, &pLoc, &pEnumerator, _T("SELECT * FROM Win32_Fan"));
-		if (bStatus)
-		{
+		bStatus = ExecWMIQuery(&pSvc, &pLoc, &pEnumerator,
+							   _T("SELECT * FROM Win32_Fan"));
+		if (bStatus) {
 			// Get the data from the query
-			IWbemClassObject* pclsObj = NULL;
+			IWbemClassObject *pclsObj = NULL;
 			ULONG uReturn = 0;
 
-			while (pEnumerator)
-			{
+			while (pEnumerator) {
 				hRes = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
 				if (0 == uReturn) {
 					break;
-				}
-				else {
+				} else {
 					uObjCount++;
 					pclsObj->Release();
 				}
@@ -1460,15 +1432,14 @@ BOOL cpu_fan_wmi()
 	return bFound;
 }
 
-
 /*
 Check Caption from VideoController using WMI
 */
 BOOL caption_video_controller_wmi()
 {
-	IWbemServices* pSvc = NULL;
-	IWbemLocator* pLoc = NULL;
-	IEnumWbemClassObject* pEnumerator = NULL;
+	IWbemServices *pSvc = NULL;
+	IWbemLocator *pLoc = NULL;
+	IEnumWbemClassObject *pEnumerator = NULL;
 	BOOL bStatus = FALSE;
 	HRESULT hRes;
 	BOOL bFound = FALSE;
@@ -1476,19 +1447,17 @@ BOOL caption_video_controller_wmi()
 	// Init WMI
 	bStatus = InitWMI(&pSvc, &pLoc, _T("ROOT\\CIMV2"));
 
-	if (bStatus)
-	{
+	if (bStatus) {
 		// If success, execute the desired query
-		bStatus = ExecWMIQuery(&pSvc, &pLoc, &pEnumerator, _T("SELECT * FROM Win32_VideoController"));
-		if (bStatus)
-		{
+		bStatus = ExecWMIQuery(&pSvc, &pLoc, &pEnumerator,
+							   _T("SELECT * FROM Win32_VideoController"));
+		if (bStatus) {
 			// Get the data from the query
-			IWbemClassObject* pclsObj = NULL;
+			IWbemClassObject *pclsObj = NULL;
 			ULONG uReturn = 0;
 			VARIANT vtProp;
 
-			while (pEnumerator)
-			{
+			while (pEnumerator) {
 				hRes = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
 				if (0 == uReturn)
 					break;
@@ -1499,11 +1468,8 @@ BOOL caption_video_controller_wmi()
 					if (vtProp.vt == VT_BSTR) {
 
 						// Do our comparison
-						if (
-							(StrStrI(vtProp.bstrVal, _T("Hyper-V")) != 0) ||
-							(StrStrI(vtProp.bstrVal, _T("VMWare")) != 0)
-							)
-						{
+						if ((StrStrI(vtProp.bstrVal, _T("Hyper-V")) != 0) ||
+							(StrStrI(vtProp.bstrVal, _T("VMWare")) != 0)) {
 							VariantClear(&vtProp);
 							pclsObj->Release();
 							bFound = TRUE;
@@ -1529,13 +1495,16 @@ BOOL caption_video_controller_wmi()
 }
 
 /*
-Detect Virtual machine by calling NtQueryLicenseValue with Kernel-VMDetection-Private as license value.
-This detection works on Windows 7 and does not detect Microsoft Hypervisor.
+Detect Virtual machine by calling NtQueryLicenseValue with
+Kernel-VMDetection-Private as license value. This detection works on Windows 7
+and does not detect Microsoft Hypervisor.
 */
 BOOL query_license_value()
 {
-	auto RtlInitUnicodeString = static_cast<pRtlInitUnicodeString>(API::GetAPI(API_IDENTIFIER::API_RtlInitUnicodeString));
-	auto NtQueryLicenseValue = static_cast<pNtQueryLicenseValue>(API::GetAPI(API_IDENTIFIER::API_NtQueryLicenseValue));
+	auto RtlInitUnicodeString = static_cast<pRtlInitUnicodeString>(
+		API::GetAPI(API_IDENTIFIER::API_RtlInitUnicodeString));
+	auto NtQueryLicenseValue = static_cast<pNtQueryLicenseValue>(
+		API::GetAPI(API_IDENTIFIER::API_NtQueryLicenseValue));
 
 	if (RtlInitUnicodeString == nullptr || NtQueryLicenseValue == nullptr)
 		return FALSE;
@@ -1545,7 +1514,9 @@ BOOL query_license_value()
 
 	ULONG Result = 0, ReturnLength;
 
-	NTSTATUS Status = NtQueryLicenseValue(&LicenseValue, NULL, reinterpret_cast<PVOID>(&Result), sizeof(ULONG), &ReturnLength);
+	NTSTATUS Status = NtQueryLicenseValue(&LicenseValue, NULL,
+										  reinterpret_cast<PVOID>(&Result),
+										  sizeof(ULONG), &ReturnLength);
 
 	if (NT_SUCCESS(Status)) {
 		return (Result != 0);
@@ -1554,11 +1525,11 @@ BOOL query_license_value()
 	return FALSE;
 }
 
-int wmi_query_count(const _TCHAR* query)
+int wmi_query_count(const _TCHAR *query)
 {
-	IWbemServices* pSvc = NULL;
-	IWbemLocator* pLoc = NULL;
-	IEnumWbemClassObject* pEnumerator = NULL;
+	IWbemServices *pSvc = NULL;
+	IWbemLocator *pLoc = NULL;
+	IEnumWbemClassObject *pEnumerator = NULL;
 	BOOL bStatus = FALSE;
 	HRESULT hRes;
 
@@ -1566,19 +1537,16 @@ int wmi_query_count(const _TCHAR* query)
 
 	// Init WMI
 	bStatus = InitWMI(&pSvc, &pLoc, _T("ROOT\\CIMV2"));
-	if (bStatus)
-	{
+	if (bStatus) {
 		// If success, execute the desired query
 		bStatus = ExecWMIQuery(&pSvc, &pLoc, &pEnumerator, query);
-		if (bStatus)
-		{
+		if (bStatus) {
 			// Get the data from the query
-			IWbemClassObject* pclsObj = NULL;
+			IWbemClassObject *pclsObj = NULL;
 			ULONG uReturn = 0;
 
 			// Iterate over our enumator
-			while (pEnumerator)
-			{
+			while (pEnumerator) {
 				hRes = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
 				if (0 == uReturn)
 					break;
@@ -1593,15 +1561,13 @@ int wmi_query_count(const _TCHAR* query)
 			pSvc->Release();
 			pLoc->Release();
 			CoUninitialize();
-		}
-		else
-		{
+		} else {
 			pSvc->Release();
 			pLoc->Release();
 			CoUninitialize();
 		}
-	}
-	else return -1;
+	} else
+		return -1;
 
 	return count;
 }
@@ -1612,8 +1578,7 @@ Check Win32_CacheMemory for entries
 BOOL cachememory_wmi()
 {
 	int count = wmi_query_count(_T("SELECT * FROM Win32_CacheMemory"));
-	if (count == 0)
-	{
+	if (count == 0) {
 		return TRUE;
 	}
 	return FALSE;
@@ -1625,8 +1590,7 @@ Check Win32_PhysicalMemory for entries
 BOOL physicalmemory_wmi()
 {
 	int count = wmi_query_count(_T("SELECT * FROM Win32_PhysicalMemory"));
-	if (count == 0)
-	{
+	if (count == 0) {
 		return TRUE;
 	}
 	return FALSE;
@@ -1638,8 +1602,7 @@ Check Win32_MemoryDevice for entries
 BOOL memorydevice_wmi()
 {
 	int count = wmi_query_count(_T("SELECT * FROM Win32_MemoryDevice"));
-	if (count == 0)
-	{
+	if (count == 0) {
 		return TRUE;
 	}
 	return FALSE;
@@ -1651,8 +1614,7 @@ Check Win32_MemoryArray for entries
 BOOL memoryarray_wmi()
 {
 	int count = wmi_query_count(_T("SELECT * FROM Win32_MemoryArray"));
-	if (count == 0)
-	{
+	if (count == 0) {
 		return TRUE;
 	}
 	return FALSE;
@@ -1664,8 +1626,7 @@ Check Win32_VoltageProbe for entries
 BOOL voltageprobe_wmi()
 {
 	int count = wmi_query_count(_T("SELECT * FROM Win32_VoltageProbe"));
-	if (count == 0)
-	{
+	if (count == 0) {
 		return TRUE;
 	}
 	return FALSE;
@@ -1677,8 +1638,7 @@ Check Win32_PortConnector for entries
 BOOL portconnector_wmi()
 {
 	int count = wmi_query_count(_T("SELECT * FROM Win32_PortConnector"));
-	if (count == 0)
-	{
+	if (count == 0) {
 		return TRUE;
 	}
 	return FALSE;
@@ -1690,8 +1650,7 @@ Check Win32_SMBIOSMemory for entries
 BOOL smbiosmemory_wmi()
 {
 	int count = wmi_query_count(_T("SELECT * FROM Win32_SMBIOSMemory"));
-	if (count == 0)
-	{
+	if (count == 0) {
 		return TRUE;
 	}
 	return FALSE;
@@ -1702,9 +1661,10 @@ Check Win32_PerfFormattedData_Counters_ThermalZoneInformation for entries
 */
 BOOL perfctrs_thermalzoneinfo_wmi()
 {
-	int count = wmi_query_count(_T("SELECT * FROM Win32_PerfFormattedData_Counters_ThermalZoneInformation"));
-	if (count == 0)
-	{
+	int count = wmi_query_count(
+		_T("SELECT * FROM ")
+		_T("Win32_PerfFormattedData_Counters_ThermalZoneInformation"));
+	if (count == 0) {
 		return TRUE;
 	}
 	return FALSE;
@@ -1716,8 +1676,7 @@ Check CIM_Memory for entries
 BOOL cim_memory_wmi()
 {
 	int count = wmi_query_count(_T("SELECT * FROM CIM_Memory"));
-	if (count == 0)
-	{
+	if (count == 0) {
 		return TRUE;
 	}
 	return FALSE;
@@ -1729,8 +1688,7 @@ Check CIM_NumericSensor for entries
 BOOL cim_numericsensor_wmi()
 {
 	int count = wmi_query_count(_T("SELECT * FROM CIM_NumericSensor"));
-	if (count == 0)
-	{
+	if (count == 0) {
 		return TRUE;
 	}
 	return FALSE;
@@ -1742,8 +1700,7 @@ Check CIM_PhysicalConnector for entries
 BOOL cim_physicalconnector_wmi()
 {
 	int count = wmi_query_count(_T("SELECT * FROM CIM_PhysicalConnector"));
-	if (count == 0)
-	{
+	if (count == 0) {
 		return TRUE;
 	}
 	return FALSE;
@@ -1755,8 +1712,7 @@ Check CIM_Sensor for entries
 BOOL cim_sensor_wmi()
 {
 	int count = wmi_query_count(_T("SELECT * FROM CIM_Sensor"));
-	if (count == 0)
-	{
+	if (count == 0) {
 		return TRUE;
 	}
 	return FALSE;
@@ -1768,8 +1724,7 @@ Check CIM_Slot for entries
 BOOL cim_slot_wmi()
 {
 	int count = wmi_query_count(_T("SELECT * FROM CIM_Slot"));
-	if (count == 0)
-	{
+	if (count == 0) {
 		return TRUE;
 	}
 	return FALSE;
@@ -1781,8 +1736,7 @@ Check CIM_TemperatureSensor for entries
 BOOL cim_temperaturesensor_wmi()
 {
 	int count = wmi_query_count(_T("SELECT * FROM CIM_TemperatureSensor"));
-	if (count == 0)
-	{
+	if (count == 0) {
 		return TRUE;
 	}
 	return FALSE;
@@ -1794,8 +1748,7 @@ Check CIM_VoltageSensor for entries
 BOOL cim_voltagesensor_wmi()
 {
 	int count = wmi_query_count(_T("SELECT * FROM CIM_VoltageSensor"));
-	if (count == 0)
-	{
+	if (count == 0) {
 		return TRUE;
 	}
 	return FALSE;
@@ -1806,12 +1759,11 @@ Checks whether the specified application is a genuine Windows installation.
 
 */
 
-#define WINDOWS_SLID                                                \
-            { 0x55c92734,                                           \
-              0xd682,                                               \
-              0x4d71,                                               \
-              { 0x98, 0x3e, 0xd6, 0xec, 0x3f, 0x16, 0x05, 0x9f }    \
-            }
+#define WINDOWS_SLID                                                           \
+	{ 0x55c92734,                                                              \
+	  0xd682,                                                                  \
+	  0x4d71,                                                                  \
+	  { 0x98, 0x3e, 0xd6, 0xec, 0x3f, 0x16, 0x05, 0x9f } }
 
 BOOL pirated_windows()
 {
@@ -1834,20 +1786,22 @@ BOOL pirated_windows()
 BOOL registry_services_disk_enum()
 {
 	HKEY hkResult = NULL;
-	const TCHAR* diskEnumKey = _T("System\\CurrentControlSet\\Services\\Disk\\Enum");
+	const TCHAR *diskEnumKey =
+		_T("System\\CurrentControlSet\\Services\\Disk\\Enum");
 	DWORD diskCount = 0;
 	DWORD cbData = sizeof(diskCount);
-	const TCHAR* szChecks[] = {
+	const TCHAR *szChecks[] = {
 		/* Checked for by Smokeloader
 		 * https://research.checkpoint.com/2019-resurgence-of-smokeloader/*/
-		 _T("qemu"),
-		 _T("virtio"),
-		 _T("vmware"),
-		 _T("vbox"),
-		 _T("xen"),
+		_T("qemu"),
+		_T("virtio"),
+		_T("vmware"),
+		_T("vbox"),
+		_T("xen"),
 
-		 /* Checked for by Kutaki (not including ones from above)
-		 * https://cofense.com/kutaki-malware-bypasses-gateways-steal-users-credentials/ */
+		/* Checked for by Kutaki (not including ones from above)
+		 * https://cofense.com/kutaki-malware-bypasses-gateways-steal-users-credentials/
+		 */
 		_T("VMW"),
 		_T("Virtual"),
 
@@ -1855,14 +1809,14 @@ BOOL registry_services_disk_enum()
 	WORD dwChecksLength = sizeof(szChecks) / sizeof(szChecks[0]);
 	BOOL bFound = FALSE;
 
-	/* Each disk has a corresponding value where the value name starts at '0' for
-	 * the first disk and increases by 1 for each subsequent disk.  The 'Count'
-	 * value appears to store the total number of disk entries.*/
+	/* Each disk has a corresponding value where the value name starts at '0'
+	 * for the first disk and increases by 1 for each subsequent disk.  The
+	 * 'Count' value appears to store the total number of disk entries.*/
 
-	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, diskEnumKey, NULL, KEY_READ, &hkResult) == ERROR_SUCCESS)
-	{
-		if (RegQueryValueEx(hkResult, _T("Count"), NULL, NULL, (LPBYTE)&diskCount, &cbData) != ERROR_SUCCESS)
-		{
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, diskEnumKey, NULL, KEY_READ,
+					 &hkResult) == ERROR_SUCCESS) {
+		if (RegQueryValueEx(hkResult, _T("Count"), NULL, NULL,
+							(LPBYTE)&diskCount, &cbData) != ERROR_SUCCESS) {
 			RegCloseKey(hkResult);
 			return bFound;
 		}
@@ -1875,8 +1829,10 @@ BOOL registry_services_disk_enum()
 		_stprintf_s(subkey, sizeof(subkey) / sizeof(subkey[0]), _T("%d"), i);
 
 		for (unsigned int j = 0; j < dwChecksLength; j++) {
-			//_tprintf(_T("Checking %s %s for %s (%d)\n"), diskEnumKey, subkey, szChecks[j], diskCount);
-			if (Is_RegKeyValueExists(HKEY_LOCAL_MACHINE, diskEnumKey, subkey, szChecks[j])) {
+			//_tprintf(_T("Checking %s %s for %s (%d)\n"), diskEnumKey, subkey,
+			// szChecks[j], diskCount);
+			if (Is_RegKeyValueExists(HKEY_LOCAL_MACHINE, diskEnumKey, subkey,
+									 szChecks[j])) {
 				bFound = TRUE;
 				break;
 			}
@@ -1891,21 +1847,22 @@ BOOL registry_services_disk_enum()
 BOOL registry_disk_enum()
 {
 	HKEY hkResult = NULL;
-	const TCHAR* szEntries[] = {
+	const TCHAR *szEntries[] = {
 		_T("System\\CurrentControlSet\\Enum\\IDE"),
 		_T("System\\CurrentControlSet\\Enum\\SCSI"),
 	};
-	const TCHAR* szChecks[] = {
+	const TCHAR *szChecks[] = {
 		/* Checked for by Smokeloader
 		 * https://research.checkpoint.com/2019-resurgence-of-smokeloader/*/
-		 _T("qemu"),
-		 _T("virtio"),
-		 _T("vmware"),
-		 _T("vbox"),
-		 _T("xen"),
+		_T("qemu"),
+		_T("virtio"),
+		_T("vmware"),
+		_T("vbox"),
+		_T("xen"),
 
-		 /* Checked for by Kutaki (not including ones from above)
-		 * https://cofense.com/kutaki-malware-bypasses-gateways-steal-users-credentials/ */
+		/* Checked for by Kutaki (not including ones from above)
+		 * https://cofense.com/kutaki-malware-bypasses-gateways-steal-users-credentials/
+		 */
 		_T("VMW"),
 		_T("Virtual"),
 
@@ -1917,17 +1874,20 @@ BOOL registry_disk_enum()
 	for (unsigned int i = 0; i < dwEntriesLength; i++) {
 		DWORD cSubKeys = 0;
 		DWORD cbMaxSubKeyLen = 0;
-		if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, szEntries[i], NULL, KEY_READ, &hkResult) != ERROR_SUCCESS) {
+		if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, szEntries[i], NULL, KEY_READ,
+						 &hkResult) != ERROR_SUCCESS) {
 			continue;
 		}
 
-		if (RegQueryInfoKey(hkResult, NULL, NULL, NULL, &cSubKeys, &cbMaxSubKeyLen, NULL, NULL, NULL, NULL, NULL, NULL) != ERROR_SUCCESS) {
+		if (RegQueryInfoKey(hkResult, NULL, NULL, NULL, &cSubKeys,
+							&cbMaxSubKeyLen, NULL, NULL, NULL, NULL, NULL,
+							NULL) != ERROR_SUCCESS) {
 			RegCloseKey(hkResult);
 			continue;
 		}
 
 		DWORD subKeyBufferLen = (cbMaxSubKeyLen + 1) * sizeof(TCHAR);
-		TCHAR* subKeyBuffer = (TCHAR*)malloc(subKeyBufferLen);
+		TCHAR *subKeyBuffer = (TCHAR *)malloc(subKeyBufferLen);
 		if (!subKeyBuffer) {
 			RegCloseKey(hkResult);
 			continue;
@@ -1935,11 +1895,13 @@ BOOL registry_disk_enum()
 
 		for (unsigned int j = 0; j < cSubKeys; j++) {
 			DWORD cchName = subKeyBufferLen;
-			if (RegEnumKeyEx(hkResult, j, subKeyBuffer, &cchName, NULL, NULL, NULL, NULL) != ERROR_SUCCESS) {
+			if (RegEnumKeyEx(hkResult, j, subKeyBuffer, &cchName, NULL, NULL,
+							 NULL, NULL) != ERROR_SUCCESS) {
 				continue;
 			}
 			for (unsigned int k = 0; k < dwChecksLength; k++) {
-				//_tprintf(_T("Checking %s %s for %s (%d)\n"), szEntries[i], subKeyBuffer, szChecks[k], cSubKeys);
+				//_tprintf(_T("Checking %s %s for %s (%d)\n"), szEntries[i],
+				// subKeyBuffer, szChecks[k], cSubKeys);
 				if (StrStrI(subKeyBuffer, szChecks[k]) != NULL) {
 					bFound = TRUE;
 					break;
@@ -1960,17 +1922,19 @@ BOOL registry_disk_enum()
 	return bFound;
 }
 
-BOOL handle_one_table(BYTE* currentPosition, UINT& bias, BYTE* smBiosTableBoundary)
+BOOL handle_one_table(BYTE *currentPosition, UINT &bias,
+					  BYTE *smBiosTableBoundary)
 {
-	struct SmbiosTableHeader
-	{
-		BYTE type;       // Table type
-		BYTE length;     // Length of the table
-		WORD handle;     // Handle of the table
+	struct SmbiosTableHeader {
+		BYTE type;	 // Table type
+		BYTE length; // Length of the table
+		WORD handle; // Handle of the table
 	};
 
-	SmbiosTableHeader* tableHeader = reinterpret_cast<SmbiosTableHeader*>(currentPosition);
-	SmbiosTableHeader* tableBoundary = reinterpret_cast<SmbiosTableHeader*>(smBiosTableBoundary);
+	SmbiosTableHeader *tableHeader =
+		reinterpret_cast<SmbiosTableHeader *>(currentPosition);
+	SmbiosTableHeader *tableBoundary =
+		reinterpret_cast<SmbiosTableHeader *>(smBiosTableBoundary);
 
 	const BYTE lastEntry = 127;
 	if (tableHeader->type == lastEntry) {
@@ -1981,12 +1945,11 @@ BOOL handle_one_table(BYTE* currentPosition, UINT& bias, BYTE* smBiosTableBounda
 	currentPosition += tableHeader->length;
 	UINT i = 0;
 	// Find the end of the table
-	while (!(currentPosition[i] == 0 && currentPosition[i + 1] == 0)
-		&& (currentPosition + i + 1 < smBiosTableBoundary))
-	{
+	while (!(currentPosition[i] == 0 && currentPosition[i + 1] == 0) &&
+		   (currentPosition + i + 1 < smBiosTableBoundary)) {
 		i++;
 	}
-	//pair of terminal zeros
+	// pair of terminal zeros
 	i += 2;
 	bias = i + tableHeader->length;
 
@@ -1995,34 +1958,32 @@ BOOL handle_one_table(BYTE* currentPosition, UINT& bias, BYTE* smBiosTableBounda
 
 BOOL check_tables_number(const PBYTE smbios)
 {
-	struct RawSMBIOSData
-	{
-		BYTE    method;           // Access method(obsolete)
-		BYTE    mjVer;            // Major part of the SMB version(major)
-		BYTE    mnVer;            // Minor part of the SMB version(minor)
-		BYTE    dmiRev;           // DMI version(obsolete)
-		DWORD   length;           // Data table size
-		BYTE    tableData[1];      // Table data
+	struct RawSMBIOSData {
+		BYTE method;	   // Access method(obsolete)
+		BYTE mjVer;		   // Major part of the SMB version(major)
+		BYTE mnVer;		   // Minor part of the SMB version(minor)
+		BYTE dmiRev;	   // DMI version(obsolete)
+		DWORD length;	   // Data table size
+		BYTE tableData[1]; // Table data
 	};
 
-	RawSMBIOSData* smBiosData = reinterpret_cast<RawSMBIOSData*>(smbios);
-	BYTE* smBiosTableBoundary = smBiosData->tableData + smBiosData->length;
-	BYTE* currentPosition = smBiosData->tableData;
+	RawSMBIOSData *smBiosData = reinterpret_cast<RawSMBIOSData *>(smbios);
+	BYTE *smBiosTableBoundary = smBiosData->tableData + smBiosData->length;
+	BYTE *currentPosition = smBiosData->tableData;
 	UINT tableNumber = 0;
 
 	while (currentPosition < smBiosTableBoundary) {
 		UINT biasNewTable = 0;
 		tableNumber++;
-		if (handle_one_table(currentPosition, biasNewTable, smBiosTableBoundary))
-		{
+		if (handle_one_table(currentPosition, biasNewTable,
+							 smBiosTableBoundary)) {
 			break;
 		}
 		currentPosition += biasNewTable;
 	}
 
 	const UINT tableMinReal = 40;
-	if (tableNumber <= tableMinReal)
-	{
+	if (tableNumber <= tableMinReal) {
 		return TRUE;
 	}
 	return FALSE;
@@ -2036,9 +1997,9 @@ BOOL number_SMBIOS_tables()
 	BOOL result = FALSE;
 
 	DWORD smbiosSize = 0;
-	PBYTE smbios = get_system_firmware(static_cast<DWORD>('RSMB'), 0x0000, &smbiosSize);
-	if (smbios != NULL)
-	{
+	PBYTE smbios =
+		get_system_firmware(static_cast<DWORD>('RSMB'), 0x0000, &smbiosSize);
+	if (smbios != NULL) {
 		result = check_tables_number(smbios);
 		free(smbios);
 	}
@@ -2056,78 +2017,81 @@ BOOL firmware_ACPI()
 
 	if (tableNames) {
 		SecureZeroMemory(tableNames, 4096);
-		DWORD tableSize = enum_system_firmware_tables(static_cast<DWORD>('ACPI'), tableNames, 4096);
+		DWORD tableSize = enum_system_firmware_tables(
+			static_cast<DWORD>('ACPI'), tableNames, 4096);
 
 		// API not available
 		if (tableSize == -1)
 			return FALSE;
 
 		DWORD tableCount = tableSize / 4;
-		if (tableSize < 4 || tableCount == 0)
-		{
+		if (tableSize < 4 || tableCount == 0) {
 			result = TRUE;
-		}
-		else
-		{
+		} else {
 			// Windows ACPI Emulated devices Table (WAET)
 			// https://download.microsoft.com/download/7/E/7/7E7662CF-CBEA-470B-A97E-CE7CE0D98DC2/WAET.docx
-			PBYTE waetString = (PBYTE)"WAET";
+			PBYTE waetString = (PBYTE) "WAET";
 			size_t waetStringLen = 4;
 
-			PBYTE batteryDevice = (PBYTE)"PNP0C0A"; // Control Method Battery
+			PBYTE batteryDevice = (PBYTE) "PNP0C0A"; // Control Method Battery
 			size_t batteryDeviceLen = 7;
 			BOOL needsBatteryCheck = false;
 
-			const char* requiredDevices[] = {
-				"PNP0000",	// 8259-compatible Programmable Interrupt Controller
-				"PNP0C0C",	// Power Button Device
-				"PNP0C0E",	// Sleep Button Device
-				"PNP0C14",	// Windows Management Instrumentation Device
-				"PNP0D80",	// Windows-compatible System Power Management Controller
+			const char *requiredDevices[] = {
+				"PNP0000", // 8259-compatible Programmable Interrupt Controller
+				"PNP0C0C", // Power Button Device
+				"PNP0C0E", // Sleep Button Device
+				"PNP0C14", // Windows Management Instrumentation Device
+				"PNP0D80", // Windows-compatible System Power Management
+						   // Controller
 			};
 
 		restart:
-			for (DWORD i = 0; i < tableCount; i++)
-			{
+			for (DWORD i = 0; i < tableCount; i++) {
 				DWORD tableSize = 0;
-				PBYTE table = get_system_firmware(static_cast<DWORD>('ACPI'), tableNames[i], &tableSize);
+				PBYTE table = get_system_firmware(static_cast<DWORD>('ACPI'),
+												  tableNames[i], &tableSize);
 
 				if (table) {
 
-					if (tableNames[i] == static_cast<DWORD>('TMSW'))
-					{
+					if (tableNames[i] == static_cast<DWORD>('TMSW')) {
 						foundWSMT = TRUE;
 					}
 
-					// Format: [HexOffset DecimalOffset ByteLength]  FieldName  : FieldValue (in hex)
-					//		   [02Dh      0045          001h      ]	 PM Profile : 0 [Unspecified] or 1 [Desktop] or 2 [Mobile]
-					if (!needsBatteryCheck && tableNames[i] == static_cast<DWORD>('PCAF') && tableSize > 45) {
-						if ((BYTE)table[45] == (BYTE)0 /* Mobile == 2 */)
-						{
+					// Format: [HexOffset DecimalOffset ByteLength]  FieldName
+					// : FieldValue (in hex)
+					//		   [02Dh      0045          001h      ]	 PM Profile
+					//: 0 [Unspecified] or 1 [Desktop] or 2 [Mobile]
+					if (!needsBatteryCheck &&
+						tableNames[i] == static_cast<DWORD>('PCAF') &&
+						tableSize > 45) {
+						if ((BYTE)table[45] == (BYTE)0 /* Mobile == 2 */) {
 							needsBatteryCheck = true;
 							free(table);
 							goto restart;
 						}
 					}
 
-					if (find_str_in_data(waetString, waetStringLen, table, tableSize))
-					{
+					if (find_str_in_data(waetString, waetStringLen, table,
+										 tableSize)) {
 						free(table);
 						result = TRUE;
 						goto out;
 					}
 
-					if (needsBatteryCheck && !find_str_in_data(waetString, waetStringLen, table, tableSize))
-					{
+					if (needsBatteryCheck &&
+						!find_str_in_data(waetString, waetStringLen, table,
+										  tableSize)) {
 						free(table);
 						result = TRUE;
 						goto out;
 					}
 
-					for (DWORD j = 0; j < sizeof(requiredDevices) / sizeof(char*); j++)
-					{
-						if (!find_str_in_data((PBYTE)requiredDevices[j], strlen(requiredDevices[j]), table, tableSize))
-						{
+					for (DWORD j = 0;
+						 j < sizeof(requiredDevices) / sizeof(char *); j++) {
+						if (!find_str_in_data((PBYTE)requiredDevices[j],
+											  strlen(requiredDevices[j]), table,
+											  tableSize)) {
 							free(table);
 							result = TRUE;
 							goto out;
@@ -2153,7 +2117,7 @@ BOOL hosting_check()
 	TCHAR msg[256] = _T("Checking if Machine is hosted on Cloud");
 	WSADATA wsaData;
 	SOCKET sock = INVALID_SOCKET;
-	addrinfo* result = nullptr;
+	addrinfo *result = nullptr;
 	addrinfo hints;
 	BOOL retVal = FALSE;
 	std::string request;
@@ -2162,30 +2126,26 @@ BOOL hosting_check()
 	char buffer[bufferSize];
 	int bytesReceived = 0;
 
-	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
-	{
+	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
 		goto cleanup;
 	}
 
 	sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (sock == INVALID_SOCKET)
-	{
+	if (sock == INVALID_SOCKET) {
 		goto cleanup;
 	}
-
 
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
 
-	if (getaddrinfo("ip-api.com", "80", &hints, &result) != 0)
-	{
+	if (getaddrinfo("ip-api.com", "80", &hints, &result) != 0) {
 		goto cleanup;
 	}
 
-	if (connect(sock, result->ai_addr, static_cast<int>(result->ai_addrlen)) == SOCKET_ERROR)
-	{
+	if (connect(sock, result->ai_addr, static_cast<int>(result->ai_addrlen)) ==
+		SOCKET_ERROR) {
 		goto cleanup;
 	}
 
@@ -2193,34 +2153,32 @@ BOOL hosting_check()
 	request += "Host: ip-api.com\r\n";
 	request += "Connection: close\r\n\r\n";
 
-	if (send(sock, request.c_str(), static_cast<int>(request.length()), 0) == SOCKET_ERROR)
-	{
+	if (send(sock, request.c_str(), static_cast<int>(request.length()), 0) ==
+		SOCKET_ERROR) {
 		goto cleanup;
 	}
 
-	do
-	{
+	do {
 		bytesReceived = recv(sock, buffer, bufferSize - 1, 0);
-		if (bytesReceived > 0)
-		{
+		if (bytesReceived > 0) {
 			buffer[bytesReceived] = '\0';
 			response += buffer;
 		}
 	} while (bytesReceived > 0);
 
-	if (bytesReceived == SOCKET_ERROR)
-	{
+	if (bytesReceived == SOCKET_ERROR) {
 		goto cleanup;
 	}
 
-	if (response.find("\"hosting\":true") != std::string::npos)
-	{
+	if (response.find("\"hosting\":true") != std::string::npos) {
 		retVal = TRUE;
 	}
 
 cleanup:
-	if (result) freeaddrinfo(result);
-	if (sock != INVALID_SOCKET) closesocket(sock);
+	if (result)
+		freeaddrinfo(result);
+	if (sock != INVALID_SOCKET)
+		closesocket(sock);
 	WSACleanup();
 	return retVal;
 }
@@ -2233,21 +2191,22 @@ https://github.com/Scrut1ny/Hypervisor-Phantom
 Looking-glass requires at least one of them:
 1. Physical monitor (undetectable)
 2. HDMI emulator stub (undetectable?)
-3. VirtualDisplayDriver (https://github.com/VirtualDrivers/Virtual-Display-Driver)
+3. VirtualDisplayDriver
+(https://github.com/VirtualDrivers/Virtual-Display-Driver)
 */
 VOID looking_glass_vdd_processes()
 {
-	const TCHAR* szProcesses[] = {
-		_T("looking-glass-host.exe"), 	// Looking-Glass.io
-		_T("VDDSysTray.exe"),			// VirtualDisplayDriver, used in conjunction
+	const TCHAR *szProcesses[] = {
+		_T("looking-glass-host.exe"), // Looking-Glass.io
+		_T("VDDSysTray.exe"), // VirtualDisplayDriver, used in conjunction
 	};
 
 	WORD iLength = sizeof(szProcesses) / sizeof(szProcesses[0]);
 
-	for (int i = 0; i < iLength; i++)
-	{
+	for (int i = 0; i < iLength; i++) {
 		TCHAR msg[256] = _T("");
-		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR), _T("Checking processes %s "), szProcesses[i]);
+		_stprintf_s(msg, sizeof(msg) / sizeof(TCHAR),
+					_T("Checking processes %s "), szProcesses[i]);
 
 		if (GetProcessIdFromName(szProcesses[i]))
 			print_results(TRUE, msg);
