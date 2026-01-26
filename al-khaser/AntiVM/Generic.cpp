@@ -1759,26 +1759,69 @@ Checks whether the specified application is a genuine Windows installation.
 
 */
 
-#define WINDOWS_SLID                                                           \
-	{ 0x55c92734,                                                              \
-	  0xd682,                                                                  \
-	  0x4d71,                                                                  \
-	  { 0x98, 0x3e, 0xd6, 0xec, 0x3f, 0x16, 0x05, 0x9f } }
+enum LicenseStatus {
+	UNLICENSED = 0,		   // Unlicensed
+	LICENSED = 1,		   // Licensed
+	OOB_GRACE = 2,		   // OOBGrace
+	OOT_GRACE = 3,		   // OOTGrace
+	NON_GENUINE_GRACE = 4, // NonGenuineGrace
+	NOTIFICATION = 5,	   // Notification
+	EXTENDED_GRACE = 6	   // ExtendedGrace
+};
 
 BOOL pirated_windows()
 {
-	CONST SLID AppId = WINDOWS_SLID;
-	SL_GENUINE_STATE GenuineState;
-	HRESULT hResult;
+	IWbemServices *pSvc = NULL;
+	IWbemLocator *pLoc = NULL;
+	IEnumWbemClassObject *pEnumerator = NULL;
+	BOOL bStatus = FALSE;
+	HRESULT hRes;
+	BOOL bFound = FALSE;
 
-	hResult = SLIsGenuineLocal(&AppId, &GenuineState, NULL);
+	// Init WMI
+	bStatus = InitWMI(&pSvc, &pLoc, _T("ROOT\\CIMV2"));
+	if (bStatus) {
+		// If success, execute the desired query
+		bStatus = ExecWMIQuery(
+			&pSvc, &pLoc, &pEnumerator,
+			_T("SELECT LicenseStatus FROM SoftwareLicensingProduct WHERE ")
+			_T("ApplicationId = '55c92734-d682-4d71-983e-d6ec3f16059f' AND ")
+			_T("PartialProductKey IS NOT NULL"));
+		if (bStatus) {
+			// Get the data from the query
+			IWbemClassObject *pclsObj = NULL;
+			ULONG uReturn = 0;
+			VARIANT vtProp;
 
-	if (hResult == S_OK) {
-		if (GenuineState != SL_GEN_STATE_IS_GENUINE) {
-			return TRUE;
+			if (pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn) ==
+					S_OK &&
+				uReturn) {
+				VARIANT vtProp{};
+				::VariantInit(&vtProp);
+
+				// Get the value of the Name property
+				if (SUCCEEDED(pclsObj->Get(L"LicenseStatus", 0, &vtProp,
+										   nullptr, nullptr)) &&
+					vtProp.vt == VT_I4) {
+
+					// Do our comparison
+					if (vtProp.lVal == LicenseStatus::UNLICENSED) {
+						bFound = TRUE;
+					}
+				}
+				::VariantClear(&vtProp);
+				pclsObj->Release();
+			}
+
+			// Cleanup
+			pEnumerator->Release();
+			pSvc->Release();
+			pLoc->Release();
+			CoUninitialize();
 		}
 	}
-	return FALSE;
+
+	return bFound;
 }
 
 /* Check HKLM\System\CurrentControlSet\Services\Disk\Enum for values related
