@@ -1803,7 +1803,6 @@ BOOL pirated_windows()
 				if (SUCCEEDED(pclsObj->Get(L"LicenseStatus", 0, &vtProp,
 										   nullptr, nullptr)) &&
 					vtProp.vt == VT_I4) {
-
 					// Do our comparison
 					if (vtProp.lVal == LicenseStatus::UNLICENSED) {
 						bFound = TRUE;
