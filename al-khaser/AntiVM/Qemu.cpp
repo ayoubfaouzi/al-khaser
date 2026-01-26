@@ -179,7 +179,7 @@ BOOL qemu_firmware_ACPI()
 
 					for (DWORD j = 0; j < sizeof(strings) / sizeof(char*); j++)
 					{
-						if (!find_str_in_data((PBYTE)strings[j], strlen(strings[j]), table, tableSize))
+						if (find_str_in_data((PBYTE)strings[j], strlen(strings[j]), table, tableSize))
 						{
 							free(table);
 							result = TRUE;
