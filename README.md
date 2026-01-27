@@ -1,4 +1,4 @@
-## Al-Khaser v0.81
+## Al-Khaser v1.1.0
 
 ![Logo](https://www.mindmeister.com/files/avatars/0035/8332/original/avatar.jpg)
 
@@ -111,7 +111,7 @@ Please, if you encounter any of the anti-analysis tricks which you have seen in 
 
 ### Anti-injection
 - Enumerate modules with EnumProcessModulesEx (32-bit, 64-bit, and all options)
-- Enumerate modules with ToolHelp32  
+- Enumerate modules with ToolHelp32
 - Enumerate the process LDR structures with LdrEnumerateLoadedModules
 - Enumerate the process LDR structures directly
 - Walk memory with GetModuleInformation
@@ -236,7 +236,7 @@ Please, if you encounter any of the anti-analysis tricks which you have seen in 
   - "\\\\.\\HGFS"
   - "\\\\.\\vmci"
 - **Hardware Device information**
-  - SetupAPI SetupDiEnumDeviceInfo (GUID_DEVCLASS_DISKDRIVE) 
+  - SetupAPI SetupDiEnumDeviceInfo (GUID_DEVCLASS_DISKDRIVE)
     - QEMU
     - VMWare
     - VBOX
@@ -332,10 +332,10 @@ Please, if you encounter any of the anti-analysis tricks which you have seen in 
 
 ### Macro malware attacks
 - Document_Close / Auto_Close.
-- Application.RecentFiles.Count 
+- Application.RecentFiles.Count
 
 ### Code/DLL Injections techniques
-- CreateRemoteThread 
+- CreateRemoteThread
 - SetWindowsHooksEx
 - NtCreateThreadEx
 - RtlCreateUserThread
@@ -355,4 +355,4 @@ Pull requests welcome. Please read the [Developer Guidelines](https://github.com
 - The Art Of Unpacking By Mark Vincent Yason.
 - Walied Assar's blog http://waleedassar.blogspot.de/.
 - Pafish tool: https://github.com/a0rtega/pafish.
-- PafishMacro by JoeSecurity: https://github.com/joesecurity/pafishmacro 
+- PafishMacro by JoeSecurity: https://github.com/joesecurity/pafishmacro

@@ -1,3 +1,122 @@
+# CHANGELOG
+
+#### 1.1.0
+
+* Add ollyice.exe, dedup joeboxserver.exe  by @xtexx in https://github.com/ayoubfaouzi/al-khaser/pull/275
+* Fix NtSystemDebugControl STATUS_NOT_IMPLEMENTED cases by @asteria121 in https://github.com/ayoubfaouzi/al-khaser/pull/279
+* Add check for WAET ACPI table presence by @dmfrpro in https://github.com/ayoubfaouzi/al-khaser/pull/284
+* Added Cloud check and goto cleanup by @lowlevel01 in https://github.com/ayoubfaouzi/al-khaser/pull/285
+* Looking Glass, VirtualDisplayDriver & PCI VID scan VM detection methods by @dmfrpro in https://github.com/ayoubfaouzi/al-khaser/pull/287
+* Implement advanced ACPI scan for generic sandbox & QEMU by @dmfrpro in https://github.com/ayoubfaouzi/al-khaser/pull/288
+* Added some important analysis processes like ghidra, dnspy, SystemInformer, ... by @lowlevel01 in https://github.com/ayoubfaouzi/al-khaser/pull/289
+* fix build warnings and apply code style by @IgorKorkin in https://github.com/ayoubfaouzi/al-khaser/pull/291
+* Add .clang-format file; fix ldt test for x64; remove an unused local variable by @IgorKorkin in https://github.com/ayoubfaouzi/al-khaser/pull/292
+* Parametrized --sleep/--delay seconds. Added -h/--help. by @RazviOverflow in https://github.com/ayoubfaouzi/al-khaser/pull/293
+* ci: add dependabot workflow for automatically updating github actions by @ayoubfaouzi in https://github.com/ayoubfaouzi/al-khaser/pull/299
+* Fix Windows license check: use WMI to get the detailed status by @IgorKorkin in https://github.com/ayoubfaouzi/al-khaser/pull/298
+* fix: Qemu ACPI firmware string check logic is backwards by @ayoubfaouzi in https://github.com/ayoubfaouzi/al-khaser/pull/300
+
+#### 1.0.0
+
+* update readme by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/37
+* Noteworthy by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/38
+* Noteworthy by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/39
+* add generic sandboxe loaded dlls check by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/40
+* add Win32_NTEventlogFile WMI trick by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/41
+* add number of processors check by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/42
+* add anti analysis tools - process based by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/43
+* Noteworthy by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/44
+* add Parallels AntiVM by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/45
+* add Xen AntiVM - check process by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/46
+* Noteworthy by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/48
+* various fixes by @mrexodia in https://github.com/LordNoteworthy/al-khaser/pull/50
+* Noteworthy by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/51
+* add task state segment trick via STR by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/52
+* add cores number check from WMI by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/53
+* add hard disk check using WMI by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/54
+* Noteworthy by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/55
+* Noteworthy by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/56
+* Noteworthy by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/58
+* Noteworthy by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/59
+* Noteworthy by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/60
+* add screenshot and compiled binary by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/61
+* push binary by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/62
+* add mouse movement trick by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/63
+* memory space check by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/64
+* Noteworthy by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/65
+* Noteworthy by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/66
+* push new release by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/67
+* Noteworthy by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/68
+* Fix mem leak in Generic.cpp by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/70
+* add TLS callback trick by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/71
+* add timing attack: rdtsc with cpuid (VM Exit) by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/72
+* add cpuid vendor id check - hypervisor detection by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/73
+* Noteworthy by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/74
+* Update Al-khaser.cpp by @y-oyama in https://github.com/LordNoteworthy/al-khaser/pull/75
+* Fix and enable Anti-VM routines by @ntddk in https://github.com/LordNoteworthy/al-khaser/pull/78
+* Update Generic.cpp by @slow-mouse in https://github.com/LordNoteworthy/al-khaser/pull/80
+* Add support for macro based sandbox detection tricks: AutoClose and R… by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/81
+* add IcmpSendEcho timing attack seen in Ccleaner malware by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/82
+* fix version by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/83
+* Add two kernel debugger checks by @Mattiwatti in https://github.com/LordNoteworthy/al-khaser/pull/85
+* Added process job anti-debug check. by @gsuberland in https://github.com/LordNoteworthy/al-khaser/pull/88
+* Firmware checks by @gsuberland in https://github.com/LordNoteworthy/al-khaser/pull/89
+* Noteworthy by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/90
+* change location ofchangelog to root dir by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/91
+* Fixed PEB offset. by @Nxgr in https://github.com/LordNoteworthy/al-khaser/pull/92
+* Noteworthy by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/96
+* VM driver service checks by @gsuberland in https://github.com/LordNoteworthy/al-khaser/pull/100
+* Fix null references in timing.cpp by @gsuberland in https://github.com/LordNoteworthy/al-khaser/pull/99
+* Memory write watch anti-debug by @gsuberland in https://github.com/LordNoteworthy/al-khaser/pull/101
+* Vastly improved VirtualAlloc write watch tests by @gsuberland in https://github.com/LordNoteworthy/al-khaser/pull/102
+* Noteworthy by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/103
+* Noteworthy by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/104
+* added qemu process check (qemu-ga.exe) by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/106
+* Added firmware table checks SMBIOS and ACPI (Qemu) by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/107
+* Noteworthy by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/108
+* Noteworthy by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/109
+* XP Support by @talliberman in https://github.com/LordNoteworthy/al-khaser/pull/113
+* Improved disk size IOCTL checks by @gsuberland in https://github.com/LordNoteworthy/al-khaser/pull/119
+* TLS callback improvements by @gsuberland in https://github.com/LordNoteworthy/al-khaser/pull/116
+* Overhaul of timing attack code + fix the locky timer trick by @gsuberland in https://github.com/LordNoteworthy/al-khaser/pull/117
+* Consolidate APIs by @gsuberland in https://github.com/LordNoteworthy/al-khaser/pull/122
+* Comodo detection added by @kaganisildak in https://github.com/LordNoteworthy/al-khaser/pull/127
+* Detect Hybrid Analysis with mac adress by @kaganisildak in https://github.com/LordNoteworthy/al-khaser/pull/136
+* Detect Hybrid Analysis by @kaganisildak in https://github.com/LordNoteworthy/al-khaser/pull/135
+* Added check to catch CE page exception breakpoints by @gsuberland in https://github.com/LordNoteworthy/al-khaser/pull/131
+* API hook checks, part 1 (bounds based) by @gsuberland in https://github.com/LordNoteworthy/al-khaser/pull/138
+* Fixed a typo in API data structure and move print_os() after API init… by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/143
+* Added enumerate_memory function for finding all memory allocations in the process. by @gsuberland in https://github.com/LordNoteworthy/al-khaser/pull/147
+* DLL injection detection by @gsuberland in https://github.com/LordNoteworthy/al-khaser/pull/148
+* add WMI Win32_Fan anti-vm trick by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/150
+* Move to Visual Studio 2017 by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/153
+* Bug fixes by @hfiref0x in https://github.com/LordNoteworthy/al-khaser/pull/158
+* Bug fixes 2 by @hfiref0x in https://github.com/LordNoteworthy/al-khaser/pull/159
+* bump to version 0.76 by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/160
+* Bug fixes 3 by @hfiref0x in https://github.com/LordNoteworthy/al-khaser/pull/161
+* Bug fixes 4 by @hfiref0x in https://github.com/LordNoteworthy/al-khaser/pull/162
+* Bug fixes 5 by @hfiref0x in https://github.com/LordNoteworthy/al-khaser/pull/163
+* VM detects update by @hfiref0x in https://github.com/LordNoteworthy/al-khaser/pull/165
+* Fixed false positive in VirtualBox BIOS serial number WMI check by @gsuberland in https://github.com/LordNoteworthy/al-khaser/pull/169
+* Noteworthy by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/170
+* Added ATAIdentifyDump and StructDumpCodegen tools to the repo. by @gsuberland in https://github.com/LordNoteworthy/al-khaser/pull/171
+* Multiple anti-VM checks using WMI by @gsuberland in https://github.com/LordNoteworthy/al-khaser/pull/173
+* Crash fix for 32 bit app running on Win7 x64 by @dvarshavsky in https://github.com/LordNoteworthy/al-khaser/pull/174
+* update CHANGELOG by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/176
+* Anti-dump: fix SizeOfImage() modifying the wrong module and field by @Mattiwatti in https://github.com/LordNoteworthy/al-khaser/pull/183
+* Fix VARIANT vartype flags check on WMI properties by @Mattiwatti in https://github.com/LordNoteworthy/al-khaser/pull/182
+* add few anti-disassembly tricks by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/194
+* DebugObjectHandle improvements by @Mattiwatti in https://github.com/LordNoteworthy/al-khaser/pull/197
+* add generic anti-sandbox (checking for well file names like malware.exe) by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/199
+* add trap flag anti debug by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/200
+* Fix string comparaison in check_adapter_name() by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/204
+* fix wrong path names in vmware_files() and vbox_files() to adapt to w… by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/205
+* Use Wow64DisableWow64FsRedirection/Wow64RevertWow64FsRedirection inst… by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/206
+* API fixes related to #198 by @gsuberland in https://github.com/LordNoteworthy/al-khaser/pull/207
+* Fixed the encoding of some files by @not-matthias in https://github.com/LordNoteworthy/al-khaser/pull/208
+* Improve GetOSDisplayString by adding Windows Server 2019 by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/210
+* Add Is Windows Genuine Check by @LordNoteworthy in https://github.com/LordNoteworthy/al-khaser/pull/212
+
 #### 0.81
 
 - Add anti-debug trick: Low Fragmentation Heap.
@@ -15,7 +134,7 @@
 
 #### 0.80
 
-- Add Windows Genuine check. 
+- Add Windows Genuine check.
 - Improve GetOSDisplayString by adding Windows Server 2019.
 - Fixed the encoding of some files thanks to @not-matthias.
 - Add Missing manifest makes version checks return incorrect values.

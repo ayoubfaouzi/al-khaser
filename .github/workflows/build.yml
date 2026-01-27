@@ -24,7 +24,7 @@ jobs:
 
     - name: Zip x64 Binaries
       run: 7z a -t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -mhe=on -p"yug69gG89T98HGUY8y" al-khaser_x64.7z al-khaser_x64.exe
-        
+
     - name: Upload x86 Binaries
       uses: actions/upload-artifact@v4
       with:
