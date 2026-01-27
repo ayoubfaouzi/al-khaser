@@ -9,22 +9,24 @@ a SYSTEM_KERNEL_DEBUGGER_INFORMATION struct which will reveal the presence of a 
 
 BOOL NtQuerySystemInformation_SystemKernelDebuggerInformation()
 {
-   	// SystemKernelDebuggerInformation
-	const int SystemKernelDebuggerInformation = 0x23;
+    // SystemKernelDebuggerInformation
+    const int SystemKernelDebuggerInformation = 0x23;
 
-	// The debugger information struct
-	SYSTEM_KERNEL_DEBUGGER_INFORMATION KdDebuggerInfo;
+    // The debugger information struct
+    SYSTEM_KERNEL_DEBUGGER_INFORMATION KdDebuggerInfo;
 
-	auto NtQuerySystemInformation = static_cast<pNtQuerySystemInformation>(API::GetAPI(API_IDENTIFIER::API_NtQuerySystemInformation));
+    auto NtQuerySystemInformation =
+        static_cast<pNtQuerySystemInformation>(API::GetAPI(API_IDENTIFIER::API_NtQuerySystemInformation));
 
-	// Call NtQuerySystemInformation
-	NTSTATUS Status = NtQuerySystemInformation(SystemKernelDebuggerInformation, &KdDebuggerInfo, sizeof(SYSTEM_KERNEL_DEBUGGER_INFORMATION), NULL);
-	if (Status >= 0)
-	{
-		// KernelDebuggerEnabled almost always implies !KernelDebuggerNotPresent. KernelDebuggerNotPresent can sometimes
-		// change if the debugger is temporarily disconnected, but either of these means a debugger is enabled.
-		if (KdDebuggerInfo.KernelDebuggerEnabled || !KdDebuggerInfo.KernelDebuggerNotPresent)
-			return TRUE;
-	}
-	return FALSE;
+    // Call NtQuerySystemInformation
+    NTSTATUS Status = NtQuerySystemInformation(SystemKernelDebuggerInformation, &KdDebuggerInfo,
+                                               sizeof(SYSTEM_KERNEL_DEBUGGER_INFORMATION), NULL);
+    if (Status >= 0)
+    {
+        // KernelDebuggerEnabled almost always implies !KernelDebuggerNotPresent. KernelDebuggerNotPresent can sometimes
+        // change if the debugger is temporarily disconnected, but either of these means a debugger is enabled.
+        if (KdDebuggerInfo.KernelDebuggerEnabled || !KdDebuggerInfo.KernelDebuggerNotPresent)
+            return TRUE;
+    }
+    return FALSE;
 }

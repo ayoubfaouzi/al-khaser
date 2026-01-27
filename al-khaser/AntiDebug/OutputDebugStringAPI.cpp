@@ -10,25 +10,24 @@ attached to the process, the function will execute normally and no error state w
 however if there is no debugger attached, LastError will be set by the process letting us know that
 we are debugger free. To execute this method we set LastError to an arbitrary value of our choosing
 and then call OutputDebugString(). We then check GetLastError() and if our error code remains,
-we know we are debugger free. This Works only in Windows XP/2000 
+we know we are debugger free. This Works only in Windows XP/2000
 */
 
 BOOL OutputDebugStringAPI()
 {
 
-	BOOL IsDbgPresent = FALSE;
-	DWORD Val = 0x29A;
+    BOOL IsDbgPresent = FALSE;
+    DWORD Val = 0x29A;
 
-	// This is working only in Windows XP/2000
-	if (IsWindowsXPOr2k())
-	{
-		SetLastError(Val);
-		OutputDebugString(_T("random"));
+    // This is working only in Windows XP/2000
+    if (IsWindowsXPOr2k())
+    {
+        SetLastError(Val);
+        OutputDebugString(_T("random"));
 
-		if (GetLastError() == Val)
-			IsDbgPresent = TRUE;
-	}
-		
-	return IsDbgPresent;
+        if (GetLastError() == Val)
+            IsDbgPresent = TRUE;
+    }
+
+    return IsDbgPresent;
 }
-

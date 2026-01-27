@@ -3,7 +3,6 @@
 
 #include "pch.h"
 
-
 BOOL ENABLE_TLS_CHECKS = FALSE;
 BOOL ENABLE_DEBUG_CHECKS = FALSE;
 BOOL ENABLE_INJECTION_CHECKS = FALSE;
@@ -22,427 +21,487 @@ BOOL ENABLE_TIMING_ATTACKS = FALSE;
 BOOL ENABLE_DUMPING_CHECK = FALSE;
 BOOL ENABLE_ANALYSIS_TOOLS_CHECK = FALSE;
 BOOL ENABLE_ANTI_DISASSM_CHECKS = FALSE;
-const char* PROGRAM_NAME = "al-khaser.exe";
+const char *PROGRAM_NAME = "al-khaser.exe";
 
-
-void EnableDefaultChecks() {
-	ENABLE_TLS_CHECKS = TRUE;
-	ENABLE_DEBUG_CHECKS = TRUE;
-	ENABLE_INJECTION_CHECKS = TRUE;
-	ENABLE_GEN_SANDBOX_CHECKS = TRUE;
-	ENABLE_VBOX_CHECKS = TRUE;
-	ENABLE_VMWARE_CHECKS = TRUE;
-	ENABLE_VPC_CHECKS = TRUE;
-	ENABLE_QEMU_CHECKS = TRUE;
-	ENABLE_KVM_CHECKS = TRUE;
-	ENABLE_XEN_CHECKS = TRUE;
-	ENABLE_WINE_CHECKS = TRUE;
-	ENABLE_PARALLELS_CHECKS = TRUE;
-	ENABLE_HYPERV_CHECKS = TRUE;
-	ENABLE_TIMING_ATTACKS = TRUE;
-	ENABLE_DUMPING_CHECK = TRUE;
-	ENABLE_ANALYSIS_TOOLS_CHECK = TRUE;
-	ENABLE_ANTI_DISASSM_CHECKS = TRUE;
+void EnableDefaultChecks()
+{
+    ENABLE_TLS_CHECKS = TRUE;
+    ENABLE_DEBUG_CHECKS = TRUE;
+    ENABLE_INJECTION_CHECKS = TRUE;
+    ENABLE_GEN_SANDBOX_CHECKS = TRUE;
+    ENABLE_VBOX_CHECKS = TRUE;
+    ENABLE_VMWARE_CHECKS = TRUE;
+    ENABLE_VPC_CHECKS = TRUE;
+    ENABLE_QEMU_CHECKS = TRUE;
+    ENABLE_KVM_CHECKS = TRUE;
+    ENABLE_XEN_CHECKS = TRUE;
+    ENABLE_WINE_CHECKS = TRUE;
+    ENABLE_PARALLELS_CHECKS = TRUE;
+    ENABLE_HYPERV_CHECKS = TRUE;
+    ENABLE_TIMING_ATTACKS = TRUE;
+    ENABLE_DUMPING_CHECK = TRUE;
+    ENABLE_ANALYSIS_TOOLS_CHECK = TRUE;
+    ENABLE_ANTI_DISASSM_CHECKS = TRUE;
 }
 
-
-void EnableChecks(std::string checkType) {
-	if (checkType == "TLS")						ENABLE_TLS_CHECKS = TRUE;
-	else if (checkType == "DEBUG")				ENABLE_DEBUG_CHECKS = TRUE;
-	else if (checkType == "INJECTION")			ENABLE_INJECTION_CHECKS = TRUE;
-	else if (checkType == "GEN_SANDBOX")		ENABLE_GEN_SANDBOX_CHECKS = TRUE;
-	else if (checkType == "VBOX")				ENABLE_VBOX_CHECKS = TRUE;
-	else if (checkType == "VMWARE")				ENABLE_VMWARE_CHECKS = TRUE;
-	else if (checkType == "VPC")				ENABLE_VPC_CHECKS = TRUE;
-	else if (checkType == "QEMU")				ENABLE_QEMU_CHECKS = TRUE;
-	else if (checkType == "KVM")				ENABLE_KVM_CHECKS = TRUE;
-	else if (checkType == "XEN")				ENABLE_XEN_CHECKS = TRUE;
-	else if (checkType == "WINE")				ENABLE_WINE_CHECKS = TRUE;
-	else if (checkType == "PARALLELS")			ENABLE_PARALLELS_CHECKS = TRUE;
-	else if (checkType == "HYPERV")				ENABLE_HYPERV_CHECKS = TRUE;
-	else if (checkType == "CODE_INJECTIONS")	ENABLE_CODE_INJECTIONS = TRUE;
-	else if (checkType == "TIMING_ATTACKS")		ENABLE_TIMING_ATTACKS = TRUE;
-	else if (checkType == "DUMPING_CHECK")		ENABLE_DUMPING_CHECK = TRUE;
-	else if (checkType == "ANALYSIS_TOOLS")		ENABLE_ANALYSIS_TOOLS_CHECK = TRUE;
-	else if (checkType == "ANTI_DISASSM")		ENABLE_ANTI_DISASSM_CHECKS = TRUE;
+void EnableChecks(std::string checkType)
+{
+    if (checkType == "TLS")
+        ENABLE_TLS_CHECKS = TRUE;
+    else if (checkType == "DEBUG")
+        ENABLE_DEBUG_CHECKS = TRUE;
+    else if (checkType == "INJECTION")
+        ENABLE_INJECTION_CHECKS = TRUE;
+    else if (checkType == "GEN_SANDBOX")
+        ENABLE_GEN_SANDBOX_CHECKS = TRUE;
+    else if (checkType == "VBOX")
+        ENABLE_VBOX_CHECKS = TRUE;
+    else if (checkType == "VMWARE")
+        ENABLE_VMWARE_CHECKS = TRUE;
+    else if (checkType == "VPC")
+        ENABLE_VPC_CHECKS = TRUE;
+    else if (checkType == "QEMU")
+        ENABLE_QEMU_CHECKS = TRUE;
+    else if (checkType == "KVM")
+        ENABLE_KVM_CHECKS = TRUE;
+    else if (checkType == "XEN")
+        ENABLE_XEN_CHECKS = TRUE;
+    else if (checkType == "WINE")
+        ENABLE_WINE_CHECKS = TRUE;
+    else if (checkType == "PARALLELS")
+        ENABLE_PARALLELS_CHECKS = TRUE;
+    else if (checkType == "HYPERV")
+        ENABLE_HYPERV_CHECKS = TRUE;
+    else if (checkType == "CODE_INJECTIONS")
+        ENABLE_CODE_INJECTIONS = TRUE;
+    else if (checkType == "TIMING_ATTACKS")
+        ENABLE_TIMING_ATTACKS = TRUE;
+    else if (checkType == "DUMPING_CHECK")
+        ENABLE_DUMPING_CHECK = TRUE;
+    else if (checkType == "ANALYSIS_TOOLS")
+        ENABLE_ANALYSIS_TOOLS_CHECK = TRUE;
+    else if (checkType == "ANTI_DISASSM")
+        ENABLE_ANTI_DISASSM_CHECKS = TRUE;
 }
 
-void print_help(const char* prog_name){
-	printf(
-		"Usage: %s [OPTIONS]\n"
-		"Options:\n"
-		"  --check <type>      Enable specific check(s). Can be used multiple times. Valid types are:\n"
-		"                        TLS              (Thread Local Storage callback checks)\n"
-		"                        DEBUG            (Anti-debugging checks)\n"
-		"                        INJECTION        (Code injection checks)\n"
-		"                        GEN_SANDBOX      (Generic sandbox checks)\n"
-		"                        VBOX             (VirtualBox detection)\n"
-		"                        VMWARE           (VMware detection)\n"
-		"                        VPC              (Virtual PC detection)\n"
-		"                        QEMU             (QEMU detection)\n"
-		"                        KVM              (KVM detection)\n"
-		"                        XEN              (Xen detection)\n"
-		"                        WINE             (Wine detection)\n"
-		"                        PARALLELS        (Parallels detection)\n"
-		"                        HYPERV           (Hyper-V detection)\n"
-		"                        CODE_INJECTIONS  (Additional code injection techniques)\n"
-		"                        TIMING_ATTACKS   (Timing/sleep-based sandbox evasion)\n"
-		"                        DUMPING_CHECK    (Dumping memory/process checks)\n"
-		"                        ANALYSIS_TOOLS   (Analysis tools detection)\n"
-		"                        ANTI_DISASSM     (Anti-disassembly checks)\n"
-		"  --sleep <seconds>   Set sleep/delay duration in seconds (default: 600).\n"
-		"  --delay <seconds>   Alias for --sleep.\n"
-		"  -h, --help          Show this help message and exit.\n"
-		"\n"
-		"Examples:\n"
-		"  %s --check DEBUG --check TIMING_ATTACKS --sleep 30\n"
-		"  %s --check VMWARE --check QEMU\n"
-		"  %s --sleep 30\n"
-		"\n"
-		"If no --check options are given, all checks are executed by default.\n"
-		"If no other options are given, the default delay is 600 seconds.\n",
-		prog_name, prog_name, prog_name, prog_name
-	);
+void print_help(const char *prog_name)
+{
+    printf("Usage: %s [OPTIONS]\n"
+           "Options:\n"
+           "  --check <type>      Enable specific check(s). Can be used multiple times. Valid types are:\n"
+           "                        TLS              (Thread Local Storage callback checks)\n"
+           "                        DEBUG            (Anti-debugging checks)\n"
+           "                        INJECTION        (Code injection checks)\n"
+           "                        GEN_SANDBOX      (Generic sandbox checks)\n"
+           "                        VBOX             (VirtualBox detection)\n"
+           "                        VMWARE           (VMware detection)\n"
+           "                        VPC              (Virtual PC detection)\n"
+           "                        QEMU             (QEMU detection)\n"
+           "                        KVM              (KVM detection)\n"
+           "                        XEN              (Xen detection)\n"
+           "                        WINE             (Wine detection)\n"
+           "                        PARALLELS        (Parallels detection)\n"
+           "                        HYPERV           (Hyper-V detection)\n"
+           "                        CODE_INJECTIONS  (Additional code injection techniques)\n"
+           "                        TIMING_ATTACKS   (Timing/sleep-based sandbox evasion)\n"
+           "                        DUMPING_CHECK    (Dumping memory/process checks)\n"
+           "                        ANALYSIS_TOOLS   (Analysis tools detection)\n"
+           "                        ANTI_DISASSM     (Anti-disassembly checks)\n"
+           "  --sleep <seconds>   Set sleep/delay duration in seconds (default: 600).\n"
+           "  --delay <seconds>   Alias for --sleep.\n"
+           "  -h, --help          Show this help message and exit.\n"
+           "\n"
+           "Examples:\n"
+           "  %s --check DEBUG --check TIMING_ATTACKS --sleep 30\n"
+           "  %s --check VMWARE --check QEMU\n"
+           "  %s --sleep 30\n"
+           "\n"
+           "If no --check options are given, all checks are executed by default.\n"
+           "If no other options are given, the default delay is 600 seconds.\n",
+           prog_name, prog_name, prog_name, prog_name);
 }
 
-int main(int argc, char* argv[]){
-	/* enable functions */
-	UINT delayInSeconds = 600U; // default value
-	int enabled_checks = 0;
+int main(int argc, char *argv[])
+{
+    /* enable functions */
+    UINT delayInSeconds = 600U; // default value
+    int enabled_checks = 0;
 
-	if (argc > 1) {
-		for (int i = 1; i < argc; ++i) {
-			if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
-				//print_help(argv[0]);
-				print_help(PROGRAM_NAME);
-				return 0;
-			} else if ((strcmp(argv[i], "--sleep") == 0 || strcmp(argv[i], "--delay") == 0) && i + 1 < argc) {
-				char* endptr;
-				errno = 0;
-				long val = strtol(argv[i + 1], &endptr, 10);
+    if (argc > 1)
+    {
+        for (int i = 1; i < argc; ++i)
+        {
+            if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
+            {
+                // print_help(argv[0]);
+                print_help(PROGRAM_NAME);
+                return 0;
+            }
+            else if ((strcmp(argv[i], "--sleep") == 0 || strcmp(argv[i], "--delay") == 0) && i + 1 < argc)
+            {
+                char *endptr;
+                errno = 0;
+                long val = strtol(argv[i + 1], &endptr, 10);
 
-				if (errno == ERANGE || val > UINT_MAX || val <= 0) {
-					printf("[!] Invalid delay value: %s. Using default %u seconds.\n", argv[i + 1], delayInSeconds);
-				}
-				else if (endptr == argv[i + 1] || *endptr != '\0') {
-					printf("[!] Non-numeric delay value: %s. Using default %u seconds.\n", argv[i + 1], delayInSeconds);
-				}
-				else {
-					delayInSeconds = (UINT)val;
-				}
-				i++; // skip the value
-			} else if ((strcmp(argv[i], "--check") == 0) && i + 1 < argc) {
-				EnableChecks(argv[i + 1]);
-				enabled_checks++;
-				i++; // skip the value
-			}
-			// Add more flags here as needed
-			// else if (strcmp(argv[i], "--otherflag") == 0) { ... }
-		}
-	}
-	
-	if (!enabled_checks) {
-		EnableDefaultChecks();
-	}
-	
+                if (errno == ERANGE || val > UINT_MAX || val <= 0)
+                {
+                    printf("[!] Invalid delay value: %s. Using default %u seconds.\n", argv[i + 1], delayInSeconds);
+                }
+                else if (endptr == argv[i + 1] || *endptr != '\0')
+                {
+                    printf("[!] Non-numeric delay value: %s. Using default %u seconds.\n", argv[i + 1], delayInSeconds);
+                }
+                else
+                {
+                    delayInSeconds = (UINT) val;
+                }
+                i++; // skip the value
+            }
+            else if ((strcmp(argv[i], "--check") == 0) && i + 1 < argc)
+            {
+                EnableChecks(argv[i + 1]);
+                enabled_checks++;
+                i++; // skip the value
+            }
+            // Add more flags here as needed
+            // else if (strcmp(argv[i], "--otherflag") == 0) { ... }
+        }
+    }
 
-	/* Resize the console window for better visibility */
-	resize_console_window();
+    if (!enabled_checks)
+    {
+        EnableDefaultChecks();
+    }
 
-	/* Display general informations */
-	_tprintf(_T("[al-khaser version 0.82]"));
+    /* Resize the console window for better visibility */
+    resize_console_window();
 
-	print_category(TEXT("Initialisation"));
-	API::Init();
-	print_os();
-	API::PrintAvailabilityReport();
+    /* Display general informations */
+    _tprintf(_T("[al-khaser version 0.82]"));
 
-	/* Are we running under WoW64 */
-	if (IsWoW64())
-		_tprintf(_T("Process is running under WOW64\n\n"));
+    print_category(TEXT("Initialisation"));
+    API::Init();
+    print_os();
+    API::PrintAvailabilityReport();
 
-	if (ENABLE_DEBUG_CHECKS) PageExceptionInitialEnum();
+    /* Are we running under WoW64 */
+    if (IsWoW64())
+        _tprintf(_T("Process is running under WOW64\n\n"));
 
-	/* TLS checks */
-	if (ENABLE_TLS_CHECKS) {
-		print_category(TEXT("TLS Callbacks"));
-		exec_check(&TLSCallbackProcess, TEXT("TLS process attach callback "));
-		exec_check(&TLSCallbackThread, TEXT("TLS thread attach callback "));
-	}
+    if (ENABLE_DEBUG_CHECKS)
+        PageExceptionInitialEnum();
 
-	/* Debugger Detection */
-	if (ENABLE_DEBUG_CHECKS) {
-		print_category(TEXT("Debugger Detection"));
-		exec_check(&IsDebuggerPresentAPI, TEXT("Checking IsDebuggerPresent API "));
-		exec_check(&IsDebuggerPresentPEB, TEXT("Checking PEB.BeingDebugged "));
-		exec_check(&CheckRemoteDebuggerPresentAPI, TEXT("Checking CheckRemoteDebuggerPresent API "));
-		exec_check(&NtGlobalFlag, TEXT("Checking PEB.NtGlobalFlag "));
-		exec_check(&HeapFlags, TEXT("Checking ProcessHeap.Flags "));
-		exec_check(&HeapForceFlags, TEXT("Checking ProcessHeap.ForceFlags "));
-		exec_check(&LowFragmentationHeap, TEXT("Checking Low Fragmentation Heap"));
-		exec_check(&NtQueryInformationProcess_ProcessDebugPort, TEXT("Checking NtQueryInformationProcess with ProcessDebugPort "));
-		exec_check(&NtQueryInformationProcess_ProcessDebugFlags, TEXT("Checking NtQueryInformationProcess with ProcessDebugFlags "));
-		exec_check(&NtQueryInformationProcess_ProcessDebugObject, TEXT("Checking NtQueryInformationProcess with ProcessDebugObject "));
-		exec_check(&WUDF_IsAnyDebuggerPresent, TEXT("Checking WudfIsAnyDebuggerPresent API "));
-		exec_check(&WUDF_IsKernelDebuggerPresent, TEXT("Checking WudfIsKernelDebuggerPresent API "));
-		exec_check(&WUDF_IsUserDebuggerPresent, TEXT("Checking WudfIsUserDebuggerPresent API "));
-		exec_check(&NtSetInformationThread_ThreadHideFromDebugger, TEXT("Checking NtSetInformationThread with ThreadHideFromDebugger "));
-		exec_check(&CloseHandle_InvalideHandle, TEXT("Checking CloseHandle with an invalide handle "));
-		exec_check(&NtSystemDebugControl_Command, TEXT("Checking NtSystemDebugControl"));
-		exec_check(&UnhandledExcepFilterTest, TEXT("Checking UnhandledExcepFilterTest "));
-		exec_check(&OutputDebugStringAPI, TEXT("Checking OutputDebugString "));
-		exec_check(&HardwareBreakpoints, TEXT("Checking Hardware Breakpoints "));
-		exec_check(&SoftwareBreakpoints, TEXT("Checking Software Breakpoints "));
-		exec_check(&Interrupt_0x2d, TEXT("Checking Interupt 0x2d "));
-		exec_check(&Interrupt_3, TEXT("Checking Interupt 1 "));
-		exec_check(&TrapFlag, TEXT("Checking trap flag"));
-		exec_check(&MemoryBreakpoints_PageGuard, TEXT("Checking Memory Breakpoints PAGE GUARD "));
-		exec_check(&IsParentExplorerExe, TEXT("Checking If Parent Process is explorer.exe "));
-		exec_check(&CanOpenCsrss, TEXT("Checking SeDebugPrivilege "));
-		exec_check(&NtQueryObject_ObjectTypeInformation, TEXT("Checking NtQueryObject with ObjectTypeInformation "));
-		exec_check(&NtQueryObject_ObjectAllTypesInformation, TEXT("Checking NtQueryObject with ObjectAllTypesInformation "));
-		exec_check(&NtYieldExecutionAPI, TEXT("Checking NtYieldExecution "));
-		exec_check(&SetHandleInformatiom_ProtectedHandle, TEXT("Checking CloseHandle protected handle trick  "));
-		exec_check(&NtQuerySystemInformation_SystemKernelDebuggerInformation, TEXT("Checking NtQuerySystemInformation with SystemKernelDebuggerInformation  "));
-		exec_check(&SharedUserData_KernelDebugger, TEXT("Checking SharedUserData->KdDebuggerEnabled  "));
-		exec_check(&ProcessJob, TEXT("Checking if process is in a job  "));
-		exec_check(&VirtualAlloc_WriteWatch_BufferOnly, TEXT("Checking VirtualAlloc write watch (buffer only) "));
-		exec_check(&VirtualAlloc_WriteWatch_APICalls, TEXT("Checking VirtualAlloc write watch (API calls) "));
-		exec_check(&VirtualAlloc_WriteWatch_IsDebuggerPresent, TEXT("Checking VirtualAlloc write watch (IsDebuggerPresent) "));
-		exec_check(&VirtualAlloc_WriteWatch_CodeWrite, TEXT("Checking VirtualAlloc write watch (code write) "));
-		exec_check(&PageExceptionBreakpointCheck, TEXT("Checking for page exception breakpoints "));
-		exec_check(&ModuleBoundsHookCheck, TEXT("Checking for API hooks outside module bounds "));
-	}
+    /* TLS checks */
+    if (ENABLE_TLS_CHECKS)
+    {
+        print_category(TEXT("TLS Callbacks"));
+        exec_check(&TLSCallbackProcess, TEXT("TLS process attach callback "));
+        exec_check(&TLSCallbackThread, TEXT("TLS thread attach callback "));
+    }
 
-	if (ENABLE_INJECTION_CHECKS) {
-		print_category(TEXT("DLL Injection Detection"));
-		exec_check(&ScanForModules_EnumProcessModulesEx_32bit, TEXT("Enumerating modules with EnumProcessModulesEx [32-bit] "));
-		exec_check(&ScanForModules_EnumProcessModulesEx_64bit, TEXT("Enumerating modules with EnumProcessModulesEx [64-bit] "));
-		exec_check(&ScanForModules_EnumProcessModulesEx_All, TEXT("Enumerating modules with EnumProcessModulesEx [ALL] "));
-		exec_check(&ScanForModules_ToolHelp32, TEXT("Enumerating modules with ToolHelp32 "));
-		exec_check(&ScanForModules_LdrEnumerateLoadedModules, TEXT("Enumerating the process LDR via LdrEnumerateLoadedModules "));
-		exec_check(&ScanForModules_LDR_Direct, TEXT("Enumerating the process LDR directly "));
-		exec_check(&ScanForModules_MemoryWalk_GMI, TEXT("Walking process memory with GetModuleInformation "));
-		exec_check(&ScanForModules_MemoryWalk_Hidden, TEXT("Walking process memory for hidden modules "));
-		exec_check(&ScanForModules_DotNetModuleStructures, TEXT("Walking process memory for .NET module structures "));
-	}
+    /* Debugger Detection */
+    if (ENABLE_DEBUG_CHECKS)
+    {
+        print_category(TEXT("Debugger Detection"));
+        exec_check(&IsDebuggerPresentAPI, TEXT("Checking IsDebuggerPresent API "));
+        exec_check(&IsDebuggerPresentPEB, TEXT("Checking PEB.BeingDebugged "));
+        exec_check(&CheckRemoteDebuggerPresentAPI, TEXT("Checking CheckRemoteDebuggerPresent API "));
+        exec_check(&NtGlobalFlag, TEXT("Checking PEB.NtGlobalFlag "));
+        exec_check(&HeapFlags, TEXT("Checking ProcessHeap.Flags "));
+        exec_check(&HeapForceFlags, TEXT("Checking ProcessHeap.ForceFlags "));
+        exec_check(&LowFragmentationHeap, TEXT("Checking Low Fragmentation Heap"));
+        exec_check(&NtQueryInformationProcess_ProcessDebugPort,
+                   TEXT("Checking NtQueryInformationProcess with ProcessDebugPort "));
+        exec_check(&NtQueryInformationProcess_ProcessDebugFlags,
+                   TEXT("Checking NtQueryInformationProcess with ProcessDebugFlags "));
+        exec_check(&NtQueryInformationProcess_ProcessDebugObject,
+                   TEXT("Checking NtQueryInformationProcess with ProcessDebugObject "));
+        exec_check(&WUDF_IsAnyDebuggerPresent, TEXT("Checking WudfIsAnyDebuggerPresent API "));
+        exec_check(&WUDF_IsKernelDebuggerPresent, TEXT("Checking WudfIsKernelDebuggerPresent API "));
+        exec_check(&WUDF_IsUserDebuggerPresent, TEXT("Checking WudfIsUserDebuggerPresent API "));
+        exec_check(&NtSetInformationThread_ThreadHideFromDebugger,
+                   TEXT("Checking NtSetInformationThread with ThreadHideFromDebugger "));
+        exec_check(&CloseHandle_InvalideHandle, TEXT("Checking CloseHandle with an invalide handle "));
+        exec_check(&NtSystemDebugControl_Command, TEXT("Checking NtSystemDebugControl"));
+        exec_check(&UnhandledExcepFilterTest, TEXT("Checking UnhandledExcepFilterTest "));
+        exec_check(&OutputDebugStringAPI, TEXT("Checking OutputDebugString "));
+        exec_check(&HardwareBreakpoints, TEXT("Checking Hardware Breakpoints "));
+        exec_check(&SoftwareBreakpoints, TEXT("Checking Software Breakpoints "));
+        exec_check(&Interrupt_0x2d, TEXT("Checking Interupt 0x2d "));
+        exec_check(&Interrupt_3, TEXT("Checking Interupt 1 "));
+        exec_check(&TrapFlag, TEXT("Checking trap flag"));
+        exec_check(&MemoryBreakpoints_PageGuard, TEXT("Checking Memory Breakpoints PAGE GUARD "));
+        exec_check(&IsParentExplorerExe, TEXT("Checking If Parent Process is explorer.exe "));
+        exec_check(&CanOpenCsrss, TEXT("Checking SeDebugPrivilege "));
+        exec_check(&NtQueryObject_ObjectTypeInformation, TEXT("Checking NtQueryObject with ObjectTypeInformation "));
+        exec_check(&NtQueryObject_ObjectAllTypesInformation,
+                   TEXT("Checking NtQueryObject with ObjectAllTypesInformation "));
+        exec_check(&NtYieldExecutionAPI, TEXT("Checking NtYieldExecution "));
+        exec_check(&SetHandleInformatiom_ProtectedHandle, TEXT("Checking CloseHandle protected handle trick  "));
+        exec_check(&NtQuerySystemInformation_SystemKernelDebuggerInformation,
+                   TEXT("Checking NtQuerySystemInformation with SystemKernelDebuggerInformation  "));
+        exec_check(&SharedUserData_KernelDebugger, TEXT("Checking SharedUserData->KdDebuggerEnabled  "));
+        exec_check(&ProcessJob, TEXT("Checking if process is in a job  "));
+        exec_check(&VirtualAlloc_WriteWatch_BufferOnly, TEXT("Checking VirtualAlloc write watch (buffer only) "));
+        exec_check(&VirtualAlloc_WriteWatch_APICalls, TEXT("Checking VirtualAlloc write watch (API calls) "));
+        exec_check(&VirtualAlloc_WriteWatch_IsDebuggerPresent,
+                   TEXT("Checking VirtualAlloc write watch (IsDebuggerPresent) "));
+        exec_check(&VirtualAlloc_WriteWatch_CodeWrite, TEXT("Checking VirtualAlloc write watch (code write) "));
+        exec_check(&PageExceptionBreakpointCheck, TEXT("Checking for page exception breakpoints "));
+        exec_check(&ModuleBoundsHookCheck, TEXT("Checking for API hooks outside module bounds "));
+    }
 
-	/* Generic sandbox detection */
-	if (ENABLE_GEN_SANDBOX_CHECKS) {
-		print_category(TEXT("Generic Sandboxe/VM Detection"));
-		loaded_dlls();
-		known_file_names();
-		known_usernames();
-		known_hostnames();
-		other_known_sandbox_environment_checks();
-		looking_glass_vdd_processes();
-		exec_check(&NumberOfProcessors, TEXT("Checking Number of processors in machine "));
-		exec_check(&idt_trick, TEXT("Checking Interupt Descriptor Table location "));
-		exec_check(&ldt_trick, TEXT("Checking Local Descriptor Table location "));
-		exec_check(&gdt_trick, TEXT("Checking Global Descriptor Table location "));
-		exec_check(&str_trick, TEXT("Checking Store Task Register "));
-		exec_check(&number_cores_wmi, TEXT("Checking Number of cores in machine using WMI "));
-		exec_check(&disk_size_wmi, TEXT("Checking hard disk size using WMI "));
-		exec_check(&dizk_size_deviceiocontrol, TEXT("Checking hard disk size using DeviceIoControl "));
-		exec_check(&setupdi_diskdrive, TEXT("Checking SetupDi_diskdrive "));
-		exec_check(&mouse_movement, TEXT("Checking mouse movement "));
-		exec_check(&lack_user_input, TEXT("Checking lack of user input "));
-		exec_check(&memory_space, TEXT("Checking memory space using GlobalMemoryStatusEx "));
-		exec_check(&disk_size_getdiskfreespace, TEXT("Checking disk size using GetDiskFreeSpaceEx "));
-		exec_check(&cpuid_is_hypervisor, TEXT("Checking if CPU hypervisor field is set using cpuid(0x1)"));
-		exec_check(&cpuid_hypervisor_vendor, TEXT("Checking hypervisor vendor using cpuid(0x40000000)"));
-		exec_check(&hosting_check, TEXT("Check if Machine is hosted on Cloud"));
-		exec_check(&accelerated_sleep, TEXT("Check if time has been accelerated "));
-		exec_check(&VMDriverServices, TEXT("VM Driver Services  "));
-		exec_check(&serial_number_bios_wmi, TEXT("Checking SerialNumber from BIOS using WMI "));
-		exec_check(&model_computer_system_wmi, TEXT("Checking Model from ComputerSystem using WMI "));
-		exec_check(&manufacturer_computer_system_wmi, TEXT("Checking Manufacturer from ComputerSystem using WMI "));
-		exec_check(&current_temperature_acpi_wmi, TEXT("Checking Current Temperature using WMI "));
-		exec_check(&process_id_processor_wmi, TEXT("Checking ProcessId using WMI "));
-		exec_check(&power_capabilities, TEXT("Checking power capabilities "));
-		exec_check(&cpu_fan_wmi, TEXT("Checking CPU fan using WMI "));
-		exec_check(&query_license_value, TEXT("Checking NtQueryLicenseValue with Kernel-VMDetection-Private "));
-		exec_check(&cachememory_wmi, TEXT("Checking Win32_CacheMemory with WMI "));
-		exec_check(&physicalmemory_wmi, TEXT("Checking Win32_PhysicalMemory with WMI "));
-		exec_check(&memorydevice_wmi, TEXT("Checking Win32_MemoryDevice with WMI "));
-		exec_check(&memoryarray_wmi, TEXT("Checking Win32_MemoryArray with WMI "));
-		exec_check(&voltageprobe_wmi, TEXT("Checking Win32_VoltageProbe with WMI "));
-		exec_check(&portconnector_wmi, TEXT("Checking Win32_PortConnector with WMI "));
-		exec_check(&smbiosmemory_wmi, TEXT("Checking Win32_SMBIOSMemory with WMI "));
-		exec_check(&perfctrs_thermalzoneinfo_wmi, TEXT("Checking ThermalZoneInfo performance counters with WMI "));
-		exec_check(&cim_memory_wmi, TEXT("Checking CIM_Memory with WMI "));
-		exec_check(&cim_sensor_wmi, TEXT("Checking CIM_Sensor with WMI "));
-		exec_check(&cim_numericsensor_wmi, TEXT("Checking CIM_NumericSensor with WMI "));
-		exec_check(&cim_temperaturesensor_wmi, TEXT("Checking CIM_TemperatureSensor with WMI "));
-		exec_check(&cim_voltagesensor_wmi, TEXT("Checking CIM_VoltageSensor with WMI "));
-		exec_check(&cim_physicalconnector_wmi, TEXT("Checking CIM_PhysicalConnector with WMI "));
-		exec_check(&cim_slot_wmi, TEXT("Checking CIM_Slot with WMI "));
-		exec_check(&pirated_windows, TEXT("Checking if Windows is Genuine "));
-		exec_check(&registry_services_disk_enum, TEXT("Checking Services\\Disk\\Enum entries for VM strings "));
-		exec_check(&registry_disk_enum, TEXT("Checking Enum\\IDE and Enum\\SCSI entries for VM strings "));
-		exec_check(&number_SMBIOS_tables, TEXT("Checking SMBIOS tables  "));
-		exec_check(&firmware_ACPI, TEXT("Checking ACPI table strings "));
-	}
+    if (ENABLE_INJECTION_CHECKS)
+    {
+        print_category(TEXT("DLL Injection Detection"));
+        exec_check(&ScanForModules_EnumProcessModulesEx_32bit,
+                   TEXT("Enumerating modules with EnumProcessModulesEx [32-bit] "));
+        exec_check(&ScanForModules_EnumProcessModulesEx_64bit,
+                   TEXT("Enumerating modules with EnumProcessModulesEx [64-bit] "));
+        exec_check(&ScanForModules_EnumProcessModulesEx_All,
+                   TEXT("Enumerating modules with EnumProcessModulesEx [ALL] "));
+        exec_check(&ScanForModules_ToolHelp32, TEXT("Enumerating modules with ToolHelp32 "));
+        exec_check(&ScanForModules_LdrEnumerateLoadedModules,
+                   TEXT("Enumerating the process LDR via LdrEnumerateLoadedModules "));
+        exec_check(&ScanForModules_LDR_Direct, TEXT("Enumerating the process LDR directly "));
+        exec_check(&ScanForModules_MemoryWalk_GMI, TEXT("Walking process memory with GetModuleInformation "));
+        exec_check(&ScanForModules_MemoryWalk_Hidden, TEXT("Walking process memory for hidden modules "));
+        exec_check(&ScanForModules_DotNetModuleStructures, TEXT("Walking process memory for .NET module structures "));
+    }
 
-	/* VirtualBox Detection */
-	if (ENABLE_VBOX_CHECKS) {
-		print_category(TEXT("VirtualBox Detection"));
-		vbox_reg_key_value();
-		exec_check(&vbox_dir, TEXT("Checking VirtualBox Guest Additions directory "));
-		vbox_files();
-		vbox_reg_keys();
-		exec_check(&vbox_check_mac, TEXT("Checking Mac Address start with 08:00:27 "));
-		exec_check(&hybridanalysismacdetect, TEXT("Checking MAC address (Hybrid Analysis) "));
-		vbox_devices();
-		exec_check(&vbox_window_class, TEXT("Checking VBoxTrayToolWndClass / VBoxTrayToolWnd "));
-		exec_check(&vbox_network_share, TEXT("Checking VirtualBox Shared Folders network provider "));
-		vbox_processes();
-		exec_check(&vbox_pnpentity_pcideviceid_wmi, TEXT("Checking Win32_PnPDevice DeviceId from WMI for VBox PCI device "));
-		exec_check(&vbox_pnpentity_controllers_wmi, TEXT("Checking Win32_PnPDevice Name from WMI for VBox controller hardware "));
-		exec_check(&vbox_pnpentity_vboxname_wmi, TEXT("Checking Win32_PnPDevice Name from WMI for VBOX names "));
-		exec_check(&vbox_bus_wmi, TEXT("Checking Win32_Bus from WMI "));
-		exec_check(&vbox_baseboard_wmi, TEXT("Checking Win32_BaseBoard from WMI "));
-		exec_check(&vbox_mac_wmi, TEXT("Checking MAC address from WMI "));
-		exec_check(&vbox_eventlogfile_wmi, TEXT("Checking NTEventLog from WMI "));
-		exec_check(&vbox_firmware_SMBIOS, TEXT("Checking SMBIOS firmware  "));
-		exec_check(&vbox_firmware_ACPI, TEXT("Checking ACPI tables  "));
-	}
+    /* Generic sandbox detection */
+    if (ENABLE_GEN_SANDBOX_CHECKS)
+    {
+        print_category(TEXT("Generic Sandboxe/VM Detection"));
+        loaded_dlls();
+        known_file_names();
+        known_usernames();
+        known_hostnames();
+        other_known_sandbox_environment_checks();
+        looking_glass_vdd_processes();
+        exec_check(&NumberOfProcessors, TEXT("Checking Number of processors in machine "));
+        exec_check(&idt_trick, TEXT("Checking Interupt Descriptor Table location "));
+        exec_check(&ldt_trick, TEXT("Checking Local Descriptor Table location "));
+        exec_check(&gdt_trick, TEXT("Checking Global Descriptor Table location "));
+        exec_check(&str_trick, TEXT("Checking Store Task Register "));
+        exec_check(&number_cores_wmi, TEXT("Checking Number of cores in machine using WMI "));
+        exec_check(&disk_size_wmi, TEXT("Checking hard disk size using WMI "));
+        exec_check(&dizk_size_deviceiocontrol, TEXT("Checking hard disk size using DeviceIoControl "));
+        exec_check(&setupdi_diskdrive, TEXT("Checking SetupDi_diskdrive "));
+        exec_check(&mouse_movement, TEXT("Checking mouse movement "));
+        exec_check(&lack_user_input, TEXT("Checking lack of user input "));
+        exec_check(&memory_space, TEXT("Checking memory space using GlobalMemoryStatusEx "));
+        exec_check(&disk_size_getdiskfreespace, TEXT("Checking disk size using GetDiskFreeSpaceEx "));
+        exec_check(&cpuid_is_hypervisor, TEXT("Checking if CPU hypervisor field is set using cpuid(0x1)"));
+        exec_check(&cpuid_hypervisor_vendor, TEXT("Checking hypervisor vendor using cpuid(0x40000000)"));
+        exec_check(&hosting_check, TEXT("Check if Machine is hosted on Cloud"));
+        exec_check(&accelerated_sleep, TEXT("Check if time has been accelerated "));
+        exec_check(&VMDriverServices, TEXT("VM Driver Services  "));
+        exec_check(&serial_number_bios_wmi, TEXT("Checking SerialNumber from BIOS using WMI "));
+        exec_check(&model_computer_system_wmi, TEXT("Checking Model from ComputerSystem using WMI "));
+        exec_check(&manufacturer_computer_system_wmi, TEXT("Checking Manufacturer from ComputerSystem using WMI "));
+        exec_check(&current_temperature_acpi_wmi, TEXT("Checking Current Temperature using WMI "));
+        exec_check(&process_id_processor_wmi, TEXT("Checking ProcessId using WMI "));
+        exec_check(&power_capabilities, TEXT("Checking power capabilities "));
+        exec_check(&cpu_fan_wmi, TEXT("Checking CPU fan using WMI "));
+        exec_check(&query_license_value, TEXT("Checking NtQueryLicenseValue with Kernel-VMDetection-Private "));
+        exec_check(&cachememory_wmi, TEXT("Checking Win32_CacheMemory with WMI "));
+        exec_check(&physicalmemory_wmi, TEXT("Checking Win32_PhysicalMemory with WMI "));
+        exec_check(&memorydevice_wmi, TEXT("Checking Win32_MemoryDevice with WMI "));
+        exec_check(&memoryarray_wmi, TEXT("Checking Win32_MemoryArray with WMI "));
+        exec_check(&voltageprobe_wmi, TEXT("Checking Win32_VoltageProbe with WMI "));
+        exec_check(&portconnector_wmi, TEXT("Checking Win32_PortConnector with WMI "));
+        exec_check(&smbiosmemory_wmi, TEXT("Checking Win32_SMBIOSMemory with WMI "));
+        exec_check(&perfctrs_thermalzoneinfo_wmi, TEXT("Checking ThermalZoneInfo performance counters with WMI "));
+        exec_check(&cim_memory_wmi, TEXT("Checking CIM_Memory with WMI "));
+        exec_check(&cim_sensor_wmi, TEXT("Checking CIM_Sensor with WMI "));
+        exec_check(&cim_numericsensor_wmi, TEXT("Checking CIM_NumericSensor with WMI "));
+        exec_check(&cim_temperaturesensor_wmi, TEXT("Checking CIM_TemperatureSensor with WMI "));
+        exec_check(&cim_voltagesensor_wmi, TEXT("Checking CIM_VoltageSensor with WMI "));
+        exec_check(&cim_physicalconnector_wmi, TEXT("Checking CIM_PhysicalConnector with WMI "));
+        exec_check(&cim_slot_wmi, TEXT("Checking CIM_Slot with WMI "));
+        exec_check(&pirated_windows, TEXT("Checking if Windows is Genuine "));
+        exec_check(&registry_services_disk_enum, TEXT("Checking Services\\Disk\\Enum entries for VM strings "));
+        exec_check(&registry_disk_enum, TEXT("Checking Enum\\IDE and Enum\\SCSI entries for VM strings "));
+        exec_check(&number_SMBIOS_tables, TEXT("Checking SMBIOS tables  "));
+        exec_check(&firmware_ACPI, TEXT("Checking ACPI table strings "));
+    }
 
-	/* VMWare Detection */
-	if (ENABLE_VMWARE_CHECKS) {
-		print_category(TEXT("VMWare Detection"));
-		vmware_reg_key_value();
-		vmware_reg_keys();
-		vmware_files();
-		vmware_mac();
-		exec_check(&vmware_adapter_name, TEXT("Checking VMWare network adapter name "));
-		vmware_devices();
-		exec_check(&vmware_dir, TEXT("Checking VMWare directory "));
-		exec_check(&vmware_firmware_SMBIOS, TEXT("Checking SMBIOS firmware  "));
-		exec_check(&vmware_firmware_ACPI, TEXT("Checking ACPI tables  "));
-	}
+    /* VirtualBox Detection */
+    if (ENABLE_VBOX_CHECKS)
+    {
+        print_category(TEXT("VirtualBox Detection"));
+        vbox_reg_key_value();
+        exec_check(&vbox_dir, TEXT("Checking VirtualBox Guest Additions directory "));
+        vbox_files();
+        vbox_reg_keys();
+        exec_check(&vbox_check_mac, TEXT("Checking Mac Address start with 08:00:27 "));
+        exec_check(&hybridanalysismacdetect, TEXT("Checking MAC address (Hybrid Analysis) "));
+        vbox_devices();
+        exec_check(&vbox_window_class, TEXT("Checking VBoxTrayToolWndClass / VBoxTrayToolWnd "));
+        exec_check(&vbox_network_share, TEXT("Checking VirtualBox Shared Folders network provider "));
+        vbox_processes();
+        exec_check(&vbox_pnpentity_pcideviceid_wmi,
+                   TEXT("Checking Win32_PnPDevice DeviceId from WMI for VBox PCI device "));
+        exec_check(&vbox_pnpentity_controllers_wmi,
+                   TEXT("Checking Win32_PnPDevice Name from WMI for VBox controller hardware "));
+        exec_check(&vbox_pnpentity_vboxname_wmi, TEXT("Checking Win32_PnPDevice Name from WMI for VBOX names "));
+        exec_check(&vbox_bus_wmi, TEXT("Checking Win32_Bus from WMI "));
+        exec_check(&vbox_baseboard_wmi, TEXT("Checking Win32_BaseBoard from WMI "));
+        exec_check(&vbox_mac_wmi, TEXT("Checking MAC address from WMI "));
+        exec_check(&vbox_eventlogfile_wmi, TEXT("Checking NTEventLog from WMI "));
+        exec_check(&vbox_firmware_SMBIOS, TEXT("Checking SMBIOS firmware  "));
+        exec_check(&vbox_firmware_ACPI, TEXT("Checking ACPI tables  "));
+    }
 
-	/* Virtual PC Detection */
-	if (ENABLE_VPC_CHECKS) {
-		print_category(TEXT("Virtual PC Detection"));
-		virtual_pc_process();
-		virtual_pc_reg_keys();
-	}
+    /* VMWare Detection */
+    if (ENABLE_VMWARE_CHECKS)
+    {
+        print_category(TEXT("VMWare Detection"));
+        vmware_reg_key_value();
+        vmware_reg_keys();
+        vmware_files();
+        vmware_mac();
+        exec_check(&vmware_adapter_name, TEXT("Checking VMWare network adapter name "));
+        vmware_devices();
+        exec_check(&vmware_dir, TEXT("Checking VMWare directory "));
+        exec_check(&vmware_firmware_SMBIOS, TEXT("Checking SMBIOS firmware  "));
+        exec_check(&vmware_firmware_ACPI, TEXT("Checking ACPI tables  "));
+    }
 
-	/* QEMU Detection */
-	if (ENABLE_QEMU_CHECKS) {
-		print_category(TEXT("QEMU Detection"));
-		qemu_reg_key_value();
-		qemu_reg_keys();
-		qemu_processes();
-		qemu_dir();
-		exec_check(&qemu_firmware_SMBIOS, TEXT("Checking SMBIOS firmware  "));
-		exec_check(&qemu_firmware_ACPI, TEXT("Checking ACPI tables  "));
+    /* Virtual PC Detection */
+    if (ENABLE_VPC_CHECKS)
+    {
+        print_category(TEXT("Virtual PC Detection"));
+        virtual_pc_process();
+        virtual_pc_reg_keys();
+    }
 
-	}
+    /* QEMU Detection */
+    if (ENABLE_QEMU_CHECKS)
+    {
+        print_category(TEXT("QEMU Detection"));
+        qemu_reg_key_value();
+        qemu_reg_keys();
+        qemu_processes();
+        qemu_dir();
+        exec_check(&qemu_firmware_SMBIOS, TEXT("Checking SMBIOS firmware  "));
+        exec_check(&qemu_firmware_ACPI, TEXT("Checking ACPI tables  "));
+    }
 
-	/* Xen Detection */
-	if (ENABLE_XEN_CHECKS) {
-		print_category(TEXT("Xen Detection"));
-		xen_reg_keys();
-		xen_process();
-		exec_check(&xen_check_mac, TEXT("Checking Mac Address start with 08:16:3E "));
-	}
+    /* Xen Detection */
+    if (ENABLE_XEN_CHECKS)
+    {
+        print_category(TEXT("Xen Detection"));
+        xen_reg_keys();
+        xen_process();
+        exec_check(&xen_check_mac, TEXT("Checking Mac Address start with 08:16:3E "));
+    }
 
-	/* KVM Detection */
-	if (ENABLE_KVM_CHECKS) {
-		print_category(TEXT("KVM Detection"));
-		kvm_files();
-		kvm_reg_keys();
-		exec_check(&kvm_dir, TEXT("Checking KVM virio directory "));
-	}
+    /* KVM Detection */
+    if (ENABLE_KVM_CHECKS)
+    {
+        print_category(TEXT("KVM Detection"));
+        kvm_files();
+        kvm_reg_keys();
+        exec_check(&kvm_dir, TEXT("Checking KVM virio directory "));
+    }
 
-	/* Wine Detection */
-	if (ENABLE_WINE_CHECKS) {
-		print_category(TEXT("Wine Detection"));
-		exec_check(&wine_exports, TEXT("Checking Wine via dll exports "));
-		wine_reg_keys();
-	}
+    /* Wine Detection */
+    if (ENABLE_WINE_CHECKS)
+    {
+        print_category(TEXT("Wine Detection"));
+        exec_check(&wine_exports, TEXT("Checking Wine via dll exports "));
+        wine_reg_keys();
+    }
 
-	/* Parallels Detection */
-	if (ENABLE_PARALLELS_CHECKS) {
-		print_category(TEXT("Parallels Detection"));
-		parallels_reg_keys();
-		parallels_process();
-		exec_check(&parallels_check_mac, TEXT("Checking Mac Address start with 00:1C:42 "));
-	}
+    /* Parallels Detection */
+    if (ENABLE_PARALLELS_CHECKS)
+    {
+        print_category(TEXT("Parallels Detection"));
+        parallels_reg_keys();
+        parallels_process();
+        exec_check(&parallels_check_mac, TEXT("Checking Mac Address start with 00:1C:42 "));
+    }
 
-	if (ENABLE_HYPERV_CHECKS) {
-		print_category(TEXT("Hyper-V Detection"));
-		exec_check(&check_hyperv_driver_objects, TEXT("Checking for Hyper-V driver objects "));
-		exec_check(&check_hyperv_global_objects, TEXT("Checking for Hyper-V global objects "));
-	}
+    if (ENABLE_HYPERV_CHECKS)
+    {
+        print_category(TEXT("Hyper-V Detection"));
+        exec_check(&check_hyperv_driver_objects, TEXT("Checking for Hyper-V driver objects "));
+        exec_check(&check_hyperv_global_objects, TEXT("Checking for Hyper-V global objects "));
+    }
 
-	/* Code injections techniques */
-	if (ENABLE_CODE_INJECTIONS) {
-		CreateRemoteThread_Injection();
-		SetWindowsHooksEx_Injection();
-		NtCreateThreadEx_Injection();
-		RtlCreateUserThread_Injection();
-		QueueUserAPC_Injection();
-		GetSetThreadContext_Injection();
-	}
+    /* Code injections techniques */
+    if (ENABLE_CODE_INJECTIONS)
+    {
+        CreateRemoteThread_Injection();
+        SetWindowsHooksEx_Injection();
+        NtCreateThreadEx_Injection();
+        RtlCreateUserThread_Injection();
+        QueueUserAPC_Injection();
+        GetSetThreadContext_Injection();
+    }
 
-	/* Timing Attacks */
-	if (ENABLE_TIMING_ATTACKS) {
-		print_category(TEXT("Timing-attacks"));
+    /* Timing Attacks */
+    if (ENABLE_TIMING_ATTACKS)
+    {
+        print_category(TEXT("Timing-attacks"));
 
-		UINT delayInMillis = delayInSeconds * 1000U;
-		printf("\n[*] Delay value is set to %u seconds (%u minutes) ...\n", delayInSeconds, delayInSeconds / 60);
+        UINT delayInMillis = delayInSeconds * 1000U;
+        printf("\n[*] Delay value is set to %u seconds (%u minutes) ...\n", delayInSeconds, delayInSeconds / 60);
 
-		exec_check(timing_NtDelayexecution, delayInMillis, TEXT("Performing a sleep using NtDelayExecution ..."));
-		exec_check(timing_sleep_loop, delayInMillis, TEXT("Performing a sleep() in a loop ..."));
-		exec_check(timing_SetTimer, delayInMillis, TEXT("Delaying execution using SetTimer ..."));
-		exec_check(timing_timeSetEvent, delayInMillis, TEXT("Delaying execution using timeSetEvent ..."));
-		exec_check(timing_WaitForSingleObject, delayInMillis, TEXT("Delaying execution using WaitForSingleObject ..."));
-		exec_check(timing_WaitForMultipleObjects, delayInMillis, TEXT("Delaying execution using WaitForMultipleObjects ..."));
-		exec_check(timing_IcmpSendEcho, delayInMillis, TEXT("Delaying execution using IcmpSendEcho ..."));
-		exec_check(timing_CreateWaitableTimer, delayInMillis, TEXT("Delaying execution using CreateWaitableTimer ..."));
-		exec_check(timing_CreateTimerQueueTimer, delayInMillis, TEXT("Delaying execution using CreateTimerQueueTimer ..."));
+        exec_check(timing_NtDelayexecution, delayInMillis, TEXT("Performing a sleep using NtDelayExecution ..."));
+        exec_check(timing_sleep_loop, delayInMillis, TEXT("Performing a sleep() in a loop ..."));
+        exec_check(timing_SetTimer, delayInMillis, TEXT("Delaying execution using SetTimer ..."));
+        exec_check(timing_timeSetEvent, delayInMillis, TEXT("Delaying execution using timeSetEvent ..."));
+        exec_check(timing_WaitForSingleObject, delayInMillis, TEXT("Delaying execution using WaitForSingleObject ..."));
+        exec_check(timing_WaitForMultipleObjects, delayInMillis,
+                   TEXT("Delaying execution using WaitForMultipleObjects ..."));
+        exec_check(timing_IcmpSendEcho, delayInMillis, TEXT("Delaying execution using IcmpSendEcho ..."));
+        exec_check(timing_CreateWaitableTimer, delayInMillis, TEXT("Delaying execution using CreateWaitableTimer ..."));
+        exec_check(timing_CreateTimerQueueTimer, delayInMillis,
+                   TEXT("Delaying execution using CreateTimerQueueTimer ..."));
 
-		exec_check(&rdtsc_diff_locky, TEXT("Checking RDTSC Locky trick "));
-		exec_check(&rdtsc_diff_vmexit, TEXT("Checking RDTSC which force a VM Exit (cpuid) "));
-	}
+        exec_check(&rdtsc_diff_locky, TEXT("Checking RDTSC Locky trick "));
+        exec_check(&rdtsc_diff_vmexit, TEXT("Checking RDTSC which force a VM Exit (cpuid) "));
+    }
 
-	/* Malware analysis tools */
-	if (ENABLE_ANALYSIS_TOOLS_CHECK) {
-		print_category(TEXT("Analysis-tools"));
-		analysis_tools_process();
-	}
+    /* Malware analysis tools */
+    if (ENABLE_ANALYSIS_TOOLS_CHECK)
+    {
+        print_category(TEXT("Analysis-tools"));
+        analysis_tools_process();
+    }
 
-	/* Anti disassembler tricks */
-	if (ENABLE_ANTI_DISASSM_CHECKS) {
-		_tprintf(_T("Begin AntiDisassmConstantCondition\n"));
-		AntiDisassmConstantCondition();
-		_tprintf(_T("Begin AntiDisassmAsmJmpSameTarget\n"));
-		AntiDisassmAsmJmpSameTarget();
-		_tprintf(_T("Begin AntiDisassmImpossibleDiasassm\n"));
-		AntiDisassmImpossibleDiasassm();
-		_tprintf(_T("Begin AntiDisassmFunctionPointer\n"));
-		AntiDisassmFunctionPointer();
-		_tprintf(_T("Begin AntiDisassmReturnPointerAbuse\n"));
-		AntiDisassmReturnPointerAbuse();
+    /* Anti disassembler tricks */
+    if (ENABLE_ANTI_DISASSM_CHECKS)
+    {
+        _tprintf(_T("Begin AntiDisassmConstantCondition\n"));
+        AntiDisassmConstantCondition();
+        _tprintf(_T("Begin AntiDisassmAsmJmpSameTarget\n"));
+        AntiDisassmAsmJmpSameTarget();
+        _tprintf(_T("Begin AntiDisassmImpossibleDiasassm\n"));
+        AntiDisassmImpossibleDiasassm();
+        _tprintf(_T("Begin AntiDisassmFunctionPointer\n"));
+        AntiDisassmFunctionPointer();
+        _tprintf(_T("Begin AntiDisassmReturnPointerAbuse\n"));
+        AntiDisassmReturnPointerAbuse();
 #ifndef _WIN64
-		_tprintf(_T("Begin AntiDisassmSEHMisuse\n"));
-		AntiDisassmSEHMisuse();
+        _tprintf(_T("Begin AntiDisassmSEHMisuse\n"));
+        AntiDisassmSEHMisuse();
 #endif
-	}
+    }
 
-	/* Anti Dumping */
-	if (ENABLE_DUMPING_CHECK) {
-		print_category(TEXT("Anti Dumping"));
-		ErasePEHeaderFromMemory();
-		SizeOfImage();
-	}
+    /* Anti Dumping */
+    if (ENABLE_DUMPING_CHECK)
+    {
+        print_category(TEXT("Anti Dumping"));
+        ErasePEHeaderFromMemory();
+        SizeOfImage();
+    }
 
-	_tprintf(_T("\n\nAnalysis done, I hope you didn't get red flags :)"));
+    _tprintf(_T("\n\nAnalysis done, I hope you didn't get red flags :)"));
 
-	getchar();
-	return 0;
+    getchar();
+    return 0;
 }
-

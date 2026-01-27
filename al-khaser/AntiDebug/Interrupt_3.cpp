@@ -13,31 +13,27 @@ Vectored Exception Handling is used here because SEH is an anti-debug trick in i
 
 static BOOL SwallowedException = TRUE;
 
-static LONG CALLBACK VectoredHandler(
-	_In_ PEXCEPTION_POINTERS ExceptionInfo
-)
+static LONG CALLBACK VectoredHandler(_In_ PEXCEPTION_POINTERS ExceptionInfo)
 {
-	SwallowedException = FALSE;
-	if (ExceptionInfo->ExceptionRecord->ExceptionCode == EXCEPTION_BREAKPOINT)
-	{
-		//Increase EIP/RIP to continue execution.
+    SwallowedException = FALSE;
+    if (ExceptionInfo->ExceptionRecord->ExceptionCode == EXCEPTION_BREAKPOINT)
+    {
+        // Increase EIP/RIP to continue execution.
 #ifdef _WIN64
-		ExceptionInfo->ContextRecord->Rip++;
+        ExceptionInfo->ContextRecord->Rip++;
 #else
-		ExceptionInfo->ContextRecord->Eip++;
+        ExceptionInfo->ContextRecord->Eip++;
 #endif
-		return EXCEPTION_CONTINUE_EXECUTION;
-	}
-	return EXCEPTION_CONTINUE_SEARCH;
+        return EXCEPTION_CONTINUE_EXECUTION;
+    }
+    return EXCEPTION_CONTINUE_SEARCH;
 }
-
-
 
 BOOL Interrupt_3()
 {
-	PVOID Handle = AddVectoredExceptionHandler(1, VectoredHandler);
-	SwallowedException = TRUE;
-	__debugbreak();
-	RemoveVectoredExceptionHandler(Handle);
-	return SwallowedException;
+    PVOID Handle = AddVectoredExceptionHandler(1, VectoredHandler);
+    SwallowedException = TRUE;
+    __debugbreak();
+    RemoveVectoredExceptionHandler(Handle);
+    return SwallowedException;
 }
