@@ -1,11 +1,24 @@
-; Top-most EditorConfig file
+# .editorconfig
 root = true
 
-; Windows-style newlines
 [*]
-end_of_line = CRLF
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+trim_trailing_whitespace = true
 
-; Tab indentation
-[*.{cpp,h}]
+[*.{cpp,cc,c,h,hpp}]
+indent_style = space
+indent_size = 4
+max_line_length = 120
+
+[*.{sln,vcxproj,vcxproj.filters}]
 indent_style = tab
-tab_width = 4
+charset = utf-8-bom
+
+[*.{yml,yaml,json}]
+indent_style = space
+indent_size = 2
+
+[Makefile]
+indent_style = tab
