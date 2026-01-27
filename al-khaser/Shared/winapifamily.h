@@ -12,8 +12,8 @@ Abstract:
 
 */
 
-#define _WIN32_WINNT_WIN8                   0x0602
-#define _WIN32_WINNT_WINBLUE                0x0603
+#define _WIN32_WINNT_WIN8 0x0602
+#define _WIN32_WINNT_WINBLUE 0x0603
 
 #ifndef _INC_WINAPIFAMILY
 #define _INC_WINAPIFAMILY
@@ -39,9 +39,9 @@ Abstract:
  * an error will occur if WINAPI_FAMILY is set to any
  * WINAPI_PARTITION value (which must be 0 or 1, see below).
  */
-#define WINAPI_FAMILY_PC_APP      2     /* Windows Store Applications */
-#define WINAPI_FAMILY_PHONE_APP   3     /* Windows Phone Applications */
-#define WINAPI_FAMILY_DESKTOP_APP 100   /* Windows Desktop Applications */
+#define WINAPI_FAMILY_PC_APP 2        /* Windows Store Applications */
+#define WINAPI_FAMILY_PHONE_APP 3     /* Windows Phone Applications */
+#define WINAPI_FAMILY_DESKTOP_APP 100 /* Windows Desktop Applications */
 /* The value of WINAPI_FAMILY_DESKTOP_APP may change in future SDKs. */
 /* Additional WINAPI_FAMILY values may be defined in future SDKs. */
 
@@ -50,7 +50,7 @@ Abstract:
  * synonym for WINAPI_FAMILY_PC_APP is temporarily #define'd.
  * Use of this symbol should be considered deprecated.
  */
-#define WINAPI_FAMILY_APP  WINAPI_FAMILY_PC_APP
+#define WINAPI_FAMILY_APP WINAPI_FAMILY_PC_APP
 
 /*
  * If no WINAPI_FAMILY value is specified, then all APIs available to
@@ -83,7 +83,6 @@ Abstract:
 #undef WINAPI_PARTITION_PC_APP    /* specific to PC store apps */
 #undef WINAPI_PARTITION_PHONE_APP /* specific to phone store apps */
 
-
 /*
  * The mapping between families and partitions is summarized here.
  * An X indicates that the given partition is active for the given
@@ -115,12 +114,13 @@ Abstract:
  * Whenever a new family is added, all of these expressions
  * need to be reconsidered.
  */
-#if WINAPI_FAMILY != WINAPI_FAMILY_DESKTOP_APP && WINAPI_FAMILY != WINAPI_FAMILY_PC_APP && WINAPI_FAMILY != WINAPI_FAMILY_PHONE_APP
-#   error Unknown WINAPI_FAMILY value. Was it defined in terms of a WINAPI_PARTITION_* value?
+#if WINAPI_FAMILY != WINAPI_FAMILY_DESKTOP_APP && WINAPI_FAMILY != WINAPI_FAMILY_PC_APP &&                             \
+    WINAPI_FAMILY != WINAPI_FAMILY_PHONE_APP
+#error Unknown WINAPI_FAMILY value. Was it defined in terms of a WINAPI_PARTITION_* value?
 #endif
-#define WINAPI_PARTITION_DESKTOP   (WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP)
-#define WINAPI_PARTITION_APP       1  /* active for all current families */ 
-#define WINAPI_PARTITION_PC_APP    (WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP || WINAPI_FAMILY == WINAPI_FAMILY_PC_APP)
+#define WINAPI_PARTITION_DESKTOP (WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP)
+#define WINAPI_PARTITION_APP 1 /* active for all current families */
+#define WINAPI_PARTITION_PC_APP (WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP || WINAPI_FAMILY == WINAPI_FAMILY_PC_APP)
 #define WINAPI_PARTITION_PHONE_APP (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
 
 /*
@@ -128,7 +128,7 @@ Abstract:
  * synonym for WINAPI_PARTITION_PHONE_APP is temporarily #define'd.
  * Use of this symbol should be regarded as deprecated.
  */
-#define WINAPI_PARTITION_PHONE  WINAPI_PARTITION_PHONE_APP
+#define WINAPI_PARTITION_PHONE WINAPI_PARTITION_PHONE_APP
 
 /*
  * Header files use the WINAPI_FAMILY_PARTITION macro to assign one or
@@ -151,7 +151,7 @@ Abstract:
  *
  * Usages of WINAPI_FAMILY_PARTITION may be combined, when the partitition definitions are
  * related.  In particular one might use declarations like
- * 
+ *
  *     #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) && !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
  *
  * or
@@ -160,15 +160,16 @@ Abstract:
  *
  * Direct references to WINAPI_PARTITION_ values (eg #if !WINAPI_FAMILY_PARTITION_...)
  * should not be used.
- */ 
-#define WINAPI_FAMILY_PARTITION(Partitions)     (Partitions)
+ */
+#define WINAPI_FAMILY_PARTITION(Partitions) (Partitions)
 
 /*
  * Macro used to #define or typedef a symbol used for selective deprecation
  * of individual methods of a COM interfaces that are otherwise available
  * for a given set of partitions.
  */
-#define _WINAPI_DEPRECATED_DECLARATION  __declspec(deprecated("This API cannot be used in the context of the caller's application type."))
+#define _WINAPI_DEPRECATED_DECLARATION                                                                                 \
+    __declspec(deprecated("This API cannot be used in the context of the caller's application type."))
 
 /*
  * For compatibility with Windows 8 header files, the following
@@ -177,7 +178,7 @@ Abstract:
  * introduced locally to the header files of the component that needs them.
  */
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) && !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-#   define APP_DEPRECATED_HRESULT    HRESULT _WINAPI_DEPRECATED_DECLARATION
+#define APP_DEPRECATED_HRESULT HRESULT _WINAPI_DEPRECATED_DECLARATION
 #endif // WINAPIFAMILY_PARTITION(WINAPI_PARTITION_APP) && !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 
-#endif  /* !_INC_WINAPIFAMILY */
+#endif /* !_INC_WINAPIFAMILY */

@@ -1,6 +1,3 @@
 #pragma once
 
-BOOL
-LowFragmentationHeap(
-	VOID
-);
+BOOL LowFragmentationHeap(VOID);

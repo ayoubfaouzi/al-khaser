@@ -1,24 +1,24 @@
 /******************************************************************
-*                                                                 *
-*  VersionHelpers.h -- This module defines helper functions to    *
-*                      promote version check with proper          *
-*                      comparisons.                               *
-*                                                                 *
-*  Copyright (c) Microsoft Corp.  All rights reserved.            *
-*                                                                 *
-******************************************************************/
+ *                                                                 *
+ *  VersionHelpers.h -- This module defines helper functions to    *
+ *                      promote version check with proper          *
+ *                      comparisons.                               *
+ *                                                                 *
+ *  Copyright (c) Microsoft Corp.  All rights reserved.            *
+ *                                                                 *
+ ******************************************************************/
 #pragma once
 
 #include "winapifamily.h"
 
 #ifdef _MSC_VER
 #pragma once
-#endif  // _MSC_VER
+#endif // _MSC_VER
 
 #pragma region Application Family
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 
-#include <specstrings.h>    // for _In_, etc.
+#include <specstrings.h> // for _In_, etc.
 
 #if !defined(__midl) && !defined(SORTPP_PASS)
 
@@ -28,7 +28,7 @@
 
 #define VERSIONHELPERAPI inline bool
 
-#else  // __cplusplus
+#else // __cplusplus
 
 #define VERSIONHELPERAPI FORCEINLINE BOOL
 
@@ -37,35 +37,32 @@
 VERSIONHELPERAPI
 IsWindowsVersionOrGreater(WORD wMajorVersion, WORD wMinorVersion, WORD wServicePackMajor)
 {
-    OSVERSIONINFOEXW osvi = { sizeof(osvi), 0, 0, 0, 0, {0}, 0, 0 };
-    DWORDLONG        const dwlConditionMask = VerSetConditionMask(
-        VerSetConditionMask(
-        VerSetConditionMask(
-            0, VER_MAJORVERSION, VER_GREATER_EQUAL),
-               VER_MINORVERSION, VER_GREATER_EQUAL),
-               VER_SERVICEPACKMAJOR, VER_GREATER_EQUAL);
+    OSVERSIONINFOEXW osvi = {sizeof(osvi), 0, 0, 0, 0, {0}, 0, 0};
+    DWORDLONG const dwlConditionMask =
+        VerSetConditionMask(VerSetConditionMask(VerSetConditionMask(0, VER_MAJORVERSION, VER_GREATER_EQUAL),
+                                                VER_MINORVERSION, VER_GREATER_EQUAL),
+                            VER_SERVICEPACKMAJOR, VER_GREATER_EQUAL);
 
     osvi.dwMajorVersion = wMajorVersion;
     osvi.dwMinorVersion = wMinorVersion;
     osvi.wServicePackMajor = wServicePackMajor;
 
-    return VerifyVersionInfoW(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_SERVICEPACKMAJOR, dwlConditionMask) != FALSE;
+    return VerifyVersionInfoW(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_SERVICEPACKMAJOR, dwlConditionMask) !=
+           FALSE;
 }
 
 VERSIONHELPERAPI
 IsWindowsVersionOrLesser(WORD wMajorVersion, WORD wMinorVersion, WORD wServicePackMajor)
 {
-	OSVERSIONINFOEXW osvi = { sizeof(osvi), 0, 0, 0, 0, { 0 }, 0, 0 };
-	DWORDLONG        const dwlConditionMask = VerSetConditionMask(
-		VerSetConditionMask(
-		0, VER_MAJORVERSION, VER_EQUAL),
-		VER_MINORVERSION, VER_LESS_EQUAL);
+    OSVERSIONINFOEXW osvi = {sizeof(osvi), 0, 0, 0, 0, {0}, 0, 0};
+    DWORDLONG const dwlConditionMask =
+        VerSetConditionMask(VerSetConditionMask(0, VER_MAJORVERSION, VER_EQUAL), VER_MINORVERSION, VER_LESS_EQUAL);
 
-	osvi.dwMajorVersion = wMajorVersion;
-	osvi.dwMinorVersion = wMinorVersion;
-	osvi.wServicePackMajor = wServicePackMajor;
+    osvi.dwMajorVersion = wMajorVersion;
+    osvi.dwMinorVersion = wMinorVersion;
+    osvi.wServicePackMajor = wServicePackMajor;
 
-	return VerifyVersionInfoW(&osvi, VER_MAJORVERSION | VER_MINORVERSION, dwlConditionMask) != FALSE;
+    return VerifyVersionInfoW(&osvi, VER_MAJORVERSION | VER_MINORVERSION, dwlConditionMask) != FALSE;
 }
 
 VERSIONHELPERAPI
@@ -137,26 +134,23 @@ IsWindows8Point1OrGreater()
 VERSIONHELPERAPI
 IsWindows10OrGreater()
 {
-	return IsWindowsVersionOrGreater(10, 0, 0);
+    return IsWindowsVersionOrGreater(10, 0, 0);
 }
 
 VERSIONHELPERAPI
 IsWindowsServer()
 {
-    OSVERSIONINFOEXW osvi = { sizeof(osvi), 0, 0, 0, 0, {0}, 0, 0, 0, VER_NT_WORKSTATION };
-    DWORDLONG        const dwlConditionMask = VerSetConditionMask( 0, VER_PRODUCT_TYPE, VER_EQUAL );
+    OSVERSIONINFOEXW osvi = {sizeof(osvi), 0, 0, 0, 0, {0}, 0, 0, 0, VER_NT_WORKSTATION};
+    DWORDLONG const dwlConditionMask = VerSetConditionMask(0, VER_PRODUCT_TYPE, VER_EQUAL);
 
     return !VerifyVersionInfoW(&osvi, VER_PRODUCT_TYPE, dwlConditionMask);
 }
 
-
-
 VERSIONHELPERAPI
 IsWindowsXPOr2k()
 {
-	return IsWindowsVersionOrLesser(HIBYTE(_WIN32_WINNT_WINXP), LOBYTE(_WIN32_WINNT_WINXP), 0);
+    return IsWindowsVersionOrLesser(HIBYTE(_WIN32_WINNT_WINXP), LOBYTE(_WIN32_WINNT_WINXP), 0);
 }
-
 
 #endif // NTDDI_VERSION
 

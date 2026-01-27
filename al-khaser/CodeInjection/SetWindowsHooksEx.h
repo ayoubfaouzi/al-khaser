@@ -1,3 +1,3 @@
 #pragma once
 
-BOOL SetWindowsHooksEx_Injection(); 
+BOOL SetWindowsHooksEx_Injection();
