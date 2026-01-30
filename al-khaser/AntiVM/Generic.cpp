@@ -1775,7 +1775,6 @@ BOOL pirated_windows()
 	IWbemLocator *pLoc = NULL;
 	IEnumWbemClassObject *pEnumerator = NULL;
 	BOOL bStatus = FALSE;
-	HRESULT hRes;
 	BOOL bFound = FALSE;
 
 	// Init WMI
@@ -1791,7 +1790,6 @@ BOOL pirated_windows()
 			// Get the data from the query
 			IWbemClassObject *pclsObj = NULL;
 			ULONG uReturn = 0;
-			VARIANT vtProp;
 
 			if (pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn) ==
 					S_OK &&
