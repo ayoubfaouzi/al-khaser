@@ -22,6 +22,7 @@ BOOL ENABLE_TIMING_ATTACKS = FALSE;
 BOOL ENABLE_DUMPING_CHECK = FALSE;
 BOOL ENABLE_ANALYSIS_TOOLS_CHECK = FALSE;
 BOOL ENABLE_ANTI_DISASSM_CHECKS = FALSE;
+BOOL ENABLE_VMEXIT_LATENCY = FALSE;
 const char *PROGRAM_NAME = "al-khaser.exe";
 
 void EnableDefaultChecks()
@@ -43,6 +44,7 @@ void EnableDefaultChecks()
 	ENABLE_DUMPING_CHECK = TRUE;
 	ENABLE_ANALYSIS_TOOLS_CHECK = TRUE;
 	ENABLE_ANTI_DISASSM_CHECKS = TRUE;
+	ENABLE_VMEXIT_LATENCY = FALSE;
 }
 
 void EnableChecks(std::string checkType)
@@ -83,6 +85,8 @@ void EnableChecks(std::string checkType)
 		ENABLE_ANALYSIS_TOOLS_CHECK = TRUE;
 	else if (checkType == "ANTI_DISASSM")
 		ENABLE_ANTI_DISASSM_CHECKS = TRUE;
+	else if (checkType == "VMEXIT_LATENCY")
+		ENABLE_VMEXIT_LATENCY = TRUE;
 }
 
 void print_help(const char *prog_name)
@@ -114,6 +118,8 @@ void print_help(const char *prog_name)
 		"checks)\n"
 		"                        ANALYSIS_TOOLS   (Analysis tools detection)\n"
 		"                        ANTI_DISASSM     (Anti-disassembly checks)\n"
+		"                        VMEXIT_LATENCY   (Measure CPUID/RDTSC vmexit "
+		"latency)\n"
 		"  --sleep <seconds>   Set sleep/delay duration in seconds (default: "
 		"600).\n"
 		"  --delay <seconds>   Alias for --sleep.\n"
@@ -549,17 +555,6 @@ int main(int argc, char *argv[])
 				   TEXT("Delaying execution using CreateTimerQueueTimer ..."));
 
 		exec_check(&rdtsc_diff_locky, TEXT("Checking RDTSC Locky trick "));
-
-		// NOTE: Deprecated on modern Windows (25H2+/26H1+) with
-		// virtualization-based security:
-		// - On typical clean installs, Hyper-V / VBS are enabled by default
-		//   and act as a hypervisor that trap CPUID/RDTSC even on
-		//   bare-metal systems, making this check unreliable and prone
-		//   to false positives.
-		// - Kept for reference, removed from the active test set.
-		//
-		// exec_check(&rdtsc_diff_vmexit, TEXT("Checking RDTSC which force a VM
-		// Exit (cpuid) "));
 	}
 
 	/* Malware analysis tools */
@@ -584,6 +579,16 @@ int main(int argc, char *argv[])
 		_tprintf(_T("Begin AntiDisassmSEHMisuse\n"));
 		AntiDisassmSEHMisuse();
 #endif
+	}
+
+	/* Measure VM-exit latency */
+	if (ENABLE_VMEXIT_LATENCY) {
+		// NOTE: On modern Windows 11 (25H2+/26H1+) with VBS/Hyper-V enabled by
+		// default, this check reports a hypervisor even on bare-metal systems,
+		// leading to false positives in non-sandbox environment
+		//
+		exec_check(&rdtsc_diff_vmexit,
+				   TEXT("Checking RDTSC which force a VM Exit (cpuid) "));
 	}
 
 	/* Anti Dumping */
