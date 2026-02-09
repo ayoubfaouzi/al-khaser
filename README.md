@@ -48,7 +48,7 @@ Options:
                         VMEXIT_LATENCY   (Measure VM-exit latency)
                         DUMPING_CHECK    (Dumping memory/process checks)
                         ANALYSIS_TOOLS   (Analysis tools detection)
-                        ANTI_DISASSM     (Anti-disassembly checks)                        
+                        ANTI_DISASSM     (Anti-disassembly checks)
   --sleep <seconds>   Set sleep/delay duration in seconds (default: 600).
   --delay <seconds>   Alias for --sleep.
   -h, --help          Show this help message and exit.
