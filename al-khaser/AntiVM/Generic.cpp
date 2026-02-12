@@ -2129,7 +2129,7 @@ BOOL firmware_ACPI()
 
 					for (DWORD j = 0;
 						 j < sizeof(requiredDevices) / sizeof(char *); j++) {
-						if (!find_str_in_data((PBYTE)requiredDevices[j],
+						if (find_str_in_data((PBYTE)requiredDevices[j],
 											  strlen(requiredDevices[j]), table,
 											  tableSize)) {
 							free(table);
