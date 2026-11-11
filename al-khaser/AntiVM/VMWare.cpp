@@ -77,6 +77,12 @@ VOID vmware_files()
 		_T("System32\\drivers\\vmkdb.sys"),
 		_T("System32\\drivers\\vmnetuserif.sys"),
 		_T("System32\\drivers\\vmnetadapter.sys"),
+		_T("System32\\drivers\\vsock.sys"),
+		_T("System32\\drivers\\pvscsi.sys"),
+		_T("System32\\drivers\\vmxnet3.sys"),
+		_T("System32\\drivers\\vsepflt.sys"),
+		_T("System32\\drivers\\vnetWFP.sys"),
+		_T("System32\\drivers\\vmaudio.sys"),
 	};
 
 	/* Getting Windows Directory */
@@ -177,6 +183,9 @@ VOID vmware_devices()
 	const TCHAR *devices[] = {
 		_T("\\\\.\\HGFS"),
 		_T("\\\\.\\vmci"),
+		_T("\\\\.\\VMCIDev"),
+		_T("\\\\.\\vmhgfs"),
+		_T("\\\\.\\vmmemctl"),
 	};
 
 	WORD iLength = sizeof(devices) / sizeof(devices[0]);
@@ -208,6 +217,7 @@ VOID vmware_processes()
 		_T("vmwareuser.exe"),
 		_T("VGAuthService.exe"),
 		_T("vmacthlp.exe"),
+		_T("vm3dservice.exe"),
 	};
 
 	WORD iLength = sizeof(szProcesses) / sizeof(szProcesses[0]);
